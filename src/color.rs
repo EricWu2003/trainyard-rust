@@ -10,7 +10,7 @@ pub enum Color {
 }
 
 impl Color {
-    fn mix_with(self: Color, other: Color) -> Color {
+    pub fn mix_with(self: Color, other: Color) -> Color {
         if self == other {
             return other;
         }
@@ -33,7 +33,7 @@ impl Color {
 
         Color::Brown
     }
-    fn mix_many(trains: &[Color]) -> Color {
+    pub fn mix_many(trains: Vec<Color>) -> Color {
         match trains.len() {
             1 => trains[0],
             2 => trains[1].mix_with(trains[0]),

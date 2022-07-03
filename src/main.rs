@@ -7,7 +7,7 @@ pub use crate::color::Color;
 pub struct Train {
     color: Color,
     source: u8,
-    destination: Option<u8>,
+    destination: u8,
 }
 pub type BorderState = [Option<Color>; 4];
 
@@ -21,7 +21,7 @@ pub struct Tracktile {
     passive_connection: Option<Connection>,
     trains: Vec<Train>,
 }
-
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ConnectionType {
     None,
     S,
@@ -105,12 +105,30 @@ impl Tracktile {
         -1
     }
 
+    fn indices_of_trains_along(&self, c: Connection, i1: &mut usize, i2: &mut usize) -> bool {
+        // returns true iff there is a train colliding along the connection c.
+        for index1 in 0..self.trains.len() {
+            for index2 in 0..self.trains.len() {
+                if self.trains[index1].source == c.dir1
+                    && self.trains[index2].destination == c.dir2
+                    && self.trains[index2].source == c.dir2
+                    && self.trains[index2].destination == c.dir1
+                {
+                    *i1 = index1;
+                    *i2 = index2;
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
     fn connection_type(&self) -> ConnectionType {
         if self.active_connection == None {
             return ConnectionType::None;
         }
         if self.passive_connection == None {
-            if (self.has_connection_up_to_rot(Connection { dir1: 0, dir2: 2 }) != -1) {
+            if self.has_connection_up_to_rot(Connection { dir1: 0, dir2: 2 }) != -1 {
                 return ConnectionType::S;
             }
             return ConnectionType::B;
@@ -152,33 +170,133 @@ impl Tracktile {
 
         unreachable!()
     }
+    fn interact_trains(&mut self) {
+        let my_type = self.connection_type();
+        assert!(my_type != ConnectionType::None);
+
+        if self.trains.len() >= 2 {
+            if my_type == ConnectionType::H
+                || my_type == ConnectionType::S
+                || my_type == ConnectionType::B
+            {
+                // simply mix all the trains in these connection types
+                let new_color =
+                    Color::mix_many(self.trains.iter().map(|train| train.color).collect());
+                for i in 0..self.trains.len() {
+                    self.trains[i].color = new_color;
+                }
+                return;
+            }
+
+            if my_type == ConnectionType::Z {
+                let mut i1: usize = 0;
+                let mut i2: usize = 0;
+                // first do mixing on Active Connection
+                if self.indices_of_trains_along(self.active_connection.unwrap(), &mut i1, &mut i2) {
+                    let new_color =
+                        Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
+                    self.trains[i1].color = new_color;
+                    self.trains[i2].color = new_color;
+                }
+                // then do mixing on Passive Connection
+                if self.indices_of_trains_along(self.passive_connection.unwrap(), &mut i1, &mut i2)
+                {
+                    let new_color =
+                        Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
+                    self.trains[i1].color = new_color;
+                    self.trains[i2].color = new_color;
+                }
+                return;
+            }
+
+            // At this point, we know we either have a J or M type connection.
+
+            // In either case, we will first check to see if there are trains colliding along the active connection.
+            // If there are, we mix those.
+            // Then, we merge the trains (if there are any going to the same destination)
+
+            let mut i1: usize = 0;
+            let mut i2: usize = 0;
+            if self.indices_of_trains_along(self.active_connection.unwrap(), &mut i1, &mut i2) {
+                let new_color = Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
+                self.trains[i1].color = new_color;
+                self.trains[i2].color = new_color;
+            }
+
+            'outer: for i1 in 0..self.trains.len() {
+                for i2 in 0..self.trains.len() {
+                    if i1 == i2 {
+                        continue;
+                    }
+
+                    if self.trains[i1].destination == self.trains[i2].destination {
+                        let new_color =
+                            Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
+                        self.trains[i1].color = new_color;
+                        self.trains.remove(i2);
+                        break 'outer;
+                    }
+                }
+            }
+        }
+
+        if self.trains.len() % 2 == 1 {
+            self.switch_active_passive();
+        }
+    }
 }
 
 impl Tile for Tracktile {
     fn accept_trains(&mut self, colors: BorderState) -> bool {
         // return true if no trains crash, and return false if trains crashed.
         for dir in 0..4 {
-            let possible_color = colors[dir];
+            let possible_color = colors[dir as usize];
             if let Some(color) = possible_color {
-                if !self.has_any_connection(dir as u8) {
+                if !self.has_any_connection(dir) {
                     return false;
                 }
-                self.trains.push(Train {
-                    color,
-                    source: dir as u8,
-                    destination: None,
-                })
+
+                //now we have to determine the train's destination based on it's source direction (dir).
+                if let Some(active_conn) = self.active_connection {
+                    if active_conn.contains(dir) {
+                        let other_dir = if active_conn.dir1 == dir {
+                            active_conn.dir2
+                        } else {
+                            active_conn.dir1
+                        };
+                        self.trains.push(Train {
+                            color,
+                            source: dir,
+                            destination: other_dir,
+                        })
+                    }
+                }
+                if let Some(passive_conn) = self.passive_connection {
+                    if passive_conn.contains(dir) {
+                        let other_dir = if passive_conn.dir1 == dir {
+                            passive_conn.dir2
+                        } else {
+                            passive_conn.dir1
+                        };
+                        self.trains.push(Train {
+                            color,
+                            source: dir,
+                            destination: other_dir,
+                        })
+                    }
+                }
+                unreachable!()
             }
         }
 
         true
     }
+
     fn dispatch_trains(&mut self) -> BorderState {
-        // by this point, each Train should have a destination, so we panic if some destination is none.
-        // we also panic if two trains have the same destination, since we should have dealt with that already,
+        // we panic if two trains have the same destination, since we should have dealt with that already,
         let mut res = [None, None, None, None];
         while let Some(train) = self.trains.pop() {
-            let dest = train.destination.unwrap();
+            let dest = train.destination;
             if res[dest as usize] != None {
                 panic!();
             }
