@@ -69,7 +69,7 @@ fn main() -> Result<(), String> {
         // Render
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        yard.render(&mut canvas, Rect::new(0, 0, 336, 336), &game_sprites)?;
+        yard.render(&mut canvas, &Rect::new(0, 0, 672, 672), &game_sprites)?;
         // canvas.copy(&game_sprites.tracktile_blank, None, Rect::new(0,0,96,96))?;
 
         canvas.present();

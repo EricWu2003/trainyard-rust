@@ -161,7 +161,7 @@ impl Yard {
     pub fn render(
         &self,
         canvas: &mut WindowCanvas,
-        rect: Rect,
+        rect: &Rect,
         gs: &GameSprites,
     ) -> Result<(), String> {
         let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
