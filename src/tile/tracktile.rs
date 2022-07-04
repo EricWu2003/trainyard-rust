@@ -191,7 +191,6 @@ impl Tracktile {
     }
     pub fn interact_trains(&mut self) {
         let my_type = self.connection_type();
-        assert!(my_type != ConnectionType::None);
 
         if self.trains.len() >= 2 {
             if my_type == ConnectionType::H

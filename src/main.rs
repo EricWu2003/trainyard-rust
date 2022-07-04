@@ -11,5 +11,19 @@ pub use crate::yard::Yard;
 
 fn main() {
     let mut yard = Yard::new();
+   
     yard.display();
+    yard.process_tick();
+    println!("----");
+   
+    yard.display();
+    yard.process_tick();
+    println!("----");
+   
+    yard.display();
+    yard.process_tick();
+    println!("----");
+
+
+
 }
