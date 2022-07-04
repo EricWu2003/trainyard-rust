@@ -1,8 +1,8 @@
 use crate::color::Color;
 
-struct Edge {
-    pub train_to_a : Option<Color>,
-    pub train_to_b : Option<Color>,
+pub struct Edge {
+    pub train_to_a: Option<Color>,
+    pub train_to_b: Option<Color>,
 }
 
 impl Edge {

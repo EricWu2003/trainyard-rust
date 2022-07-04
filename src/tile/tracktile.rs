@@ -1,7 +1,6 @@
 use crate::color::Color;
 use crate::connection::Connection;
-use crate::tile::{Tile, BorderState};
-
+use crate::tile::BorderState;
 
 // used for storing a train in a Tracktile
 #[derive(Debug)]
@@ -29,8 +28,15 @@ pub enum ConnectionType {
 }
 
 impl Tracktile {
-    pub fn new(active_connection: Option<Connection>, passive_connection: Option<Connection>) -> Tracktile {
-        Tracktile { active_connection, passive_connection, trains: Vec::new() }
+    pub fn new(
+        active_connection: Option<Connection>,
+        passive_connection: Option<Connection>,
+    ) -> Tracktile {
+        Tracktile {
+            active_connection,
+            passive_connection,
+            trains: Vec::new(),
+        }
     }
 
     fn has_any_connection(&self, dir: u8) -> bool {
@@ -244,10 +250,8 @@ impl Tracktile {
             self.switch_active_passive();
         }
     }
-}
 
-impl Tile for Tracktile {
-    fn accept_trains(&mut self, colors: BorderState) -> bool {
+    pub fn accept_trains(&mut self, colors: BorderState) -> bool {
         // return true if no trains crash, and return false if trains crashed.
         for dir in 0..4 {
             let possible_color = colors[dir as usize];
@@ -295,7 +299,7 @@ impl Tile for Tracktile {
         true
     }
 
-    fn dispatch_trains(&mut self) -> BorderState {
+    pub fn dispatch_trains(&mut self) -> BorderState {
         // we panic if two trains have the same destination, since we should have dealt with that already,
         let mut res = [None, None, None, None];
         while let Some(train) = self.trains.pop() {
