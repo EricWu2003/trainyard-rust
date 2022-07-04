@@ -1,6 +1,6 @@
 pub mod tracktile;
 use crate::color::Color;
-use crate::Tracktile;
+use crate::{Tracktile, Connection};
 
 pub type BorderState = [Option<Color>; 4];
 
@@ -23,6 +23,13 @@ impl Tile {
         match self {
             Tile::Tracktile(tracktile) => {
                 tracktile.interact_trains();
+            }
+        }
+    }
+    pub fn add_connection(&mut self, conn: Connection) {
+        match self {
+            Tile::Tracktile(tracktile) => {
+                tracktile.add_connection(conn);
             }
         }
     }

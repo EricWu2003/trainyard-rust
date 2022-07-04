@@ -311,4 +311,9 @@ impl Tracktile {
         }
         res
     }
+
+    pub fn add_connection(&mut self, conn: Connection) {
+        self.passive_connection = self.active_connection;
+        self.active_connection = Some(conn);
+    }
 }

@@ -6,6 +6,10 @@ pub struct Edge {
 }
 
 impl Edge {
+    pub fn new() -> Edge {
+        Edge { train_to_a: None, train_to_b: None }
+    }
+    
     pub fn interact_trains(&mut self) {
         if let Some(t1) = self.train_to_a {
             if let Some(t2) = self.train_to_b {
