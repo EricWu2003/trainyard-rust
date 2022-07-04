@@ -172,9 +172,12 @@ impl Yard {
     ) -> Result<(), String> {
         let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
         let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
+        let train_width = (block_width as f64 * (32.0 / 96.0)) as i32;
+        let train_height = (block_height as f64 * (57.0 / 96.0)) as i32;
         let x0 = rect.x();
         let y0 = rect.y();
 
+        //render all tracktiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
                 let mut texture = &gs.tracktile_blank;
@@ -270,6 +273,41 @@ impl Yard {
                 )?;
             }
         }
+
+        //render all trains on borders
+        for r in 0..(NUM_ROWS + 1) {
+            for c in 0..NUM_COLS {
+                let rect = Rect::new(
+                    x0 + block_width / 2 + (c as i32) * block_width - (train_width / 2),
+                    y0 + r as i32 * block_height - (train_height / 2),
+                    train_width as u32,
+                    train_height as u32,
+                );
+                if let Some(_train_going_up) = self.h_edges[r][c].train_to_a {
+                    canvas.copy_ex(&gs.train, None, rect, 0.0, None, false, false)?;
+                }
+                if let Some(_train_going_down) = self.h_edges[r][c].train_to_b {
+                    canvas.copy_ex(&gs.train, None, rect, 180.0, None, false, false)?;
+                }
+            }
+        }
+        for r in 0..NUM_ROWS {
+            for c in 0..(NUM_COLS + 1) {
+                let rect = Rect::new(
+                    x0 + c as i32 * block_width - (train_width / 2),
+                    y0 + block_height / 2 + r as i32 * block_height - (train_height / 2),
+                    train_width as u32,
+                    train_height as u32,
+                );
+                if let Some(_train_going_left) = self.v_edges[r][c].train_to_a {
+                    canvas.copy_ex(&gs.train, None, rect, 270.0, None, false, false)?;
+                }
+                if let Some(_train_going_right) = self.v_edges[r][c].train_to_b {
+                    canvas.copy_ex(&gs.train, None, rect, 90.0, None, false, false)?;
+                }
+            }
+        }
+
         Ok(())
     }
 }

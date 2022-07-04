@@ -17,6 +17,7 @@ pub static BYTES_TRACKTILE_M_FLIPPED: &[u8; 10282] =
     include_bytes!("../assets/sprites/Tracktile_m_flipped.png");
 pub static BYTES_TRACKTILE_S: &[u8; 2918] = include_bytes!("../assets/sprites/Tracktile_s.png");
 pub static BYTES_TRACKTILE_Z: &[u8; 10917] = include_bytes!("../assets/sprites/Tracktile_z.png");
+pub static BYTES_TRAIN: &[u8; 4943] = include_bytes!("../assets/sprites/Train.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -30,6 +31,7 @@ pub struct GameSprites<'a> {
     pub tracktile_m_flipped: Texture<'a>,
     pub tracktile_s: Texture<'a>,
     pub tracktile_z: Texture<'a>,
+    pub train: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -48,6 +50,7 @@ impl<'a> GameSprites<'a> {
             tracktile_m_flipped: texture_creator.load_texture_bytes(BYTES_TRACKTILE_M_FLIPPED)?,
             tracktile_s: texture_creator.load_texture_bytes(BYTES_TRACKTILE_S)?,
             tracktile_z: texture_creator.load_texture_bytes(BYTES_TRACKTILE_Z)?,
+            train: texture_creator.load_texture_bytes(BYTES_TRAIN)?,
         })
     }
 }
