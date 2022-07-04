@@ -1,19 +1,18 @@
-pub mod connection;
 pub mod color;
-pub mod tile;
+pub mod connection;
 pub mod edge;
-pub mod yard;
 pub mod sprites;
-use crate::yard::Yard;
+pub mod tile;
+pub mod yard;
 use crate::sprites::GameSprites;
+use crate::yard::Yard;
 
-use sdl2::pixels::Color;
 use sdl2::event::Event;
+use sdl2::image::{self, InitFlag, LoadTexture};
 use sdl2::keyboard::Keycode;
-use sdl2::render::{WindowCanvas, Texture};
-use sdl2::image::{self, LoadTexture, InitFlag};
+use sdl2::pixels::Color;
+use sdl2::render::{Texture, WindowCanvas};
 use std::time::Duration;
-
 
 use sprites::BYTES_TRACKTILE_BLANK;
 
@@ -31,9 +30,6 @@ fn render(canvas: &mut WindowCanvas, color: Color, texture: &Texture) -> Result<
 fn main() -> Result<(), String> {
     let mut yard = Yard::new();
 
-    
-
-
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     // Leading "_" tells Rust that this is an unused variable that we don't care about. It has to
@@ -41,12 +37,15 @@ fn main() -> Result<(), String> {
     // temporary value and drop it right away!
     let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
 
-    let window = video_subsystem.window("game tutorial", 800, 600)
+    let window = video_subsystem
+        .window("game tutorial", 800, 600)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
 
-    let mut canvas = window.into_canvas().build()
+    let mut canvas = window
+        .into_canvas()
+        .build()
         .expect("could not make a canvas");
 
     let texture_creator = canvas.texture_creator();
@@ -59,13 +58,19 @@ fn main() -> Result<(), String> {
         // Handle events
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit {..} |
-                Event::KeyDown { keycode: Some(Keycode::N), .. } => {
+                Event::Quit { .. }
+                | Event::KeyDown {
+                    keycode: Some(Keycode::N),
+                    ..
+                } => {
                     yard.process_tick();
-                },
-                Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
+                }
+                Event::KeyDown {
+                    keycode: Some(Keycode::Escape),
+                    ..
+                } => {
                     break 'running;
-                },
+                }
                 _ => {}
             }
         }
@@ -74,7 +79,11 @@ fn main() -> Result<(), String> {
         i = (i + 1) % 255;
 
         // Render
-        render(&mut canvas, Color::RGB(i, 64, 255 - i), &game_sprites.tracktile_blank)?;
+        render(
+            &mut canvas,
+            Color::RGB(i, 64, 255 - i),
+            &game_sprites.tracktile_blank,
+        )?;
 
         // Time management
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));

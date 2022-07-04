@@ -27,7 +27,7 @@ pub enum ConnectionType {
     J,
 }
 impl ConnectionType {
-    pub fn get_char(&self) -> char{
+    pub fn get_char(&self) -> char {
         match self {
             ConnectionType::None => '_',
             ConnectionType::S => 'S',
