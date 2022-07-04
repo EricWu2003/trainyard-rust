@@ -5,6 +5,7 @@ pub use crate::color::Color;
 pub mod tile;
 pub use crate::tile::Tile;
 pub use crate::tile::tracktile::Tracktile;
+pub mod edge;
 
 
 
