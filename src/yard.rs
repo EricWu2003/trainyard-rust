@@ -1,10 +1,15 @@
 use crate::color::Color;
 use crate::connection::Connection;
 use crate::edge::Edge;
+use crate::sprites::GameSprites;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::BorderState;
 use crate::tile::Tile;
+
 use std::io::Write;
+
+use sdl2::rect::Rect;
+use sdl2::render::WindowCanvas;
 
 pub const NUM_ROWS: usize = 7;
 pub const NUM_COLS: usize = 7;
@@ -151,5 +156,33 @@ impl Yard {
                 self.v_edges[r][c].interact_trains();
             }
         }
+    }
+
+    pub fn render(
+        &self,
+        canvas: &mut WindowCanvas,
+        rect: Rect,
+        gs: &GameSprites,
+    ) -> Result<(), String> {
+        let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
+        let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
+        let x0 = rect.x();
+        let y0 = rect.y();
+
+        for r in 0..NUM_ROWS as i32 {
+            for c in 0..NUM_COLS as i32 {
+                canvas.copy(
+                    &gs.tracktile_blank,
+                    None,
+                    Rect::new(
+                        x0 + c * block_width,
+                        y0 + r * block_height,
+                        block_width as u32,
+                        block_height as u32,
+                    ),
+                )?;
+            }
+        }
+        Ok(())
     }
 }
