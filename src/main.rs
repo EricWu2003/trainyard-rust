@@ -22,11 +22,10 @@ fn main() {
     // println!("{:?}", t1.mix_with(t3));
     // println!("{:?}", Color::mix_many(&[t1, t2]));
     // println!("{:?}", Color::mix_many(&[t1, t2, t2]));
-    let mut my_tile = Tracktile {
-        active_connection: Some(Connection{dir1: 0, dir2: 1}),
-        passive_connection: Some(Connection{dir1: 0, dir2: 2}),
-        trains: Vec::new(),
-    };
+    let mut my_tile = Tracktile::new( 
+        Some(Connection{dir1: 0, dir2: 1}),
+        Some(Connection{dir1: 0, dir2: 2}),
+    );
     let res = my_tile.accept_trains([None, Some(Color::Red), Some(Color::Yellow), None]);
     println!("{}", res);
     println!("{:?}", my_tile);

@@ -11,13 +11,11 @@ pub struct Train {
     destination: u8,
 }
 
-// TODO: make these attributes private, and interface with Tracktile with a constructor and public methods like 
-// accept_trains, interact_trains, dispatch trains
 #[derive(Debug)]
 pub struct Tracktile {
-    pub active_connection: Option<Connection>,
-    pub passive_connection: Option<Connection>,
-    pub trains: Vec<Train>,
+    active_connection: Option<Connection>,
+    passive_connection: Option<Connection>,
+    trains: Vec<Train>,
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ConnectionType {
@@ -31,6 +29,10 @@ pub enum ConnectionType {
 }
 
 impl Tracktile {
+    pub fn new(active_connection: Option<Connection>, passive_connection: Option<Connection>) -> Tracktile {
+        Tracktile { active_connection, passive_connection, trains: Vec::new() }
+    }
+
     fn has_any_connection(&self, dir: u8) -> bool {
         if let Some(connection) = self.active_connection {
             if connection.contains(dir) {
