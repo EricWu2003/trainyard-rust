@@ -2,6 +2,7 @@ use crate::color::Color;
 use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::sprites::GameSprites;
+use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::BorderState;
 use crate::tile::Tile;
@@ -50,8 +51,13 @@ impl Yard {
         }
 
         // DEBUG CODE HERE
+        tiles[0][0].add_connection(Connection { dir1: 1, dir2: 3 });
         tiles[0][0].add_connection(Connection { dir1: 1, dir2: 2 });
-        tiles[0][0].add_connection(Connection { dir1: 0, dir2: 2 });
+        tiles[0][1].add_connection(Connection { dir1: 1, dir2: 2 });
+        tiles[0][1].add_connection(Connection { dir1: 2, dir2: 0 });
+        tiles[0][2].add_connection(Connection { dir1: 2, dir2: 1 });
+        tiles[0][2].add_connection(Connection { dir1: 1, dir2: 0 });
+        // tiles[0][0].add_connection(Connection { dir1: 0, dir2: 2 });
         v_edges[0][1].train_to_a = Some(Color::Blue);
         h_edges[1][0].train_to_a = Some(Color::Green);
 
@@ -169,17 +175,98 @@ impl Yard {
         let x0 = rect.x();
         let y0 = rect.y();
 
-        for r in 0..NUM_ROWS as i32 {
-            for c in 0..NUM_COLS as i32 {
-                canvas.copy(
-                    &gs.tracktile_blank,
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                let mut texture = &gs.tracktile_blank;
+                let mut h_flip = false;
+                let mut rot = 0;
+
+                match &self.tiles[r][c] {
+                    Tile::Tracktile(tracktile) => match tracktile.connection_type() {
+                        ConnectionType::None => {}
+                        ConnectionType::B => {
+                            texture = &gs.tracktile_b;
+                            rot =
+                                tracktile.has_connection_up_to_rot(Connection { dir1: 2, dir2: 3 });
+                        }
+                        ConnectionType::S => {
+                            texture = &gs.tracktile_s;
+                            rot =
+                                tracktile.has_connection_up_to_rot(Connection { dir1: 0, dir2: 2 });
+                        }
+                        ConnectionType::H => {
+                            texture = &gs.tracktile_h;
+                            rot = tracktile
+                                .has_active_connection_up_to_rot(Connection { dir1: 0, dir2: 2 });
+                        }
+                        ConnectionType::Z => {
+                            texture = &gs.tracktile_z;
+                            rot =
+                                tracktile.has_connection_up_to_rot(Connection { dir1: 0, dir2: 1 });
+                        }
+                        ConnectionType::M => {
+                            texture = &gs.tracktile_m;
+                            if tracktile.has_active_passive_connections_up_to_rot(
+                                Connection { dir1: 2, dir2: 3 },
+                                Connection { dir1: 1, dir2: 2 },
+                            ) != -1
+                            {
+                                h_flip = false;
+                                rot = tracktile.has_active_passive_connections_up_to_rot(
+                                    Connection { dir1: 2, dir2: 3 },
+                                    Connection { dir1: 1, dir2: 2 },
+                                );
+                            } else {
+                                h_flip = true;
+                                rot = tracktile.has_active_passive_connections_up_to_rot(
+                                    Connection { dir1: 1, dir2: 2 },
+                                    Connection { dir1: 2, dir2: 3 },
+                                );
+                            }
+                        }
+                        ConnectionType::J => {
+                            if tracktile
+                                .has_active_connection_up_to_rot(Connection { dir1: 0, dir2: 1 })
+                                != -1
+                            {
+                                texture = &gs.tracktile_jb;
+                            } else {
+                                texture = &gs.tracktile_js;
+                            }
+                            if tracktile.has_connections_up_to_rot(
+                                Connection { dir1: 0, dir2: 2 },
+                                Connection { dir1: 3, dir2: 2 },
+                            ) != -1
+                            {
+                                h_flip = false;
+                                rot = tracktile.has_connections_up_to_rot(
+                                    Connection { dir1: 0, dir2: 2 },
+                                    Connection { dir1: 3, dir2: 2 },
+                                )
+                            } else {
+                                h_flip = true;
+                                rot = tracktile.has_connections_up_to_rot(
+                                    Connection { dir1: 0, dir2: 2 },
+                                    Connection { dir1: 1, dir2: 2 },
+                                )
+                            }
+                        }
+                    },
+                }
+
+                canvas.copy_ex(
+                    texture,
                     None,
                     Rect::new(
-                        x0 + c * block_width,
-                        y0 + r * block_height,
+                        x0 + c as i32 * block_width,
+                        y0 + r as i32 * block_height,
                         block_width as u32,
                         block_height as u32,
                     ),
+                    rot as f64 * 90.0,
+                    None,
+                    h_flip,
+                    false,
                 )?;
             }
         }

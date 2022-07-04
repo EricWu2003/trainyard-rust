@@ -68,7 +68,8 @@ impl Tracktile {
     fn switch_active_passive(&mut self) {
         // this function is called whenever an odd number of trains rolls through a tracktile
         // if there is no passive connection, then we do nothing
-        if self.passive_connection != None {
+        let c = self.connection_type();
+        if c == ConnectionType::M || c == ConnectionType::J {
             let temp = self.passive_connection;
             self.passive_connection = self.active_connection;
             self.active_connection = temp;
@@ -86,18 +87,18 @@ impl Tracktile {
         false
     }
 
-    fn has_connection_up_to_rot(&self, c: Connection) -> i8 {
+    pub fn has_connection_up_to_rot(&self, c: Connection) -> i8 {
         // returns -1 if there is no connection, otherwise returns the rotation amount
         if let Some(my_c) = self.active_connection {
             for rot_amt in 0..4 {
-                if my_c.rot(rot_amt) == c {
+                if c.rot(rot_amt) == my_c {
                     return rot_amt as i8;
                 }
             }
         }
         if let Some(my_c) = self.passive_connection {
             for rot_amt in 0..4 {
-                if my_c.rot(rot_amt) == c {
+                if c.rot(rot_amt) == my_c {
                     return rot_amt as i8;
                 }
             }
@@ -105,17 +106,47 @@ impl Tracktile {
         -1
     }
 
-    fn has_connections_up_to_rot(&self, c1: Connection, c2: Connection) -> i8 {
+    pub fn has_active_connection_up_to_rot(&self, c: Connection) -> i8 {
+        // returns -1 if there is no connection, otherwise returns the rotation amount
+        if let Some(my_c) = self.active_connection {
+            for rot_amt in 0..4 {
+                if c.rot(rot_amt) == my_c {
+                    return rot_amt as i8;
+                }
+            }
+        }
+        -1
+    }
+
+    pub fn has_connections_up_to_rot(&self, c1: Connection, c2: Connection) -> i8 {
         // returns true iff self has both an active and passive connection,
         // and the connections match c1 and c2 (regardless of active/passive)
         // after being rotated a fixed amount
         if let Some(my_c1) = self.active_connection {
             if let Some(my_c2) = self.passive_connection {
                 for rot_amt in 0..4 {
-                    let rot_my_c1 = my_c1.rot(rot_amt);
-                    let rot_my_c2 = my_c2.rot(rot_amt);
-                    if (rot_my_c1 == c1 && rot_my_c2 == c2) || (rot_my_c1 == c2 && rot_my_c2 == c1)
+                    let rot_c1 = c1.rot(rot_amt);
+                    let rot_c2 = c2.rot(rot_amt);
+                    if (my_c1 == rot_c1 && my_c2 == rot_c2) || (my_c1 == rot_c2 && my_c2 == rot_c1)
                     {
+                        return rot_amt as i8;
+                    }
+                }
+            }
+        }
+        -1
+    }
+    pub fn has_active_passive_connections_up_to_rot(
+        &self,
+        active: Connection,
+        passive: Connection,
+    ) -> i8 {
+        if let Some(my_active) = self.active_connection {
+            if let Some(my_passive) = self.passive_connection {
+                for rot_amt in 0..4 {
+                    let rot_active = active.rot(rot_amt);
+                    let rot_passive = passive.rot(rot_amt);
+                    if my_active == rot_active && my_passive == rot_passive {
                         return rot_amt as i8;
                     }
                 }
