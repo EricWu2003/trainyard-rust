@@ -4,7 +4,8 @@ pub mod tile;
 pub mod edge;
 pub mod yard;
 pub mod sprites;
-// use crate::yard::Yard;
+use crate::yard::Yard;
+use crate::sprites::GameSprites;
 
 use sdl2::pixels::Color;
 use sdl2::event::Event;
@@ -12,6 +13,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::render::{WindowCanvas, Texture};
 use sdl2::image::{self, LoadTexture, InitFlag};
 use std::time::Duration;
+
 
 use sprites::BYTES_TRACKTILE_BLANK;
 
@@ -27,6 +29,11 @@ fn render(canvas: &mut WindowCanvas, color: Color, texture: &Texture) -> Result<
 }
 
 fn main() -> Result<(), String> {
+    let mut yard = Yard::new();
+
+    
+
+
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
     // Leading "_" tells Rust that this is an unused variable that we don't care about. It has to
@@ -43,15 +50,19 @@ fn main() -> Result<(), String> {
         .expect("could not make a canvas");
 
     let texture_creator = canvas.texture_creator();
-    let texture = texture_creator.load_texture_bytes(BYTES_TRACKTILE_BLANK)?;
+    let game_sprites = GameSprites::new(&texture_creator)?;
 
     let mut event_pump = sdl_context.event_pump()?;
+
     let mut i = 0;
     'running: loop {
         // Handle events
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit {..} |
+                Event::KeyDown { keycode: Some(Keycode::N), .. } => {
+                    yard.process_tick();
+                },
                 Event::KeyDown { keycode: Some(Keycode::Escape), .. } => {
                     break 'running;
                 },
@@ -63,9 +74,9 @@ fn main() -> Result<(), String> {
         i = (i + 1) % 255;
 
         // Render
-        render(&mut canvas, Color::RGB(i, 64, 255 - i), &texture)?;
+        render(&mut canvas, Color::RGB(i, 64, 255 - i), &game_sprites.tracktile_blank)?;
 
-        // Time management!
+        // Time management
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
     }
 
