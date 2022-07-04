@@ -7,6 +7,7 @@ pub mod yard;
 use crate::sprites::GameSprites;
 use crate::yard::Yard;
 
+use connection::Connection;
 use sdl2::event::Event;
 use sdl2::image::{self, InitFlag};
 use sdl2::keyboard::Keycode;
@@ -41,7 +42,7 @@ fn main() -> Result<(), String> {
 
     let mut event_pump = sdl_context.event_pump()?;
 
-    let mut i = 0;
+
     'running: loop {
         // Handle events
         for event in event_pump.poll_iter() {
@@ -66,12 +67,13 @@ fn main() -> Result<(), String> {
         }
 
         // Update
-        i = (i + 1) % 255;
+
 
         // Render
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        yard.render(&mut canvas, &Rect::new(0, 0, 672, 672), &game_sprites)?;
+        let yard_rect = Rect::new(0, 0, 672, 672);
+        yard.render(&mut canvas, &yard_rect, &game_sprites)?;
         // canvas.copy(&game_sprites.tracktile_blank, None, Rect::new(0,0,96,96))?;
 
         canvas.present();

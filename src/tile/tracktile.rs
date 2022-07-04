@@ -358,5 +358,8 @@ impl Tracktile {
     pub fn add_connection(&mut self, conn: Connection) {
         self.passive_connection = self.active_connection;
         self.active_connection = Some(conn);
+        if self.active_connection == self.passive_connection {
+            self.passive_connection = None;
+        }
     }
 }

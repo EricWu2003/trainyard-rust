@@ -54,9 +54,11 @@ impl Yard {
         tiles[0][0].add_connection(Connection { dir1: 1, dir2: 3 });
         tiles[0][0].add_connection(Connection { dir1: 1, dir2: 2 });
         tiles[0][1].add_connection(Connection { dir1: 1, dir2: 2 });
-        tiles[0][1].add_connection(Connection { dir1: 2, dir2: 0 });
+        tiles[0][1].add_connection(Connection { dir1: 1, dir2: 3 });
         tiles[0][2].add_connection(Connection { dir1: 2, dir2: 1 });
-        tiles[0][2].add_connection(Connection { dir1: 1, dir2: 0 });
+        tiles[0][2].add_connection(Connection { dir1: 1, dir2: 3 });
+        tiles[1][0].add_connection(Connection { dir1: 0, dir2: 2 });
+        tiles[2][0].add_connection(Connection { dir1: 0, dir2: 2 });
         // tiles[0][0].add_connection(Connection { dir1: 0, dir2: 2 });
         v_edges[0][1].train_to_a = Some(Color::Blue);
         h_edges[1][0].train_to_a = Some(Color::Green);
@@ -94,6 +96,12 @@ impl Yard {
         println!("");
 
         std::io::stdout().flush().unwrap();
+    }
+
+    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection) {
+        let Tile::Tracktile(tt) = &mut self.tiles[r][c];
+        tt.add_connection(conn);
+        
     }
 
     pub fn process_tick(&mut self) {
