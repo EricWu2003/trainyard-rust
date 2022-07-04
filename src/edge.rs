@@ -19,4 +19,14 @@ impl Edge {
             }
         }
     }
+
+    pub fn get_char(&self) -> char {
+        if self.train_to_a != None && self.train_to_b != None {
+            return '2';
+        }
+        if self.train_to_a != None || self.train_to_b != None {
+            return '1';
+        }
+        return '0';
+    }
 }

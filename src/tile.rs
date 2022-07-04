@@ -33,4 +33,11 @@ impl Tile {
             }
         }
     }
+    pub fn get_char(&self) -> char {
+        match self {
+            Tile::Tracktile(tracktile) => {
+                tracktile.connection_type().get_char()
+            }
+        }
+    }
 }

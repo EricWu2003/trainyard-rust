@@ -26,6 +26,19 @@ pub enum ConnectionType {
     M,
     J,
 }
+impl ConnectionType {
+    pub fn get_char(&self) -> char{
+        match self {
+            ConnectionType::None => '_',
+            ConnectionType::S => 'S',
+            ConnectionType::B => 'B',
+            ConnectionType::H => 'H',
+            ConnectionType::Z => 'Z',
+            ConnectionType::M => 'M',
+            ConnectionType::J => 'J',
+        }
+    }
+}
 
 impl Tracktile {
     pub fn new(
@@ -129,7 +142,7 @@ impl Tracktile {
         false
     }
 
-    fn connection_type(&self) -> ConnectionType {
+    pub fn connection_type(&self) -> ConnectionType {
         if self.active_connection == None {
             return ConnectionType::None;
         }
