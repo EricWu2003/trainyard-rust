@@ -1,4 +1,4 @@
-use crate::Connection;
+use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::tile::Tile;
 use crate::tile::tracktile::Tracktile;

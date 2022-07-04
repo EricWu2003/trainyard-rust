@@ -1,6 +1,7 @@
 pub mod tracktile;
 use crate::color::Color;
-use crate::{Tracktile, Connection};
+use crate::tile::tracktile::Tracktile;
+use crate::connection::Connection;
 
 pub type BorderState = [Option<Color>; 4];
 
