@@ -1,8 +1,11 @@
+pub mod painter;
 pub mod tracktile;
 pub mod trainsink;
 pub mod trainsource;
+
 use crate::color::Color;
 use crate::connection::Connection;
+use crate::tile::painter::Painter;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
@@ -14,6 +17,7 @@ pub enum Tile {
     Trainsource(Trainsource),
     Trainsink(Trainsink),
     Rock,
+    Painter(Painter),
 }
 
 impl Tile {
@@ -29,8 +33,8 @@ impl Tile {
                     }
                 }
                 return true;
-            },
-            
+            }
+            Tile::Painter(painter) => painter.accept_trains(trains),
         }
     }
     pub fn dispatch_trains(&mut self) -> BorderState {
@@ -39,6 +43,7 @@ impl Tile {
             Tile::Trainsource(trainsource) => trainsource.dispatch_trains(),
             Tile::Trainsink(trainsink) => trainsink.dispatch_trains(),
             Tile::Rock => [None, None, None, None],
+            Tile::Painter(painter) => painter.dispatch_trains(),
         }
     }
     pub fn process_tick(&mut self) {
@@ -49,6 +54,7 @@ impl Tile {
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
             Tile::Rock => {}
+            Tile::Painter(painter) => painter.process_tick(),
         }
     }
     pub fn add_connection(&mut self, conn: Connection) {
@@ -59,6 +65,7 @@ impl Tile {
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
             Tile::Rock => {}
+            Tile::Painter(_) => {}
         }
     }
     pub fn get_char(&self) -> char {
@@ -67,6 +74,7 @@ impl Tile {
             Tile::Trainsource(_) => 'S',
             Tile::Trainsink(_) => 'S',
             Tile::Rock => 'R',
+            Tile::Painter(_) => 'P',
         }
     }
 }

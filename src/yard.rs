@@ -2,6 +2,7 @@ use crate::color::Color;
 use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::sprites::GameSprites;
+use crate::tile::painter::Painter;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
@@ -61,7 +62,8 @@ impl Yard {
             vec![Color::Green, Color::Red, Color::Blue],
             [true, true, false, false],
         ));
-        tiles [3][3] = Tile::Rock;
+        tiles[3][3] = Tile::Rock;
+        tiles[5][5] = Tile::Painter(Painter::new(Connection { dir1: 0, dir2: 3 }, Color::Purple));
 
         // END OF DEBUG CODE
 
@@ -315,6 +317,27 @@ impl Yard {
                     Tile::Rock => {
                         canvas.copy(&gs.rock, None, rect)?;
                     }
+                    Tile::Painter(painter) => {
+                        canvas.copy(&gs.tracktile_blank, None, rect)?;
+                        canvas.copy_ex(
+                            &gs.trainsink_entry,
+                            None,
+                            rect,
+                            painter.connection.dir1 as f64 * 90.0,
+                            None,
+                            false,
+                            false,
+                        )?;
+                        canvas.copy_ex(
+                            &gs.trainsink_entry,
+                            None,
+                            rect,
+                            painter.connection.dir2 as f64 * 90.0,
+                            None,
+                            false,
+                            false,
+                        )?;
+                    }
                 }
             }
         }
@@ -444,6 +467,11 @@ impl Yard {
                         }
                     }
                     Tile::Rock => {}
+                    Tile::Painter(painter) => {
+                        canvas.copy(&gs.painter_bg, None, rect)?;
+                        gs.set_color(painter.color);
+                        canvas.copy(&gs.painter_brush, None, rect)?;
+                    }
                 }
             }
         }

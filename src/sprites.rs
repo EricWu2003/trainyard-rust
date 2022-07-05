@@ -28,6 +28,10 @@ pub static BYTES_SOURCE_SINK_BORDER: &[u8; 3150] =
 pub static BYTES_TRAINSOURCE_EXIT: &[u8; 2900] =
     include_bytes!("../assets/sprites/Trainsource_exit.png");
 pub static BYTES_ROCK: &[u8; 16747] = include_bytes!("../assets/sprites/Rock.png");
+pub static BYTES_PAINTER_BG: &[u8; 4405] = include_bytes!("../assets/sprites/Painter_bg.png");
+pub static BYTES_PAINTER_BRUSH: &[u8; 3689] = include_bytes!("../assets/sprites/Painter_brush.png");
+pub static BYTES_SPLITTER_BG: &[u8; 3457] = include_bytes!("../assets/sprites/Splitter_bg.png");
+pub static BYTES_SPLITTER: &[u8; 6021] = include_bytes!("../assets/sprites/Splitter.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -48,6 +52,10 @@ pub struct GameSprites<'a> {
     pub source_sink_border: Texture<'a>,
     pub trainsource_exit: Texture<'a>,
     pub rock: Texture<'a>,
+    pub painter_bg: Texture<'a>,
+    pub painter_brush: Texture<'a>,
+    pub splitter_bg: Texture<'a>,
+    pub splitter: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -73,6 +81,10 @@ impl<'a> GameSprites<'a> {
             source_sink_border: texture_creator.load_texture_bytes(BYTES_SOURCE_SINK_BORDER)?,
             trainsource_exit: texture_creator.load_texture_bytes(BYTES_TRAINSOURCE_EXIT)?,
             rock: texture_creator.load_texture_bytes(BYTES_ROCK)?,
+            painter_bg: texture_creator.load_texture_bytes(BYTES_PAINTER_BG)?,
+            painter_brush: texture_creator.load_texture_bytes(BYTES_PAINTER_BRUSH)?,
+            splitter_bg: texture_creator.load_texture_bytes(BYTES_SPLITTER_BG)?,
+            splitter: texture_creator.load_texture_bytes(BYTES_SPLITTER)?,
         })
     }
 
@@ -91,5 +103,6 @@ impl<'a> GameSprites<'a> {
         self.train.set_color_mod(red, green, blue);
         self.plus_sign.set_color_mod(red, green, blue);
         self.circle.set_color_mod(red, green, blue);
+        self.painter_brush.set_color_mod(red, green, blue);
     }
 }
