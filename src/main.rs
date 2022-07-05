@@ -36,7 +36,7 @@ fn main() -> Result<(), String> {
         .expect("could not make a canvas");
 
     let texture_creator = canvas.texture_creator();
-    let game_sprites = GameSprites::new(&texture_creator)?;
+    let mut game_sprites = GameSprites::new(&texture_creator)?;
 
     let mut event_pump = sdl_context.event_pump()?;
     let yard_rect = Rect::new(0, 0, 672, 672);
@@ -113,6 +113,7 @@ fn main() -> Result<(), String> {
         } else {
             prev_mouse_c = -1;
             prev_mouse_r = -1;
+            prev_min_dir = -1;
         }
 
         // Update
@@ -120,7 +121,7 @@ fn main() -> Result<(), String> {
         // Render
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        yard.render(&mut canvas, &yard_rect, &game_sprites)?;
+        yard.render(&mut canvas, &yard_rect, &mut game_sprites)?;
         // canvas.copy(&game_sprites.tracktile_blank, None, Rect::new(0,0,96,96))?;
 
         canvas.present();

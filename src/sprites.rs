@@ -1,6 +1,7 @@
 use sdl2::image::LoadTexture;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
+use crate::color::Color;
 
 pub static BYTES_TRACKTILE_BLANK: &[u8; 1891] =
     include_bytes!("../assets/sprites/Tracktile_blank.png");
@@ -52,5 +53,20 @@ impl<'a> GameSprites<'a> {
             tracktile_z: texture_creator.load_texture_bytes(BYTES_TRACKTILE_Z)?,
             train: texture_creator.load_texture_bytes(BYTES_TRAIN)?,
         })
+    }
+
+    pub fn set_color(&mut self, color: Color) {
+        let tint;
+        match color {
+            Color::Brown => {tint = (139,69,19)},
+            Color::Blue => {tint = (0,0,255)},
+            Color::Red => {tint = (255,0,0)},
+            Color::Yellow => {tint = (255,255,0)},
+            Color::Orange => {tint = (255,140,0)},
+            Color::Green => {tint = (34,139,34)},
+            Color::Purple => {tint = (148,0,211)},
+        }
+        let (red, green, blue) = tint;
+        self.train.set_color_mod(red, green, blue);
     }
 }

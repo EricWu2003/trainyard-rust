@@ -175,7 +175,7 @@ impl Yard {
         &self,
         canvas: &mut WindowCanvas,
         rect: &Rect,
-        gs: &GameSprites,
+        gs: &mut GameSprites,
     ) -> Result<(), String> {
         let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
         let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
@@ -290,10 +290,12 @@ impl Yard {
                     train_width as u32,
                     train_height as u32,
                 );
-                if let Some(_train_going_up) = self.h_edges[r][c].train_to_a {
+                if let Some(train_going_up) = self.h_edges[r][c].train_to_a {
+                    gs.set_color(train_going_up);
                     canvas.copy_ex(&gs.train, None, rect, 0.0, None, false, false)?;
                 }
-                if let Some(_train_going_down) = self.h_edges[r][c].train_to_b {
+                if let Some(train_going_down) = self.h_edges[r][c].train_to_b {
+                    gs.set_color(train_going_down);
                     canvas.copy_ex(&gs.train, None, rect, 180.0, None, false, false)?;
                 }
             }
@@ -306,10 +308,12 @@ impl Yard {
                     train_width as u32,
                     train_height as u32,
                 );
-                if let Some(_train_going_left) = self.v_edges[r][c].train_to_a {
+                if let Some(train_going_left) = self.v_edges[r][c].train_to_a {
+                    gs.set_color(train_going_left);
                     canvas.copy_ex(&gs.train, None, rect, 270.0, None, false, false)?;
                 }
-                if let Some(_train_going_right) = self.v_edges[r][c].train_to_b {
+                if let Some(train_going_right) = self.v_edges[r][c].train_to_b {
+                    gs.set_color(train_going_right);
                     canvas.copy_ex(&gs.train, None, rect, 90.0, None, false, false)?;
                 }
             }
