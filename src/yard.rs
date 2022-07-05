@@ -4,6 +4,7 @@ use crate::edge::Edge;
 use crate::sprites::GameSprites;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
+use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
 use crate::tile::BorderState;
 use crate::tile::Tile;
@@ -55,6 +56,10 @@ impl Yard {
         tiles[0][0] = Tile::Trainsource(Trainsource::new(
             vec![Color::Green, Color::Red, Color::Blue],
             1,
+        ));
+        tiles[4][4] = Tile::Trainsink(Trainsink::new(
+            vec![Color::Green, Color::Red, Color::Blue],
+            [true, true, false, false],
         ));
 
         // END OF DEBUG CODE
@@ -290,6 +295,22 @@ impl Yard {
                             false,
                         )?;
                     }
+                    Tile::Trainsink(trainsink) => {
+                        canvas.copy(&gs.tracktile_blank, None, rect)?;
+                        for dir in 0..4 {
+                            if trainsink.border_state[dir] {
+                                canvas.copy_ex(
+                                    &gs.trainsink_entry,
+                                    None,
+                                    rect,
+                                    dir as f64 * 90.0,
+                                    None,
+                                    false,
+                                    false,
+                                )?;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -370,6 +391,43 @@ impl Yard {
                                 gs.set_color(color);
                                 canvas.copy(
                                     &gs.plus_sign,
+                                    None,
+                                    Rect::new(
+                                        x_pos,
+                                        y_pos,
+                                        scaled_plus_sign_width as u32,
+                                        scaled_plus_sign_height as u32,
+                                    ),
+                                )?;
+                            }
+                        }
+                    }
+                    Tile::Trainsink(trainsink) => {
+                        canvas.copy(&gs.source_sink_border, None, rect)?;
+
+                        let num_cols;
+                        if trainsink.desires.len() <= 1 {
+                            num_cols = 1;
+                        } else if trainsink.desires.len() <= 4 {
+                            num_cols = 2;
+                        } else {
+                            num_cols = 3;
+                        }
+                        for i in 0..trainsink.desires.len() {
+                            if let Some(color) = trainsink.desires[i] {
+                                let curr_col = i % num_cols;
+                                let curr_row = i / num_cols;
+                                let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
+                                let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
+                                let x_pos = rect.x()
+                                    + (block_width - plus_sign_width) / 2
+                                    + curr_col as i32 * scaled_plus_sign_width;
+                                let y_pos = rect.y()
+                                    + (block_height - plus_sign_height) / 2
+                                    + curr_row as i32 * scaled_plus_sign_height;
+                                gs.set_color(color);
+                                canvas.copy(
+                                    &gs.circle,
                                     None,
                                     Rect::new(
                                         x_pos,
