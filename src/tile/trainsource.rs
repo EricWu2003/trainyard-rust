@@ -2,18 +2,18 @@ use crate::color::Color;
 
 use crate::tile::BorderState;
 
-
 #[derive(Debug)]
 pub struct Trainsource {
-    pub trains: Vec<Color>,
-    pub n_trains_init: u8,
+    pub trains: Vec<Option<Color>>,
     pub dir: usize,
 }
 
 impl Trainsource {
     pub fn new(trains: Vec<Color>, dir: usize) -> Trainsource {
-        let n_trains_init = trains.len() as u8;
-        Trainsource { trains, n_trains_init, dir }
+        Trainsource {
+            trains: trains.into_iter().map(Some).collect(),
+            dir,
+        }
     }
 
     pub fn accept_trains(&self, trains: BorderState) -> bool {
@@ -27,8 +27,12 @@ impl Trainsource {
 
     pub fn dispatch_trains(&mut self) -> BorderState {
         let mut border_state = [None, None, None, None];
-        if let Some(color) = self.trains.pop() {
-            border_state[self.dir] = Some(color);
+        for i in 0..self.trains.len() {
+            if let Some(color) = self.trains[i] {
+                border_state[self.dir] = Some(color);
+                self.trains[i] = None;
+                break;
+            }
         }
         border_state
     }

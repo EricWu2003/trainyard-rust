@@ -1,7 +1,7 @@
+use crate::color::Color;
 use sdl2::image::LoadTexture;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
-use crate::color::Color;
 
 pub static BYTES_TRACKTILE_BLANK: &[u8; 1891] =
     include_bytes!("../assets/sprites/Tracktile_blank.png");
@@ -19,6 +19,14 @@ pub static BYTES_TRACKTILE_M_FLIPPED: &[u8; 10282] =
 pub static BYTES_TRACKTILE_S: &[u8; 2918] = include_bytes!("../assets/sprites/Tracktile_s.png");
 pub static BYTES_TRACKTILE_Z: &[u8; 10917] = include_bytes!("../assets/sprites/Tracktile_z.png");
 pub static BYTES_TRAIN: &[u8; 4943] = include_bytes!("../assets/sprites/Train.png");
+pub static BYTES_PLUS_SIGN: &[u8; 1915] = include_bytes!("../assets/sprites/Plus_sign.png");
+pub static BYTES_CIRCLE: &[u8; 11531] = include_bytes!("../assets/sprites/Circle.png");
+pub static BYTES_TRAINSINK_ENTRY: &[u8; 5046] =
+    include_bytes!("../assets/sprites/Trainsink_entry.png");
+pub static BYTES_SOURCE_SINK_BORDER: &[u8; 3150] =
+    include_bytes!("../assets/sprites/Source_sink_border.png");
+pub static BYTES_TRAINSOURCE_EXIT: &[u8; 2900] =
+    include_bytes!("../assets/sprites/Trainsource_exit.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -33,6 +41,11 @@ pub struct GameSprites<'a> {
     pub tracktile_s: Texture<'a>,
     pub tracktile_z: Texture<'a>,
     pub train: Texture<'a>,
+    pub plus_sign: Texture<'a>,
+    pub circle: Texture<'a>,
+    pub trainsink_entry: Texture<'a>,
+    pub source_sink_border: Texture<'a>,
+    pub trainsource_exit: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -52,21 +65,28 @@ impl<'a> GameSprites<'a> {
             tracktile_s: texture_creator.load_texture_bytes(BYTES_TRACKTILE_S)?,
             tracktile_z: texture_creator.load_texture_bytes(BYTES_TRACKTILE_Z)?,
             train: texture_creator.load_texture_bytes(BYTES_TRAIN)?,
+            plus_sign: texture_creator.load_texture_bytes(BYTES_PLUS_SIGN)?,
+            circle: texture_creator.load_texture_bytes(BYTES_CIRCLE)?,
+            trainsink_entry: texture_creator.load_texture_bytes(BYTES_TRAINSINK_ENTRY)?,
+            source_sink_border: texture_creator.load_texture_bytes(BYTES_SOURCE_SINK_BORDER)?,
+            trainsource_exit: texture_creator.load_texture_bytes(BYTES_TRAINSOURCE_EXIT)?,
         })
     }
 
     pub fn set_color(&mut self, color: Color) {
         let tint;
         match color {
-            Color::Brown => {tint = (139,69,19)},
-            Color::Blue => {tint = (0,0,255)},
-            Color::Red => {tint = (255,0,0)},
-            Color::Yellow => {tint = (255,255,0)},
-            Color::Orange => {tint = (255,140,0)},
-            Color::Green => {tint = (34,139,34)},
-            Color::Purple => {tint = (148,0,211)},
+            Color::Brown => tint = (139, 69, 19),
+            Color::Blue => tint = (0, 0, 255),
+            Color::Red => tint = (255, 0, 0),
+            Color::Yellow => tint = (255, 255, 0),
+            Color::Orange => tint = (255, 140, 0),
+            Color::Green => tint = (34, 139, 34),
+            Color::Purple => tint = (148, 0, 211),
         }
         let (red, green, blue) = tint;
         self.train.set_color_mod(red, green, blue);
+        self.plus_sign.set_color_mod(red, green, blue);
+        self.circle.set_color_mod(red, green, blue);
     }
 }
