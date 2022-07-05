@@ -223,6 +223,8 @@ impl Tracktile {
     pub fn interact_trains(&mut self) {
         let my_type = self.connection_type();
 
+        let need_to_switch_active_passve = self.trains.len() % 2 == 1;
+
         if self.trains.len() >= 2 {
             if my_type == ConnectionType::H
                 || my_type == ConnectionType::S
@@ -289,7 +291,7 @@ impl Tracktile {
             }
         }
 
-        if self.trains.len() % 2 == 1 {
+        if need_to_switch_active_passve {
             self.switch_active_passive();
         }
     }
