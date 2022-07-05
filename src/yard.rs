@@ -101,7 +101,6 @@ impl Yard {
     pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection) {
         let Tile::Tracktile(tt) = &mut self.tiles[r][c];
         tt.add_connection(conn);
-        
     }
 
     pub fn process_tick(&mut self) {
