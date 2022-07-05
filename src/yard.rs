@@ -6,6 +6,7 @@ use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::BorderState;
 use crate::tile::Tile;
+use crate::tile::trainsource::Trainsource;
 
 use std::io::Write;
 
@@ -51,17 +52,7 @@ impl Yard {
         }
 
         // DEBUG CODE HERE
-        tiles[0][0].add_connection(Connection { dir1: 1, dir2: 3 });
-        tiles[0][0].add_connection(Connection { dir1: 1, dir2: 2 });
-        tiles[0][1].add_connection(Connection { dir1: 1, dir2: 2 });
-        tiles[0][1].add_connection(Connection { dir1: 1, dir2: 3 });
-        tiles[0][2].add_connection(Connection { dir1: 2, dir2: 1 });
-        tiles[0][2].add_connection(Connection { dir1: 1, dir2: 3 });
-        tiles[1][0].add_connection(Connection { dir1: 0, dir2: 2 });
-        tiles[2][0].add_connection(Connection { dir1: 0, dir2: 2 });
-        // tiles[0][0].add_connection(Connection { dir1: 0, dir2: 2 });
-        v_edges[0][1].train_to_a = Some(Color::Blue);
-        h_edges[1][0].train_to_a = Some(Color::Green);
+        tiles[0][0] = Tile::Trainsource(Trainsource::new(vec![Color::Green, Color::Red, Color::Blue], 1));
 
         // END OF DEBUG CODE
 
@@ -99,8 +90,9 @@ impl Yard {
     }
 
     pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection) {
-        let Tile::Tracktile(tt) = &mut self.tiles[r][c];
-        tt.add_connection(conn);
+        if let Tile::Tracktile(tt) = &mut self.tiles[r][c]{
+            tt.add_connection(conn);
+        }
     }
 
     pub fn process_tick(&mut self) {
@@ -262,6 +254,9 @@ impl Yard {
                             }
                         }
                     },
+                    Tile::Trainsource(trainsource) => {
+                        // do nothing
+                    }
                 }
 
                 canvas.copy_ex(
