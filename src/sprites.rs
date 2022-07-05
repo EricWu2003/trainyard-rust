@@ -30,8 +30,8 @@ pub static BYTES_TRAINSOURCE_EXIT: &[u8; 2900] =
 pub static BYTES_ROCK: &[u8; 16747] = include_bytes!("../assets/sprites/Rock.png");
 pub static BYTES_PAINTER_BG: &[u8; 4405] = include_bytes!("../assets/sprites/Painter_bg.png");
 pub static BYTES_PAINTER_BRUSH: &[u8; 3689] = include_bytes!("../assets/sprites/Painter_brush.png");
-pub static BYTES_SPLITTER_BG: &[u8; 3457] = include_bytes!("../assets/sprites/Splitter_bg.png");
-pub static BYTES_SPLITTER: &[u8; 6021] = include_bytes!("../assets/sprites/Splitter.png");
+pub static BYTES_SPLITTER_BG: &[u8; 3701] = include_bytes!("../assets/sprites/Splitter_bg.png");
+pub static BYTES_SPLITTER: &[u8; 6274] = include_bytes!("../assets/sprites/Splitter.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
