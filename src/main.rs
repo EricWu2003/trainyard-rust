@@ -127,7 +127,7 @@ fn main() -> Result<(), String> {
         canvas.present();
 
         // Time management
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 60));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 120));
     }
 
     Ok(())
