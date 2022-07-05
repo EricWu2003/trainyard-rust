@@ -27,6 +27,7 @@ pub static BYTES_SOURCE_SINK_BORDER: &[u8; 3150] =
     include_bytes!("../assets/sprites/Source_sink_border.png");
 pub static BYTES_TRAINSOURCE_EXIT: &[u8; 2900] =
     include_bytes!("../assets/sprites/Trainsource_exit.png");
+pub static BYTES_ROCK: &[u8; 16747] = include_bytes!("../assets/sprites/Rock.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -46,6 +47,7 @@ pub struct GameSprites<'a> {
     pub trainsink_entry: Texture<'a>,
     pub source_sink_border: Texture<'a>,
     pub trainsource_exit: Texture<'a>,
+    pub rock: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -70,6 +72,7 @@ impl<'a> GameSprites<'a> {
             trainsink_entry: texture_creator.load_texture_bytes(BYTES_TRAINSINK_ENTRY)?,
             source_sink_border: texture_creator.load_texture_bytes(BYTES_SOURCE_SINK_BORDER)?,
             trainsource_exit: texture_creator.load_texture_bytes(BYTES_TRAINSOURCE_EXIT)?,
+            rock: texture_creator.load_texture_bytes(BYTES_ROCK)?,
         })
     }
 

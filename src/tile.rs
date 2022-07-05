@@ -13,6 +13,7 @@ pub enum Tile {
     Tracktile(Tracktile),
     Trainsource(Trainsource),
     Trainsink(Trainsink),
+    Rock,
 }
 
 impl Tile {
@@ -21,6 +22,15 @@ impl Tile {
             Tile::Tracktile(tracktile) => tracktile.accept_trains(trains),
             Tile::Trainsource(trainsource) => trainsource.accept_trains(trains),
             Tile::Trainsink(trainsink) => trainsink.accept_trains(trains),
+            Tile::Rock => {
+                for i in 0..4 {
+                    if trains[i] != None {
+                        return false;
+                    }
+                }
+                return true;
+            },
+            
         }
     }
     pub fn dispatch_trains(&mut self) -> BorderState {
@@ -28,6 +38,7 @@ impl Tile {
             Tile::Tracktile(tracktile) => tracktile.dispatch_trains(),
             Tile::Trainsource(trainsource) => trainsource.dispatch_trains(),
             Tile::Trainsink(trainsink) => trainsink.dispatch_trains(),
+            Tile::Rock => [None, None, None, None],
         }
     }
     pub fn process_tick(&mut self) {
@@ -37,6 +48,7 @@ impl Tile {
             }
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
+            Tile::Rock => {}
         }
     }
     pub fn add_connection(&mut self, conn: Connection) {
@@ -46,6 +58,7 @@ impl Tile {
             }
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
+            Tile::Rock => {}
         }
     }
     pub fn get_char(&self) -> char {
@@ -53,6 +66,7 @@ impl Tile {
             Tile::Tracktile(tracktile) => tracktile.connection_type().get_char(),
             Tile::Trainsource(_) => 'S',
             Tile::Trainsink(_) => 'S',
+            Tile::Rock => 'R',
         }
     }
 }

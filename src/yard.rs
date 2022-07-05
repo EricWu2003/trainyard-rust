@@ -61,6 +61,7 @@ impl Yard {
             vec![Color::Green, Color::Red, Color::Blue],
             [true, true, false, false],
         ));
+        tiles [3][3] = Tile::Rock;
 
         // END OF DEBUG CODE
 
@@ -311,6 +312,9 @@ impl Yard {
                             }
                         }
                     }
+                    Tile::Rock => {
+                        canvas.copy(&gs.rock, None, rect)?;
+                    }
                 }
             }
         }
@@ -439,6 +443,7 @@ impl Yard {
                             }
                         }
                     }
+                    Tile::Rock => {}
                 }
             }
         }
