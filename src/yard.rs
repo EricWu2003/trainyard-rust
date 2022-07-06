@@ -3,11 +3,11 @@ use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::sprites::GameSprites;
 use crate::tile::painter::Painter;
+use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
-use crate::tile::splitter::Splitter;
 use crate::tile::BorderState;
 use crate::tile::Tile;
 
@@ -65,7 +65,7 @@ impl Yard {
         ));
         tiles[3][3] = Tile::Rock;
         tiles[5][5] = Tile::Painter(Painter::new(Connection { dir1: 0, dir2: 3 }, Color::Purple));
-        
+
         tiles[5][1] = Tile::Splitter(Splitter::new(2));
 
         // END OF DEBUG CODE

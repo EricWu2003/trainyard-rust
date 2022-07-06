@@ -7,10 +7,10 @@ pub mod trainsource;
 use crate::color::Color;
 use crate::connection::Connection;
 use crate::tile::painter::Painter;
+use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
-use crate::tile::splitter::Splitter;
 
 pub type BorderState = [Option<Color>; 4];
 

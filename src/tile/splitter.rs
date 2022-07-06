@@ -24,7 +24,7 @@ impl Splitter {
         for i in 0..4 {
             if i == self.incoming_dir {
                 self.incoming_train = trains[i];
-            }  else {
+            } else {
                 if trains[i] != None {
                     return false;
                 }
@@ -45,19 +45,19 @@ impl Splitter {
         if let Some(color) = self.incoming_train {
             self.incoming_train = None;
             match color {
-                Color::Brown | Color::Blue | Color::Red | Color:: Yellow => {
+                Color::Brown | Color::Blue | Color::Red | Color::Yellow => {
                     self.train_going_left = Some(color);
                     self.train_going_right = Some(color);
                 }
-                Color:: Orange => {
+                Color::Orange => {
                     self.train_going_left = Some(Color::Yellow);
                     self.train_going_right = Some(Color::Red);
                 }
-                Color:: Purple => {
+                Color::Purple => {
                     self.train_going_left = Some(Color::Blue);
                     self.train_going_right = Some(Color::Red);
                 }
-                Color:: Green => {
+                Color::Green => {
                     self.train_going_left = Some(Color::Blue);
                     self.train_going_right = Some(Color::Yellow);
                 }
