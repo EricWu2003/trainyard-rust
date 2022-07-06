@@ -188,6 +188,96 @@ o|3,6|blue|up
 o|6,3|red|left
 ---
 
+CITY:Delson
+
+Mellow Yellow:2
++|5,5|yellow,yellow|left
+o|1,5|yellow|right
+o|3,1|yellow|down
+---
+
+Delivering Oranges:2
++|3,3|orange,orange|up
+o|3,4|orange|down
+o|3,6|orange|up
+---
+
+Purple Parcels:2
++|0,0|purple,purple,purple|down
+o|0,6|purple|up,right
+o|6,6|purple|up,left
+o|6,0|purple|down,left
+
+*|3,3
+*|1,3
+*|5,3
+*|3,1
+*|3,5
+---
+
+Prellow:2
++|3,5|purple,yellow|up
+o|1,1|purple|right
+o|5,1|yellow|left
+---
+
+Around the Bend:2
++|5,3|orange,blue|up
+o|4,3|orange|down
+o|6,3|blue|down
+
+*|5,4
+*|5,5
+*|1,3
+*|2,3
+*|3,3
+---
+
+Preenies:2
++|0,0|purple,green,purple,green,purple,green,purple,green,purple|right
+o|0,6|green,green,green,green|up,right
+o|6,6|purple,purple,purple,purple,purple|up,left
+
+*|0,1
+*|1,1
+*|2,1
+*|3,1
+*|4,1
+*|5,1
+
+*|1,3
+*|2,3
+*|3,3
+*|4,3
+*|5,3
+*|6,3
+
+*|3,4
+*|3,5
+---
+
+Too Many:3
+o|3,0|green,green,green,green,blue,blue,blue,blue,orange,orange,orange,orange|down
++|1,5|green,green,green,green|left
++|3,5|blue,blue,blue,blue|up
++|5,5|orange,orange,orange,orange|right
+
+*|0,2
+*|1,2
+*|2,2
+*|4,2
+*|5,2
+*|6,2
+
+*|0,3
+*|1,3
+*|2,3
+*|4,3
+*|5,3
+*|6,3
+---
+
+
 CITY:Debug
 
 Multiple entrances:1
