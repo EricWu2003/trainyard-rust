@@ -1,7 +1,12 @@
-use crate::color::Color::{Blue, Green, Orange, Purple, Red, Yellow};
+use crate::color::Color::{self, Brown, Blue, Green, Orange, Purple, Red, Yellow};
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
+use crate::tile::splitter::Splitter;
+use crate::tile::painter::Painter;
 use crate::tile::Tile;
+use crate::connection::Connection;
+
+use std::str;
 
 pub struct PositionedTile {
     pub tile: Tile,
@@ -20,7 +25,142 @@ pub type City<'a> = (&'a str, Vec<Level<'a>>);
 
 pub struct LevelManager<'a>(Vec<City<'a>>);
 
+pub static BYTES_LEVEL_INFO: &[u8; 2066] = include_bytes!("../assets/levels.txt");
+
+fn convert_string_to_color(s: &str) -> Color {
+    match s {
+        "red" => Red,
+        "blue" => Blue,
+        "yellow" => Yellow,
+        "purple" => Purple,
+        "green" => Green,
+        "orange" => Orange,
+        "brown" => Brown,
+        invalid => panic!("invalid color: {}", invalid),
+    }
+}
+
+fn convert_string_to_dir(s: &str) -> usize {
+    match s {
+        "up" => 0,
+        "right" => 1,
+        "down" => 2,
+        "left" => 3,
+        invalid => panic!("invalid direction: {}", invalid),
+    }
+}
+
+
 impl LevelManager<'_> {
+    pub fn new() -> LevelManager<'static> {
+        let mut lm = LevelManager(vec![]);
+        let info_str = str::from_utf8(BYTES_LEVEL_INFO).unwrap();
+        let arr: Vec<&str> = info_str.split("\n").filter(|line| !(line.starts_with("//") || line.is_empty())).collect();
+        let max_index = arr.len() - 1;
+        let mut index = 0;
+        'outer: loop {
+            assert!(arr[index].starts_with("CITY:"));
+            let city_name = &arr[index][5..];
+            let mut city: City = (city_name, vec![]);
+            index += 1;
+            
+            loop {
+                // load all levels within a city
+                let fields: Vec<&str> = arr[index].split(":").collect();
+                let level_name = fields[0];
+                let num_stars:u32 = fields[1].parse().unwrap();
+                index += 1;
+                
+                let mut level = Level {
+                    level_info: vec![],
+                    name: level_name,
+                    num_stars,
+                };
+                loop {
+                    println!("{}", arr[index]);
+                    let x: u8 = arr[index][2..3].parse().unwrap();
+                    let y: u8 = arr[index][4..5].parse().unwrap();
+
+                    if arr[index].starts_with("+|") {
+                        // handle a new trainsource
+                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
+                        let dir = convert_string_to_dir(fields[3]);
+                        level.level_info.push(PositionedTile { 
+                            tile: Tile::Trainsource(Trainsource::new(colors, dir)),
+                            x, y}
+                        );
+                    } else if arr[index].starts_with("o|") {
+                        // handle a new trainsink
+                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
+                        let dirs = fields[3].split(",").map(convert_string_to_dir);
+                        let mut border_state = [false, false, false, false];
+                        for dir in dirs {
+                            border_state[dir] = true;
+                        }
+                        level.level_info.push(PositionedTile { 
+                            tile: Tile::Trainsink(Trainsink::new(colors, border_state)),
+                            x, y}
+                        );
+                    } else if arr[index].starts_with("*|") {
+                        // handle a new rock
+                        level.level_info.push(PositionedTile { 
+                            tile: Tile::Rock,
+                            x, y}
+                        );
+                    } else if arr[index].starts_with("p|") {
+                        // handle a new painter
+                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let color = convert_string_to_color(fields[2]);
+                        let dirs: Vec<usize> = fields[3].split(",").map(convert_string_to_dir).collect();
+
+                        level.level_info.push(PositionedTile { 
+                            tile: Tile::Painter(Painter::new(Connection{dir1:dirs[0] as u8, dir2:dirs[1] as u8}, color)),
+                             x, y}
+                        );
+
+                    } else if arr[index].starts_with("s|") {
+                        // handle a new splitter
+                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let dir = convert_string_to_dir(fields[2]);
+                        level.level_info.push(PositionedTile { 
+                            tile: Tile::Splitter(Splitter::new(dir)),
+                            x, y}
+                        );
+                    } else {
+                        panic!("line begins with an invalid character {}", arr[index]);
+                    }
+
+                    
+                    
+                    index += 1;
+                    if arr[index] == "---" {
+                        break;
+                    }
+                }
+                city.1.push(level);
+
+                index += 1;
+                if index > max_index{
+                    lm.0.push(city);
+                    break 'outer;
+                }
+                if arr[index].starts_with("CITY:") {
+                    break;
+                }
+            }
+
+            lm.0.push(city);
+            
+            // if index > max_index {
+            //     break 'outer;
+            // }
+        }
+
+        lm
+    }
+
     pub fn get_city_names(&self) -> Vec<String> {
         self.0.iter().map(|city| city.0.to_owned()).collect()
     }
@@ -39,283 +179,3 @@ impl LevelManager<'_> {
     }
 }
 
-pub static mut LEVEL_MANAGER: LevelManager = LevelManager(Vec::new());
-pub fn initialize() {
-    let mut abbotsford: City = ("Abbotsford", Vec::new());
-    let mut brampton: City = ("Brampton", Vec::new());
-    let mut calgary: City = ("Calgary", Vec::new());
-    let delson: City = ("Delson", Vec::new());
-    let edmonton: City = ("Edmonton", Vec::new());
-
-    {
-        abbotsford.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Red], 1)),
-                    x: 1,
-                    y: 3,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Red], [false, false, false, true])),
-                    x: 5,
-                    y: 3,
-                },
-            ],
-            name: "Red Line",
-            num_stars: 1,
-        });
-        abbotsford.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Green], 2)),
-                    x: 1,
-                    y: 1,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Green], [true, false, false, false])),
-                    x: 1,
-                    y: 5,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Orange], 1)),
-                    x: 2,
-                    y: 5,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Orange],
-                        [false, false, false, true],
-                    )),
-                    x: 5,
-                    y: 5,
-                },
-            ],
-            name: "Grorange Lines",
-            num_stars: 1,
-        });
-        abbotsford.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Purple], 3)),
-                    x: 6,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Purple],
-                        [false, true, false, false],
-                    )),
-                    x: 0,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Purple], 1)),
-                    x: 0,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Purple],
-                        [false, false, false, true],
-                    )),
-                    x: 6,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Yellow], 2)),
-                    x: 1,
-                    y: 2,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Yellow],
-                        [true, false, false, false],
-                    )),
-                    x: 1,
-                    y: 4,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Yellow], 0)),
-                    x: 5,
-                    y: 4,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Yellow],
-                        [false, false, true, false],
-                    )),
-                    x: 5,
-                    y: 2,
-                },
-            ],
-            name: "Yorple Lines",
-            num_stars: 1,
-        });
-        // TODO: 3 more levels for Abbotsford
-    }
-    {
-        brampton.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Green], 0)),
-                    x: 3,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Green], [false, false, true, false])),
-                    x: 3,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 3,
-                },
-            ],
-            name: "A Rock in the Way",
-            num_stars: 1,
-        });
-        brampton.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Green], 2)),
-                    x: 5,
-                    y: 1,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Green], [false, false, true, false])),
-                    x: 1,
-                    y: 1,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 1,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 2,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 3,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 4,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 5,
-                },
-                PositionedTile {
-                    tile: Tile::Rock,
-                    x: 3,
-                    y: 6,
-                },
-            ],
-            name: "Green Wally",
-            num_stars: 1,
-        });
-        // TODO: 3 more levels for Brampton
-    }
-    {
-        calgary.1.push(Level {
-            level_info: vec![
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Red], 0)),
-                    x: 0,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Red], [false, false, true, false])),
-                    x: 0,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Blue], 0)),
-                    x: 2,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Blue], [false, false, true, false])),
-                    x: 2,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Yellow], 0)),
-                    x: 4,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Yellow],
-                        [false, false, true, false],
-                    )),
-                    x: 4,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Red], 0)),
-                    x: 6,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Red], [false, false, true, false])),
-                    x: 6,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Purple], 2)),
-                    x: 1,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Purple],
-                        [true, false, false, false],
-                    )),
-                    x: 1,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Green], 2)),
-                    x: 3,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(vec![Green], [true, false, false, false])),
-                    x: 3,
-                    y: 6,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsource(Trainsource::new(vec![Orange], 2)),
-                    x: 5,
-                    y: 0,
-                },
-                PositionedTile {
-                    tile: Tile::Trainsink(Trainsink::new(
-                        vec![Orange],
-                        [true, false, false, false],
-                    )),
-                    x: 5,
-                    y: 6,
-                },
-            ],
-            name: "Rainbow",
-            num_stars: 1,
-        });
-    }
-
-    unsafe {
-        LEVEL_MANAGER.0.push(abbotsford);
-        LEVEL_MANAGER.0.push(brampton);
-        LEVEL_MANAGER.0.push(calgary);
-        LEVEL_MANAGER.0.push(delson);
-        LEVEL_MANAGER.0.push(edmonton);
-    }
-}

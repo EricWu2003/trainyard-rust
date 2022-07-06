@@ -5,7 +5,7 @@ pub mod levels;
 pub mod sprites;
 pub mod tile;
 pub mod yard;
-use crate::levels::LEVEL_MANAGER;
+use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
 use crate::yard::Yard;
 use crate::yard::YardState;
@@ -23,10 +23,9 @@ use yard::{NUM_COLS, NUM_ROWS};
 
 fn main() -> Result<(), String> {
     let mut yard: Yard;
-    levels::initialize();
-    unsafe {
-        yard = Yard::from(LEVEL_MANAGER.get_level("Brampton", "A Rock in the Way"));
-    }
+    let level_manager = LevelManager::new();
+    yard = Yard::from(level_manager.get_level("Debug", "Multiple entrances"));
+    
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
