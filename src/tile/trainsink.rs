@@ -2,7 +2,7 @@ use crate::color::Color;
 
 use crate::tile::BorderState;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Trainsink {
     pub desires: Vec<Option<Color>>,
     pub border_state: [bool; 4],

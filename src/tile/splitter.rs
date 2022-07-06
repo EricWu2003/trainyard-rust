@@ -2,7 +2,7 @@ use crate::color::Color;
 
 use crate::tile::BorderState;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Splitter {
     pub incoming_dir: usize,
     pub incoming_train: Option<Color>,

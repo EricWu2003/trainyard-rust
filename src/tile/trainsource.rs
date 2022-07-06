@@ -2,7 +2,7 @@ use crate::color::Color;
 
 use crate::tile::BorderState;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Trainsource {
     pub trains: Vec<Option<Color>>,
     pub dir: usize,

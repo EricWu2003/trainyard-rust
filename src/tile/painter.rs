@@ -3,7 +3,7 @@ use crate::color::Color;
 use crate::connection::Connection;
 use crate::tile::BorderState;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Painter {
     pub connection: Connection,
     pub color: Color,

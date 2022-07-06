@@ -3,14 +3,14 @@ use crate::connection::Connection;
 use crate::tile::BorderState;
 
 // used for storing a train in a Tracktile
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub struct Train {
     color: Color,
     source: u8,
     destination: u8,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Tracktile {
     active_connection: Option<Connection>,
     passive_connection: Option<Connection>,

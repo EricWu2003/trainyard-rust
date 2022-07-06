@@ -1,13 +1,9 @@
-use crate::color::Color;
 use crate::connection::Connection;
 use crate::edge::Edge;
+use crate::levels::LevelInfo;
 use crate::sprites::GameSprites;
-use crate::tile::painter::Painter;
-use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
-use crate::tile::trainsink::Trainsink;
-use crate::tile::trainsource::Trainsource;
 use crate::tile::BorderState;
 use crate::tile::Tile;
 
@@ -55,18 +51,18 @@ impl Yard {
         }
 
         // DEBUG CODE HERE
-        tiles[0][0] = Tile::Trainsource(Trainsource::new(
-            vec![Color::Green, Color::Red, Color::Blue],
-            1,
-        ));
-        tiles[4][4] = Tile::Trainsink(Trainsink::new(
-            vec![Color::Green, Color::Red, Color::Blue],
-            [true, true, false, false],
-        ));
-        tiles[3][3] = Tile::Rock;
-        tiles[5][5] = Tile::Painter(Painter::new(Connection { dir1: 0, dir2: 3 }, Color::Purple));
+        // tiles[0][0] = Tile::Trainsource(Trainsource::new(
+        //     vec![Color::Green, Color::Red, Color::Blue],
+        //     1,
+        // ));
+        // tiles[4][4] = Tile::Trainsink(Trainsink::new(
+        //     vec![Color::Green, Color::Red, Color::Blue],
+        //     [true, true, false, false],
+        // ));
+        // tiles[3][3] = Tile::Rock;
+        // tiles[5][5] = Tile::Painter(Painter::new(Connection { dir1: 0, dir2: 3 }, Color::Purple));
 
-        tiles[5][1] = Tile::Splitter(Splitter::new(2));
+        // tiles[5][1] = Tile::Splitter(Splitter::new(2));
 
         // END OF DEBUG CODE
 
@@ -75,6 +71,14 @@ impl Yard {
             h_edges,
             v_edges,
         }
+    }
+    pub fn from(level_info: &LevelInfo) -> Yard {
+        let mut yard = Yard::new();
+        for i in 0..level_info.len() {
+            let tile = &level_info[i];
+            yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
+        }
+        yard
     }
 
     pub fn display(&self) {

@@ -1,9 +1,11 @@
 pub mod color;
 pub mod connection;
 pub mod edge;
+pub mod levels;
 pub mod sprites;
 pub mod tile;
 pub mod yard;
+use crate::levels::LEVEL_MANAGER;
 use crate::sprites::GameSprites;
 use crate::yard::Yard;
 
@@ -19,7 +21,11 @@ use std::time::Duration;
 use yard::{NUM_COLS, NUM_ROWS};
 
 fn main() -> Result<(), String> {
-    let mut yard = Yard::new();
+    let mut yard: Yard;
+    levels::initialize();
+    unsafe {
+        yard = Yard::from(LEVEL_MANAGER.get_level("Calgary", "Rainbow"));
+    }
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;

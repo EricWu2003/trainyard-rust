@@ -14,6 +14,7 @@ use crate::tile::trainsource::Trainsource;
 
 pub type BorderState = [Option<Color>; 4];
 
+#[derive(Clone)]
 pub enum Tile {
     Tracktile(Tracktile),
     Trainsource(Trainsource),
