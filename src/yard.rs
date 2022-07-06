@@ -391,17 +391,19 @@ impl Yard {
                     }
                     Tile::Trainsink(trainsink) => {
                         canvas.copy(&gs.tracktile_blank, None, rect)?;
-                        for dir in 0..4 {
-                            if trainsink.border_state[dir] {
-                                canvas.copy_ex(
-                                    &gs.trainsink_entry,
-                                    None,
-                                    rect,
-                                    dir as f64 * 90.0,
-                                    None,
-                                    false,
-                                    false,
-                                )?;
+                        if !trainsink.is_satisfied() {
+                            for dir in 0..4 {
+                                if trainsink.border_state[dir] {
+                                    canvas.copy_ex(
+                                        &gs.trainsink_entry,
+                                        None,
+                                        rect,
+                                        dir as f64 * 90.0,
+                                        None,
+                                        false,
+                                        false,
+                                    )?;
+                                }
                             }
                         }
                     }
