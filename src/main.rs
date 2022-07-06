@@ -8,6 +8,7 @@ pub mod yard;
 use crate::levels::LEVEL_MANAGER;
 use crate::sprites::GameSprites;
 use crate::yard::Yard;
+use crate::yard::YardState;
 
 use connection::Connection;
 use sdl2::event::Event;
@@ -24,7 +25,7 @@ fn main() -> Result<(), String> {
     let mut yard: Yard;
     levels::initialize();
     unsafe {
-        yard = Yard::from(LEVEL_MANAGER.get_level("Calgary", "Rainbow"));
+        yard = Yard::from(LEVEL_MANAGER.get_level("Brampton", "A Rock in the Way"));
     }
 
     let sdl_context = sdl2::init()?;
@@ -62,7 +63,11 @@ fn main() -> Result<(), String> {
                     keycode: Some(Keycode::N),
                     ..
                 } => {
-                    yard.process_tick();
+                    yard.state = YardState::Playing {
+                        num_ticks_elapsed: 0,
+                        speed: 0.017,
+                        progress: 0.0,
+                    }
                 }
                 Event::KeyDown {
                     keycode: Some(Keycode::Escape),
@@ -73,58 +78,73 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
-        let mouse_state = event_pump.mouse_state();
-        if mouse_state.left() {
-            let grid_width = yard_rect.width() as i32 / NUM_COLS as i32;
-            let grid_height = yard_rect.height() as i32 / NUM_ROWS as i32;
+        if yard.state == YardState::Drawing {
+            let mouse_state = event_pump.mouse_state();
+            if mouse_state.left() {
+                let grid_width = yard_rect.width() as i32 / NUM_COLS as i32;
+                let grid_height = yard_rect.height() as i32 / NUM_ROWS as i32;
 
-            let (x, y) = (mouse_state.x() - yard_rect.x(), mouse_state.y() - yard_rect.y());
-            let (c, r) = (
-                x / grid_width,
-                y / grid_height,
-            );
+                let (x, y) = (
+                    mouse_state.x() - yard_rect.x(),
+                    mouse_state.y() - yard_rect.y(),
+                );
+                let (c, r) = (x / grid_width, y / grid_height);
 
-            let dist_to_left = x % grid_width;
-            let dist_to_up = y % grid_height;
-            let distances = [
-                dist_to_up,
-                grid_width - dist_to_left,
-                grid_height - dist_to_up,
-                dist_to_left,
-            ];
-            let min_dist = *distances.iter().min().unwrap();
-            let mut min_dir = distances.iter().position(|&x| x == min_dist).unwrap() as i32;
-            if min_dist > grid_width / 7 {
-                min_dir = -1;
-            }
-
-            if prev_mouse_c == c && prev_mouse_r == r {
-                if prev_min_dir != min_dir && min_dir != -1 && prev_min_dir != -1 {
-                    yard.add_connection(
-                        r as usize,
-                        c as usize,
-                        Connection {
-                            dir1: prev_min_dir as u8,
-                            dir2: min_dir as u8,
-                        },
-                    )
+                let dist_to_left = x % grid_width;
+                let dist_to_up = y % grid_height;
+                let distances = [
+                    dist_to_up,
+                    grid_width - dist_to_left,
+                    grid_height - dist_to_up,
+                    dist_to_left,
+                ];
+                let min_dist = *distances.iter().min().unwrap();
+                let mut min_dir = distances.iter().position(|&x| x == min_dist).unwrap() as i32;
+                if min_dist > grid_width / 7 {
+                    min_dir = -1;
                 }
-            }
 
-            prev_mouse_c = c;
-            prev_mouse_r = r;
-            if min_dir != -1 {
-                prev_min_dir = min_dir;
+                if prev_mouse_c == c && prev_mouse_r == r {
+                    if prev_min_dir != min_dir && min_dir != -1 && prev_min_dir != -1 {
+                        yard.add_connection(
+                            r as usize,
+                            c as usize,
+                            Connection {
+                                dir1: prev_min_dir as u8,
+                                dir2: min_dir as u8,
+                            },
+                        )
+                    }
+                }
+
+                prev_mouse_c = c;
+                prev_mouse_r = r;
+                if min_dir != -1 {
+                    prev_min_dir = min_dir;
+                }
+            } else {
+                prev_mouse_c = -1;
+                prev_mouse_r = -1;
+                prev_min_dir = -1;
             }
-        } else {
-            prev_mouse_c = -1;
-            prev_mouse_r = -1;
-            prev_min_dir = -1;
         }
-
         // Update
+        yard.update();
 
         // Render
+        if yard.state == YardState::Won {
+            println!("won!");
+        } else if yard.state == YardState::Crashed {
+            println!("crashed!");
+        }
+        if let YardState::Playing {
+            num_ticks_elapsed,
+            speed,
+            progress,
+        } = yard.state
+        {
+            println!("playing at {}, {}, {}", num_ticks_elapsed, speed, progress);
+        }
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
         yard.render(&mut canvas, &yard_rect, &mut game_sprites)?;

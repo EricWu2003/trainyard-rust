@@ -32,4 +32,7 @@ impl Edge {
         }
         return '0';
     }
+    pub fn is_empty(&self) -> bool {
+        self.train_to_a == None && self.train_to_b == None
+    }
 }

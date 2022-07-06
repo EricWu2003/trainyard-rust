@@ -36,4 +36,13 @@ impl Trainsource {
         }
         border_state
     }
+
+    pub fn is_empty(&self) -> bool {
+        for i in 0..self.trains.len() {
+            if self.trains[i] != None {
+                return false;
+            }
+        }
+        return true;
+    }
 }

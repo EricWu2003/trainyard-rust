@@ -15,10 +15,23 @@ use sdl2::render::WindowCanvas;
 pub const NUM_ROWS: usize = 7;
 pub const NUM_COLS: usize = 7;
 
+#[derive(Copy, Clone, PartialEq, Debug)]
+pub enum YardState {
+    Drawing,
+    Playing {
+        num_ticks_elapsed: u32,
+        speed: f64,
+        progress: f64,
+    },
+    Crashed,
+    Won,
+}
+
 pub struct Yard {
     tiles: Vec<Vec<Tile>>,
     h_edges: Vec<Vec<Edge>>,
     v_edges: Vec<Vec<Edge>>,
+    pub state: YardState,
 }
 
 impl Yard {
@@ -70,6 +83,7 @@ impl Yard {
             tiles,
             h_edges,
             v_edges,
+            state: YardState::Drawing,
         }
     }
     pub fn from(level_info: &LevelInfo) -> Yard {
@@ -108,28 +122,37 @@ impl Yard {
     }
 
     pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection) {
+        assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn);
         }
     }
 
     pub fn process_tick(&mut self) {
+        assert!(matches!(
+            self.state,
+            YardState::Playing {
+                num_ticks_elapsed: _,
+                speed: _,
+                progress: _
+            }
+        ));
         // detect crashes on boundaries (i.e. if a train is about to crash by going
         // too far up where there is no tile left to catch it)
         for c in 0..NUM_COLS {
             if let Some(_train) = self.h_edges[0][c].train_to_a {
-                panic!("train crash!");
+                self.state = YardState::Crashed;
             }
             if let Some(_train) = self.h_edges[NUM_ROWS][c].train_to_b {
-                panic!("train crash!");
+                self.state = YardState::Crashed;
             }
         }
         for r in 0..NUM_ROWS {
             if let Some(_train) = self.v_edges[r][0].train_to_a {
-                panic!("train crash!");
+                self.state = YardState::Crashed;
             }
             if let Some(_train) = self.v_edges[r][NUM_COLS].train_to_b {
-                panic!("train crash!");
+                self.state = YardState::Crashed;
             }
         }
 
@@ -145,7 +168,7 @@ impl Yard {
                 ];
                 let res = self.tiles[r][c].accept_trains(border_state);
                 if !res {
-                    panic!("train crash!");
+                    self.state = YardState::Crashed;
                 }
             }
         }
@@ -179,6 +202,67 @@ impl Yard {
                 self.v_edges[r][c].interact_trains();
             }
         }
+        if self.has_won() {
+            self.state = YardState::Won;
+        }
+    }
+
+    pub fn update(&mut self) {
+        if let YardState::Playing {
+            mut num_ticks_elapsed,
+            speed,
+            mut progress,
+        } = self.state
+        {
+            progress += speed;
+            if progress > 1.0 {
+                progress -= 1.0;
+                self.process_tick();
+                num_ticks_elapsed += 1;
+            }
+            if self.state != YardState::Crashed && self.state != YardState::Won {
+                self.state = YardState::Playing {
+                    num_ticks_elapsed,
+                    speed,
+                    progress,
+                }
+            }
+        }
+    }
+
+    pub fn has_won(&self) -> bool {
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                match &self.tiles[r][c] {
+                    Tile::Trainsink(trainsink) => {
+                        if !trainsink.is_satisfied() {
+                            return false;
+                        }
+                    }
+                    Tile::Trainsource(trainsource) => {
+                        if !trainsource.is_empty() {
+                            return false;
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        for r in 0..(NUM_ROWS + 1) {
+            for c in 0..NUM_COLS {
+                if !self.h_edges[r][c].is_empty() {
+                    return false;
+                }
+            }
+        }
+        for r in 0..NUM_ROWS {
+            for c in 0..(NUM_COLS + 1) {
+                if !self.v_edges[r][c].is_empty() {
+                    return false;
+                }
+            }
+        }
+        true
     }
 
     pub fn render(
@@ -464,7 +548,8 @@ impl Yard {
                                     let curr_col = i % num_cols;
                                     let curr_row = i / num_cols;
                                     let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
-                                    let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
+                                    let scaled_plus_sign_height =
+                                        plus_sign_height / num_cols as i32;
                                     let x_pos = rect.x()
                                         + (block_width - plus_sign_width) / 2
                                         + curr_col as i32 * scaled_plus_sign_width;
