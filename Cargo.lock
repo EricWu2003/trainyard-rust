@@ -50,7 +50,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "traiyard-rust"
+name = "trainyard-rust"
 version = "0.1.0"
 dependencies = [
  "sdl2",
