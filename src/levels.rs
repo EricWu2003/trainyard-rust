@@ -25,7 +25,7 @@ pub type City<'a> = (&'a str, Vec<Level<'a>>);
 
 pub struct LevelManager<'a>(Vec<City<'a>>);
 
-pub static BYTES_LEVEL_INFO: &[u8; 2066] = include_bytes!("../assets/levels.txt");
+pub static BYTES_LEVEL_INFO: &[u8; 6042] = include_bytes!("../assets/levels.txt");
 
 fn convert_string_to_color(s: &str) -> Color {
     match s {
@@ -81,18 +81,18 @@ impl LevelManager<'_> {
                     let x: u8 = arr[index][2..3].parse().unwrap();
                     let y: u8 = arr[index][4..5].parse().unwrap();
 
-                    if arr[index].starts_with("+|") {
+                    if arr[index].starts_with("+ ") {
                         // handle a new trainsource
-                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let fields: Vec<&str> = arr[index].split(" ").collect();
                         let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
                         let dir = convert_string_to_dir(fields[3]);
                         level.level_info.push(PositionedTile { 
                             tile: Tile::Trainsource(Trainsource::new(colors, dir)),
                             x, y}
                         );
-                    } else if arr[index].starts_with("o|") {
+                    } else if arr[index].starts_with("o ") {
                         // handle a new trainsink
-                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let fields: Vec<&str> = arr[index].split(" ").collect();
                         let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
                         let dirs = fields[3].split(",").map(convert_string_to_dir);
                         let mut border_state = [false, false, false, false];
@@ -103,15 +103,15 @@ impl LevelManager<'_> {
                             tile: Tile::Trainsink(Trainsink::new(colors, border_state)),
                             x, y}
                         );
-                    } else if arr[index].starts_with("*|") {
+                    } else if arr[index].starts_with("* ") {
                         // handle a new rock
                         level.level_info.push(PositionedTile { 
                             tile: Tile::Rock,
                             x, y}
                         );
-                    } else if arr[index].starts_with("p|") {
+                    } else if arr[index].starts_with("p ") {
                         // handle a new painter
-                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let fields: Vec<&str> = arr[index].split(" ").collect();
                         let color = convert_string_to_color(fields[2]);
                         let dirs: Vec<usize> = fields[3].split(",").map(convert_string_to_dir).collect();
 
@@ -120,9 +120,9 @@ impl LevelManager<'_> {
                              x, y}
                         );
 
-                    } else if arr[index].starts_with("s|") {
+                    } else if arr[index].starts_with("s ") {
                         // handle a new splitter
-                        let fields: Vec<&str> = arr[index].split("|").collect();
+                        let fields: Vec<&str> = arr[index].split(" ").collect();
                         let dir = convert_string_to_dir(fields[2]);
                         level.level_info.push(PositionedTile { 
                             tile: Tile::Splitter(Splitter::new(dir)),
