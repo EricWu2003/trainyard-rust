@@ -42,4 +42,13 @@ impl Trainsink {
     pub fn dispatch_trains(&mut self) -> BorderState {
         [None, None, None, None]
     }
+
+    pub fn is_satisfied(&self) -> bool {
+        for i in 0..self.desires.len() {
+            if self.desires[i] != None {
+                return false;
+            }
+        }
+        return true;
+    }
 }

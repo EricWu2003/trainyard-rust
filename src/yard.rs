@@ -448,40 +448,44 @@ impl Yard {
                         }
                     }
                     Tile::Trainsink(trainsink) => {
-                        canvas.copy(&gs.source_sink_border, None, rect)?;
+                        if !trainsink.is_satisfied() {
+                            canvas.copy(&gs.source_sink_border, None, rect)?;
 
-                        let num_cols;
-                        if trainsink.desires.len() <= 1 {
-                            num_cols = 1;
-                        } else if trainsink.desires.len() <= 4 {
-                            num_cols = 2;
-                        } else {
-                            num_cols = 3;
-                        }
-                        for i in 0..trainsink.desires.len() {
-                            if let Some(color) = trainsink.desires[i] {
-                                let curr_col = i % num_cols;
-                                let curr_row = i / num_cols;
-                                let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
-                                let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
-                                let x_pos = rect.x()
-                                    + (block_width - plus_sign_width) / 2
-                                    + curr_col as i32 * scaled_plus_sign_width;
-                                let y_pos = rect.y()
-                                    + (block_height - plus_sign_height) / 2
-                                    + curr_row as i32 * scaled_plus_sign_height;
-                                gs.set_color(color);
-                                canvas.copy(
-                                    &gs.circle,
-                                    None,
-                                    Rect::new(
-                                        x_pos,
-                                        y_pos,
-                                        scaled_plus_sign_width as u32,
-                                        scaled_plus_sign_height as u32,
-                                    ),
-                                )?;
+                            let num_cols;
+                            if trainsink.desires.len() <= 1 {
+                                num_cols = 1;
+                            } else if trainsink.desires.len() <= 4 {
+                                num_cols = 2;
+                            } else {
+                                num_cols = 3;
                             }
+                            for i in 0..trainsink.desires.len() {
+                                if let Some(color) = trainsink.desires[i] {
+                                    let curr_col = i % num_cols;
+                                    let curr_row = i / num_cols;
+                                    let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
+                                    let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
+                                    let x_pos = rect.x()
+                                        + (block_width - plus_sign_width) / 2
+                                        + curr_col as i32 * scaled_plus_sign_width;
+                                    let y_pos = rect.y()
+                                        + (block_height - plus_sign_height) / 2
+                                        + curr_row as i32 * scaled_plus_sign_height;
+                                    gs.set_color(color);
+                                    canvas.copy(
+                                        &gs.circle,
+                                        None,
+                                        Rect::new(
+                                            x_pos,
+                                            y_pos,
+                                            scaled_plus_sign_width as u32,
+                                            scaled_plus_sign_height as u32,
+                                        ),
+                                    )?;
+                                }
+                            }
+                        } else {
+                            canvas.copy(&gs.sink_satisfied, None, rect)?;
                         }
                     }
                     Tile::Rock => {}

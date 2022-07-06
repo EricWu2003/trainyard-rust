@@ -32,6 +32,7 @@ pub static BYTES_PAINTER_BG: &[u8; 4405] = include_bytes!("../assets/sprites/Pai
 pub static BYTES_PAINTER_BRUSH: &[u8; 3689] = include_bytes!("../assets/sprites/Painter_brush.png");
 pub static BYTES_SPLITTER_BG: &[u8; 3701] = include_bytes!("../assets/sprites/Splitter_bg.png");
 pub static BYTES_SPLITTER: &[u8; 6274] = include_bytes!("../assets/sprites/Splitter.png");
+pub static BYTES_SINK_SATISFIED: &[u8; 3426] = include_bytes!("../assets/sprites/Sink_satisfied.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -56,6 +57,7 @@ pub struct GameSprites<'a> {
     pub painter_brush: Texture<'a>,
     pub splitter_bg: Texture<'a>,
     pub splitter: Texture<'a>,
+    pub sink_satisfied: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -85,6 +87,7 @@ impl<'a> GameSprites<'a> {
             painter_brush: texture_creator.load_texture_bytes(BYTES_PAINTER_BRUSH)?,
             splitter_bg: texture_creator.load_texture_bytes(BYTES_SPLITTER_BG)?,
             splitter: texture_creator.load_texture_bytes(BYTES_SPLITTER)?,
+            sink_satisfied: texture_creator.load_texture_bytes(BYTES_SINK_SATISFIED)?,
         })
     }
 

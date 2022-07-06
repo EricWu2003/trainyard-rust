@@ -45,7 +45,7 @@ fn main() -> Result<(), String> {
     let mut game_sprites = GameSprites::new(&texture_creator)?;
 
     let mut event_pump = sdl_context.event_pump()?;
-    let yard_rect = Rect::new(14, 40, 448, 448);
+    let yard_rect = Rect::new(14, 40, 672, 672);
 
     let mut prev_mouse_r = -1;
     let mut prev_mouse_c = -1;
