@@ -65,7 +65,7 @@ fn main() -> Result<(), String> {
                 } => {
                     yard.state = YardState::Playing {
                         num_ticks_elapsed: 0,
-                        speed: 0.017,
+                        speed: 0.17,
                         progress: 0.0,
                     }
                 }
@@ -143,7 +143,7 @@ fn main() -> Result<(), String> {
             progress,
         } = yard.state
         {
-            println!("playing at {}, {}, {}", num_ticks_elapsed, speed, progress);
+            // println!("playing at {}, {}, {}", num_ticks_elapsed, speed, progress);
         }
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
