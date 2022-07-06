@@ -31,7 +31,7 @@ fn main() -> Result<(), String> {
     let video_subsystem = sdl_context.video()?;
     let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
     let window = video_subsystem
-        .window("game tutorial", 672, 672)
+        .window("game tutorial", 700, 800)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -45,7 +45,7 @@ fn main() -> Result<(), String> {
     let mut game_sprites = GameSprites::new(&texture_creator)?;
 
     let mut event_pump = sdl_context.event_pump()?;
-    let yard_rect = Rect::new(0, 0, 672, 672);
+    let yard_rect = Rect::new(14, 40, 448, 448);
 
     let mut prev_mouse_r = -1;
     let mut prev_mouse_c = -1;
@@ -78,10 +78,10 @@ fn main() -> Result<(), String> {
             let grid_width = yard_rect.width() as i32 / NUM_COLS as i32;
             let grid_height = yard_rect.height() as i32 / NUM_ROWS as i32;
 
-            let (x, y) = (mouse_state.x(), mouse_state.y());
+            let (x, y) = (mouse_state.x() - yard_rect.x(), mouse_state.y() - yard_rect.y());
             let (c, r) = (
-                (x - yard_rect.x()) / grid_width,
-                (y - yard_rect.y()) / grid_height,
+                x / grid_width,
+                y / grid_height,
             );
 
             let dist_to_left = x % grid_width;
