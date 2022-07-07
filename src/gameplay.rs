@@ -1,13 +1,12 @@
-use sdl2::{rect::Rect, render::WindowCanvas, EventPump};
-use crate::{yard::Yard, sprites::GameSprites, levels::LevelManager};
+use crate::connection::Connection;
+use crate::yard::YardState;
+use crate::yard::{NUM_COLS, NUM_ROWS};
+use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
-use crate::connection::Connection;
-use crate::yard::{NUM_COLS, NUM_ROWS};
-use crate::yard::YardState;
+use sdl2::{rect::Rect, render::WindowCanvas, EventPump};
 
-
-pub struct Gameplay{
+pub struct Gameplay {
     rect: Rect,
     yard_rect: Rect,
     yard: Yard,
@@ -17,10 +16,9 @@ pub struct Gameplay{
     speed: f64,
 }
 
-
 impl Gameplay {
-    pub fn new(rect: Rect, level_manager: &LevelManager) -> Gameplay{
-        Gameplay{
+    pub fn new(rect: Rect, level_manager: &LevelManager) -> Gameplay {
+        Gameplay {
             rect,
             yard_rect: rect,
             yard: Yard::from(level_manager.get_level("Halifax", "Handlebars")),
@@ -40,9 +38,7 @@ impl Gameplay {
         // returns true if we need to end the program (break out of the main loop)
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit { .. } => {
-                    return true
-                }
+                Event::Quit { .. } => return true,
                 Event::KeyDown {
                     keycode: Some(Keycode::N),
                     ..
@@ -63,7 +59,12 @@ impl Gameplay {
         }
         if self.yard.state == YardState::Drawing {
             let mouse_state = event_pump.mouse_state();
-            if mouse_state.left() {
+            if mouse_state.left()
+                && mouse_state.x() > self.yard_rect.x()
+                && mouse_state.x() - self.yard_rect.x() < self.yard_rect.width() as i32
+                && mouse_state.y() > self.yard_rect.y()
+                && mouse_state.y() - self.yard_rect.y() < self.yard_rect.height() as i32
+            {
                 let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
                 let grid_height = self.yard_rect.height() as i32 / NUM_ROWS as i32;
 

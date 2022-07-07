@@ -1,26 +1,23 @@
 pub mod color;
 pub mod connection;
 pub mod edge;
+pub mod gameplay;
 pub mod levels;
 pub mod sprites;
 pub mod tile;
 pub mod yard;
-pub mod gameplay;
+use crate::gameplay::Gameplay;
 use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
 use crate::yard::YardState;
-use crate::gameplay::Gameplay
-;
 use sdl2::image::{self, InitFlag};
 use sdl2::pixels::Color;
 
 use sdl2::rect::Rect;
 use std::time::Duration;
 
-
 fn main() -> Result<(), String> {
     let level_manager = LevelManager::new();
-    
 
     let sdl_context = sdl2::init()?;
     let video_subsystem = sdl_context.video()?;
@@ -49,7 +46,6 @@ fn main() -> Result<(), String> {
         if gameplay.update(&mut event_pump) {
             break;
         }
-
 
         // Render
         if gameplay.get_state() == YardState::Won {

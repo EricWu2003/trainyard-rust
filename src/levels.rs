@@ -1,10 +1,10 @@
-use crate::color::Color::{self, Brown, Blue, Green, Orange, Purple, Red, Yellow};
+use crate::color::Color::{self, Blue, Brown, Green, Orange, Purple, Red, Yellow};
+use crate::connection::Connection;
+use crate::tile::painter::Painter;
+use crate::tile::splitter::Splitter;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
-use crate::tile::splitter::Splitter;
-use crate::tile::painter::Painter;
 use crate::tile::Tile;
-use crate::connection::Connection;
 
 use std::str;
 
@@ -50,12 +50,14 @@ fn convert_string_to_dir(s: &str) -> usize {
     }
 }
 
-
 impl LevelManager<'_> {
     pub fn new() -> LevelManager<'static> {
         let mut lm = LevelManager(vec![]);
         let info_str = str::from_utf8(BYTES_LEVEL_INFO).unwrap();
-        let arr: Vec<&str> = info_str.split("\n").filter(|line| !(line.starts_with("//") || line.is_empty())).collect();
+        let arr: Vec<&str> = info_str
+            .split("\n")
+            .filter(|line| !(line.starts_with("//") || line.is_empty()))
+            .collect();
         let max_index = arr.len() - 1;
         let mut index = 0;
         'outer: loop {
@@ -63,14 +65,14 @@ impl LevelManager<'_> {
             let city_name = &arr[index][5..];
             let mut city: City = (city_name, vec![]);
             index += 1;
-            
+
             loop {
                 // load all levels within a city
                 let fields: Vec<&str> = arr[index].split(":").collect();
                 let level_name = fields[0];
-                let num_stars:u32 = fields[1].parse().unwrap();
+                let num_stars: u32 = fields[1].parse().unwrap();
                 index += 1;
-                
+
                 let mut level = Level {
                     level_info: vec![],
                     name: level_name,
@@ -84,56 +86,67 @@ impl LevelManager<'_> {
                     if arr[index].starts_with("+ ") {
                         // handle a new trainsource
                         let fields: Vec<&str> = arr[index].split(" ").collect();
-                        let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
+                        let colors: Vec<Color> =
+                            fields[2].split(",").map(convert_string_to_color).collect();
                         let dir = convert_string_to_dir(fields[3]);
-                        level.level_info.push(PositionedTile { 
+                        level.level_info.push(PositionedTile {
                             tile: Tile::Trainsource(Trainsource::new(colors, dir)),
-                            x, y}
-                        );
+                            x,
+                            y,
+                        });
                     } else if arr[index].starts_with("o ") {
                         // handle a new trainsink
                         let fields: Vec<&str> = arr[index].split(" ").collect();
-                        let colors: Vec<Color> = fields[2].split(",").map(convert_string_to_color).collect();
+                        let colors: Vec<Color> =
+                            fields[2].split(",").map(convert_string_to_color).collect();
                         let dirs = fields[3].split(",").map(convert_string_to_dir);
                         let mut border_state = [false, false, false, false];
                         for dir in dirs {
                             border_state[dir] = true;
                         }
-                        level.level_info.push(PositionedTile { 
+                        level.level_info.push(PositionedTile {
                             tile: Tile::Trainsink(Trainsink::new(colors, border_state)),
-                            x, y}
-                        );
+                            x,
+                            y,
+                        });
                     } else if arr[index].starts_with("* ") {
                         // handle a new rock
-                        level.level_info.push(PositionedTile { 
+                        level.level_info.push(PositionedTile {
                             tile: Tile::Rock,
-                            x, y}
-                        );
+                            x,
+                            y,
+                        });
                     } else if arr[index].starts_with("p ") {
                         // handle a new painter
                         let fields: Vec<&str> = arr[index].split(" ").collect();
                         let color = convert_string_to_color(fields[2]);
-                        let dirs: Vec<usize> = fields[3].split(",").map(convert_string_to_dir).collect();
+                        let dirs: Vec<usize> =
+                            fields[3].split(",").map(convert_string_to_dir).collect();
 
-                        level.level_info.push(PositionedTile { 
-                            tile: Tile::Painter(Painter::new(Connection{dir1:dirs[0] as u8, dir2:dirs[1] as u8}, color)),
-                             x, y}
-                        );
-
+                        level.level_info.push(PositionedTile {
+                            tile: Tile::Painter(Painter::new(
+                                Connection {
+                                    dir1: dirs[0] as u8,
+                                    dir2: dirs[1] as u8,
+                                },
+                                color,
+                            )),
+                            x,
+                            y,
+                        });
                     } else if arr[index].starts_with("s ") {
                         // handle a new splitter
                         let fields: Vec<&str> = arr[index].split(" ").collect();
                         let dir = convert_string_to_dir(fields[2]);
-                        level.level_info.push(PositionedTile { 
+                        level.level_info.push(PositionedTile {
                             tile: Tile::Splitter(Splitter::new(dir)),
-                            x, y}
-                        );
+                            x,
+                            y,
+                        });
                     } else {
                         panic!("line begins with an invalid character {}", arr[index]);
                     }
 
-                    
-                    
                     index += 1;
                     if arr[index] == "---" {
                         break;
@@ -142,7 +155,7 @@ impl LevelManager<'_> {
                 city.1.push(level);
 
                 index += 1;
-                if index > max_index{
+                if index > max_index {
                     lm.0.push(city);
                     break 'outer;
                 }
@@ -152,7 +165,7 @@ impl LevelManager<'_> {
             }
 
             lm.0.push(city);
-            
+
             // if index > max_index {
             //     break 'outer;
             // }
@@ -178,4 +191,3 @@ impl LevelManager<'_> {
             .level_info
     }
 }
-
