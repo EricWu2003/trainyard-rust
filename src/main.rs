@@ -5,26 +5,21 @@ pub mod levels;
 pub mod sprites;
 pub mod tile;
 pub mod yard;
+pub mod gameplay;
 use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
-use crate::yard::Yard;
 use crate::yard::YardState;
-
-use connection::Connection;
-use sdl2::event::Event;
+use crate::gameplay::Gameplay
+;
 use sdl2::image::{self, InitFlag};
-use sdl2::keyboard::Keycode;
 use sdl2::pixels::Color;
 
 use sdl2::rect::Rect;
 use std::time::Duration;
 
-use yard::{NUM_COLS, NUM_ROWS};
 
 fn main() -> Result<(), String> {
-    let mut yard: Yard;
     let level_manager = LevelManager::new();
-    yard = Yard::from(level_manager.get_level("Debug", "Multiple entrances"));
     
 
     let sdl_context = sdl2::init()?;
@@ -47,107 +42,24 @@ fn main() -> Result<(), String> {
     let mut event_pump = sdl_context.event_pump()?;
     let yard_rect = Rect::new(14, 40, 672, 672);
 
-    let mut prev_mouse_r = -1;
-    let mut prev_mouse_c = -1;
-    let mut prev_min_dir = -1;
+    let mut gameplay = Gameplay::new(yard_rect, &level_manager);
 
-    'running: loop {
+    loop {
         // Handle events
-        for event in event_pump.poll_iter() {
-            match event {
-                Event::Quit { .. } => {
-                    break 'running;
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::N),
-                    ..
-                } => {
-                    yard.state = YardState::Playing {
-                        num_ticks_elapsed: 0,
-                        speed: 0.17,
-                        progress: 0.0,
-                    }
-                }
-                Event::KeyDown {
-                    keycode: Some(Keycode::Escape),
-                    ..
-                } => {
-                    break 'running;
-                }
-                _ => {}
-            }
+        if gameplay.update(&mut event_pump) {
+            break;
         }
-        if yard.state == YardState::Drawing {
-            let mouse_state = event_pump.mouse_state();
-            if mouse_state.left() {
-                let grid_width = yard_rect.width() as i32 / NUM_COLS as i32;
-                let grid_height = yard_rect.height() as i32 / NUM_ROWS as i32;
 
-                let (x, y) = (
-                    mouse_state.x() - yard_rect.x(),
-                    mouse_state.y() - yard_rect.y(),
-                );
-                let (c, r) = (x / grid_width, y / grid_height);
-
-                let dist_to_left = x % grid_width;
-                let dist_to_up = y % grid_height;
-                let distances = [
-                    dist_to_up,
-                    grid_width - dist_to_left,
-                    grid_height - dist_to_up,
-                    dist_to_left,
-                ];
-                let min_dist = *distances.iter().min().unwrap();
-                let mut min_dir = distances.iter().position(|&x| x == min_dist).unwrap() as i32;
-                if min_dist > grid_width / 7 {
-                    min_dir = -1;
-                }
-
-                if prev_mouse_c == c && prev_mouse_r == r {
-                    if prev_min_dir != min_dir && min_dir != -1 && prev_min_dir != -1 {
-                        yard.add_connection(
-                            r as usize,
-                            c as usize,
-                            Connection {
-                                dir1: prev_min_dir as u8,
-                                dir2: min_dir as u8,
-                            },
-                        )
-                    }
-                }
-
-                prev_mouse_c = c;
-                prev_mouse_r = r;
-                if min_dir != -1 {
-                    prev_min_dir = min_dir;
-                }
-            } else {
-                prev_mouse_c = -1;
-                prev_mouse_r = -1;
-                prev_min_dir = -1;
-            }
-        }
-        // Update
-        yard.update();
 
         // Render
-        if yard.state == YardState::Won {
+        if gameplay.get_state() == YardState::Won {
             println!("won!");
-        } else if yard.state == YardState::Crashed {
+        } else if gameplay.get_state() == YardState::Crashed {
             println!("crashed!");
-        }
-        if let YardState::Playing {
-            num_ticks_elapsed,
-            speed,
-            progress,
-        } = yard.state
-        {
-            // println!("playing at {}, {}, {}", num_ticks_elapsed, speed, progress);
         }
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
-        yard.render(&mut canvas, &yard_rect, &mut game_sprites)?;
-        // canvas.copy(&game_sprites.tracktile_blank, None, Rect::new(0,0,96,96))?;
+        gameplay.render(&mut canvas, &mut game_sprites)?;
 
         canvas.present();
 
