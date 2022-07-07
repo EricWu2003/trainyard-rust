@@ -35,4 +35,9 @@ impl Edge {
     pub fn is_empty(&self) -> bool {
         self.train_to_a == None && self.train_to_b == None
     }
+
+    pub fn clear_trains(&mut self) {
+        self.train_to_a = None;
+        self.train_to_b = None;
+    }
 }

@@ -9,7 +9,6 @@ pub mod yard;
 use crate::gameplay::Gameplay;
 use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
-use crate::yard::YardState;
 use sdl2::image::{self, InitFlag};
 use sdl2::pixels::Color;
 
@@ -23,7 +22,7 @@ fn main() -> Result<(), String> {
     let video_subsystem = sdl_context.video()?;
     let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
     let window = video_subsystem
-        .window("game tutorial", 700, 800)
+        .window("game tutorial", 700, 900)
         .position_centered()
         .build()
         .expect("could not initialize video subsystem");
@@ -37,7 +36,7 @@ fn main() -> Result<(), String> {
     let mut game_sprites = GameSprites::new(&texture_creator)?;
 
     let mut event_pump = sdl_context.event_pump()?;
-    let yard_rect = Rect::new(14, 40, 672, 672);
+    let yard_rect = Rect::new(14, 10, 672, 672);
 
     let mut gameplay = Gameplay::new(yard_rect, &level_manager);
 
@@ -48,11 +47,11 @@ fn main() -> Result<(), String> {
         }
 
         // Render
-        if gameplay.get_state() == YardState::Won {
-            println!("won!");
-        } else if gameplay.get_state() == YardState::Crashed {
-            println!("crashed!");
-        }
+        // if gameplay.get_state() == YardState::Won {
+        //     println!("won!");
+        // } else if gameplay.get_state() == YardState::Crashed {
+        //     println!("crashed!");
+        // }
         canvas.set_draw_color(Color::RGB(0, 0, 0));
         canvas.clear();
         gameplay.render(&mut canvas, &mut game_sprites)?;

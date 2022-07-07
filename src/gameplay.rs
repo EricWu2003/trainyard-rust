@@ -1,3 +1,5 @@
+use std::i32;
+
 use crate::connection::Connection;
 use crate::yard::YardState;
 use crate::yard::{NUM_COLS, NUM_ROWS};
@@ -6,31 +8,67 @@ use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::{rect::Rect, render::WindowCanvas, EventPump};
 
+const MAX_SPEED:f64 = 0.17;
 pub struct Gameplay {
-    rect: Rect,
     yard_rect: Rect,
+    ui_rect: Rect,
+    start_trains_rect: Rect,
+    erase_rect: Rect,
     yard: Yard,
     prev_mouse_r: i32,
     prev_mouse_c: i32,
     prev_min_dir: i32,
     speed: f64,
+    is_erasing: bool,
 }
 
 impl Gameplay {
     pub fn new(rect: Rect, level_manager: &LevelManager) -> Gameplay {
+        let ui_rect = Rect::new(rect.x(), rect.y() + rect.height() as i32, 672, 202);
+        let start_trains_rect =  Rect::new(rect.x() + 238, rect.y() + rect.height() as i32 + 10, 424, 104);
+        let erase_rect = Rect::new(rect.x()+10,rect.y() + rect.height() as i32+10,208,88);
         Gameplay {
-            rect,
             yard_rect: rect,
-            yard: Yard::from(level_manager.get_level("Halifax", "Handlebars")),
+            ui_rect,
+            start_trains_rect,
+            erase_rect,
+            yard: Yard::new(level_manager.get_level("Halifax", "Handlebars")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
             speed: 0.10,
+            is_erasing: false,
         }
     }
 
     pub fn render(&self, canvas: &mut WindowCanvas, gs: &mut GameSprites) -> Result<(), String> {
-        self.yard.render(canvas, &self.rect, gs)?;
+        self.yard.render(canvas, &self.yard_rect, gs)?;
+        let (x,y) = (self.ui_rect.x(), self.ui_rect.y());
+
+        match self.yard.state {
+            YardState::Drawing => {
+                if !self.is_erasing {
+                    canvas.copy(&gs.btn_erase, None, self.erase_rect)?;
+                } else {
+                    canvas.copy(&gs.btn_stop_erase, None, self.erase_rect)?;
+                }
+                canvas.copy(&gs.btn_start_trains, None, self.start_trains_rect)?;
+            },
+            YardState::Crashed => {
+                canvas.copy(&gs.btn_status_crashed, None, Rect::new(x+10,y+10,208,168))?;
+                canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
+            },
+            YardState::Playing { num_ticks_elapsed: _, progress: _ } | YardState::Won => {
+                canvas.copy(&gs.btn_status_good, None, Rect::new(x+10,y+10,208,168))?;
+                canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
+            }
+        }
+        
+        
+        canvas.copy(&&gs.space_for_speed_slider, None, Rect::new(x+238,y+134,424,68))?;
+        // the speed button can move 424 - 136 = 288 pixels
+        let speed_btn_offset = ((self.speed/MAX_SPEED) * 288.0) as i32;
+        canvas.copy(&&&gs.btn_speed, None, Rect::new(x+238 + speed_btn_offset,y+134,136 ,68))?;
         Ok(())
     }
 
@@ -39,34 +77,59 @@ impl Gameplay {
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return true,
-                Event::KeyDown {
-                    keycode: Some(Keycode::N),
-                    ..
-                } => {
-                    self.yard.state = YardState::Playing {
-                        num_ticks_elapsed: 0,
-                        progress: 0.0,
-                    }
-                }
+                 
                 Event::KeyDown {
                     keycode: Some(Keycode::Escape),
                     ..
                 } => {
                     return true;
                 }
+                Event::MouseButtonDown { x, y, .. } => {
+                    if x > self.start_trains_rect.x() && x - self.start_trains_rect.x() < self.start_trains_rect.width() as i32 && 
+                        y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 {
+                            match self.yard.state {
+                                YardState::Crashed => {
+                                    self.yard.clear_trains();
+                                    self.yard.state = YardState::Drawing;
+                                },
+                                YardState::Drawing => {
+                                    self.is_erasing = false;
+                                    self.yard.state = YardState::Playing {
+                                        num_ticks_elapsed: 0,
+                                        progress: 0.0,
+                                    }
+                                },
+                                YardState::Playing {..} => {
+                                    self.yard.clear_trains();
+                                    self.yard.state = YardState::Drawing;
+                                },
+                                YardState::Won => {},
+                            }
+                    } else if x > self.erase_rect.x() && x - self.erase_rect.x() < self.erase_rect.width() as i32 && 
+                        y > self.erase_rect.y() && y - self.erase_rect.y() < self.erase_rect.height() as i32 {
+                            match self.yard.state {
+                                YardState::Drawing => {
+                                    self.is_erasing = !self.is_erasing;
+                                },
+                                _ => {},
+                            }
+                    }
+                }
                 _ => {}
             }
         }
-        if self.yard.state == YardState::Drawing {
-            let mouse_state = event_pump.mouse_state();
+        let mouse_state = event_pump.mouse_state();
+        let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
+        let grid_height = self.yard_rect.height() as i32 / NUM_ROWS as i32;
+
+        if self.yard.state == YardState::Drawing && !self.is_erasing {
             if mouse_state.left()
                 && mouse_state.x() > self.yard_rect.x()
                 && mouse_state.x() - self.yard_rect.x() < self.yard_rect.width() as i32
                 && mouse_state.y() > self.yard_rect.y()
                 && mouse_state.y() - self.yard_rect.y() < self.yard_rect.height() as i32
             {
-                let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
-                let grid_height = self.yard_rect.height() as i32 / NUM_ROWS as i32;
+                
 
                 let (x, y) = (
                     mouse_state.x() - self.yard_rect.x(),
@@ -111,7 +174,23 @@ impl Gameplay {
                 self.prev_mouse_r = -1;
                 self.prev_min_dir = -1;
             }
+        } else if self.yard.state == YardState::Drawing && self.is_erasing {
+            if mouse_state.left()
+                && mouse_state.x() > self.yard_rect.x()
+                && mouse_state.x() - self.yard_rect.x() < self.yard_rect.width() as i32
+                && mouse_state.y() > self.yard_rect.y()
+                && mouse_state.y() - self.yard_rect.y() < self.yard_rect.height() as i32
+            {
+                let (x, y) = (
+                    mouse_state.x() - self.yard_rect.x(),
+                    mouse_state.y() - self.yard_rect.y(),
+                );
+                let (c, r) = (x / grid_width, y / grid_height);
+
+                self.yard.clear_connections(r as usize, c as usize);
+            }
         }
+
         // Update
         self.yard.update(self.speed);
         false

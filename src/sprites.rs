@@ -34,6 +34,14 @@ pub static BYTES_SPLITTER_BG: &[u8; 3701] = include_bytes!("../assets/sprites/Sp
 pub static BYTES_SPLITTER: &[u8; 6274] = include_bytes!("../assets/sprites/Splitter.png");
 pub static BYTES_SINK_SATISFIED: &[u8; 3426] =
     include_bytes!("../assets/sprites/Sink_satisfied.png");
+pub static BYTES_BTN_BACK_TO_DRAWING: &[u8; 29990] = include_bytes!("../assets/UI/Btn_back_to_drawing.png");
+pub static BYTES_BTN_ERASE: &[u8; 17439] = include_bytes!("../assets/UI/Btn_erase.png");
+pub static BYTES_BTN_SPEED: &[u8; 9213] = include_bytes!("../assets/UI/Btn_speed.png");
+pub static BYTES_BTN_START_TRAINS: &[u8; 25436] = include_bytes!("../assets/UI/Btn_start_trains.png");
+pub static BYTES_BTN_STATUS_CRASHED: &[u8; 13777] = include_bytes!("../assets/UI/Btn_status_crashed.png");
+pub static BYTES_BTN_STATUS_GOOD: &[u8; 11736] = include_bytes!("../assets/UI/Btn_status_good.png");
+pub static BYTES_BTN_STOP_ERASE: &[u8; 19894] = include_bytes!("../assets/UI/Btn_stop_erase.png");
+pub static BYTES_SPACE_FOR_SPEED_SLIDER: &[u8; 5034] = include_bytes!("../assets/UI/Space_for_speed_slider.png");
 
 pub struct GameSprites<'a> {
     pub tracktile_blank: Texture<'a>,
@@ -59,6 +67,14 @@ pub struct GameSprites<'a> {
     pub splitter_bg: Texture<'a>,
     pub splitter: Texture<'a>,
     pub sink_satisfied: Texture<'a>,
+    pub btn_back_to_drawing: Texture<'a>,
+    pub btn_erase: Texture<'a>,
+    pub btn_speed: Texture<'a>,
+    pub btn_start_trains: Texture<'a>,
+    pub btn_status_crashed: Texture<'a>,
+    pub btn_status_good: Texture<'a>,
+    pub btn_stop_erase: Texture<'a>,
+    pub space_for_speed_slider: Texture<'a>,
 }
 
 impl<'a> GameSprites<'a> {
@@ -89,6 +105,14 @@ impl<'a> GameSprites<'a> {
             splitter_bg: texture_creator.load_texture_bytes(BYTES_SPLITTER_BG)?,
             splitter: texture_creator.load_texture_bytes(BYTES_SPLITTER)?,
             sink_satisfied: texture_creator.load_texture_bytes(BYTES_SINK_SATISFIED)?,
+            btn_back_to_drawing: texture_creator.load_texture_bytes(BYTES_BTN_BACK_TO_DRAWING)?,
+            btn_erase: texture_creator.load_texture_bytes(BYTES_BTN_ERASE)?,
+            btn_speed: texture_creator.load_texture_bytes(BYTES_BTN_SPEED)?,
+            btn_start_trains: texture_creator.load_texture_bytes(BYTES_BTN_START_TRAINS)?,
+            btn_status_crashed: texture_creator.load_texture_bytes(BYTES_BTN_STATUS_CRASHED)?,
+            btn_status_good: texture_creator.load_texture_bytes(BYTES_BTN_STATUS_GOOD)?,
+            btn_stop_erase: texture_creator.load_texture_bytes(BYTES_BTN_STOP_ERASE)?,
+            space_for_speed_slider: texture_creator.load_texture_bytes(BYTES_SPACE_FOR_SPEED_SLIDER)?,
         })
     }
 

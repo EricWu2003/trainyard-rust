@@ -31,10 +31,11 @@ pub struct Yard {
     h_edges: Vec<Vec<Edge>>,
     v_edges: Vec<Vec<Edge>>,
     pub state: YardState,
+    level_info: LevelInfo,
 }
 
 impl Yard {
-    pub fn new() -> Yard {
+    pub fn new_blank() -> Yard {
         let mut tiles: Vec<Vec<Tile>> = Vec::new();
         for _ in 0..NUM_ROWS {
             let mut row: Vec<Tile> = Vec::new();
@@ -83,15 +84,50 @@ impl Yard {
             h_edges,
             v_edges,
             state: YardState::Drawing,
+            level_info: vec![],
         }
     }
-    pub fn from(level_info: &LevelInfo) -> Yard {
-        let mut yard = Yard::new();
+    pub fn new(level_info: &LevelInfo) -> Yard {
+        let mut yard = Yard::new_blank();
         for i in 0..level_info.len() {
             let tile = &level_info[i];
             yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
         }
+        yard.level_info = level_info.clone();
         yard
+    }
+    pub fn clear_trains(&mut self) {
+        // used to recover from a crashed state back to a drawing state.
+        for i in 0..self.level_info.len() {
+            let tile = &self.level_info[i];
+            self.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
+        }
+
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
+                    tracktile.clear_trains();
+                }
+            }
+        }
+
+        for r in 0..(NUM_ROWS + 1) {
+            for c in 0..NUM_COLS {
+                self.h_edges[r][c].clear_trains();
+            }
+        }
+        for r in 0..NUM_ROWS {
+            for c in 0..(NUM_COLS + 1) {
+                self.v_edges[r][c].clear_trains();
+            }
+        }
+
+    }
+
+    pub fn clear_connections (&mut self, r: usize, c: usize) {
+        if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
+            tracktile.clear_connections();
+        }
     }
 
     pub fn display(&self) {

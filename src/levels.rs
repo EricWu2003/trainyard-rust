@@ -8,6 +8,7 @@ use crate::tile::Tile;
 
 use std::str;
 
+#[derive(Clone)]
 pub struct PositionedTile {
     pub tile: Tile,
     pub x: u8,

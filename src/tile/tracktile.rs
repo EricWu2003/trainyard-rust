@@ -223,7 +223,7 @@ impl Tracktile {
     pub fn interact_trains(&mut self) {
         let my_type = self.connection_type();
 
-        let need_to_switch_active_passve = self.trains.len() % 2 == 1;
+        let need_to_switch_active_passive = self.trains.len() % 2 == 1;
 
         if self.trains.len() >= 2 {
             if my_type == ConnectionType::H
@@ -291,7 +291,7 @@ impl Tracktile {
             }
         }
 
-        if need_to_switch_active_passve {
+        if need_to_switch_active_passive {
             self.switch_active_passive();
         }
     }
@@ -363,5 +363,14 @@ impl Tracktile {
         if self.active_connection == self.passive_connection {
             self.passive_connection = None;
         }
+    }
+
+    pub fn clear_trains(&mut self) {
+        self.trains = vec![];
+    }
+
+    pub fn clear_connections(&mut self) {
+        self.active_connection = None;
+        self.passive_connection = None;
     }
 }
