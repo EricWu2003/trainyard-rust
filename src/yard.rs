@@ -20,7 +20,6 @@ pub enum YardState {
     Drawing,
     Playing {
         num_ticks_elapsed: u32,
-        speed: f64,
         progress: f64,
     },
     Crashed,
@@ -133,7 +132,6 @@ impl Yard {
             self.state,
             YardState::Playing {
                 num_ticks_elapsed: _,
-                speed: _,
                 progress: _
             }
         ));
@@ -207,10 +205,9 @@ impl Yard {
         }
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, speed: f64) {
         if let YardState::Playing {
             mut num_ticks_elapsed,
-            speed,
             mut progress,
         } = self.state
         {
@@ -223,7 +220,6 @@ impl Yard {
             if self.state != YardState::Crashed && self.state != YardState::Won {
                 self.state = YardState::Playing {
                     num_ticks_elapsed,
-                    speed,
                     progress,
                 }
             }
@@ -504,8 +500,10 @@ impl Yard {
                             num_cols = 1;
                         } else if trainsource.trains.len() <= 4 {
                             num_cols = 2;
-                        } else {
+                        } else if trainsource.trains.len() <= 9 {
                             num_cols = 3;
+                        } else {
+                            num_cols = 4;
                         }
                         for i in 0..trainsource.trains.len() {
                             if let Some(color) = trainsource.trains[i] {
@@ -542,8 +540,10 @@ impl Yard {
                                 num_cols = 1;
                             } else if trainsink.desires.len() <= 4 {
                                 num_cols = 2;
-                            } else {
+                            } else if trainsink.desires.len() <= 9 {
                                 num_cols = 3;
+                            } else {
+                                num_cols = 4;
                             }
                             for i in 0..trainsink.desires.len() {
                                 if let Some(color) = trainsink.desires[i] {
