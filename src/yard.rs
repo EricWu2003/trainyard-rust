@@ -163,6 +163,13 @@ impl Yard {
         }
     }
 
+    pub fn switch_connections(&mut self, r:usize, c:usize) {
+        assert!(matches!(self.state, YardState::Drawing));
+        if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
+            tt.switch_active_passive();
+        }
+    }
+
     pub fn process_tick(&mut self) {
         assert!(matches!(
             self.state,

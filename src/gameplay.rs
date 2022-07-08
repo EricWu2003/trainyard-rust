@@ -9,6 +9,7 @@ use sdl2::keyboard::Keycode;
 use sdl2::{rect::Rect, render::WindowCanvas, EventPump};
 
 const MAX_SPEED:f64 = 0.17;
+const DOUBLE_CLICK_THRESHOLD:u32 = 34;
 pub struct Gameplay {
     yard_rect: Rect,
     ui_rect: Rect,
@@ -20,6 +21,8 @@ pub struct Gameplay {
     prev_min_dir: i32,
     speed: f64,
     is_erasing: bool,
+    frame_count: u32,
+    last_click_time: u32,
 }
 
 impl Gameplay {
@@ -38,6 +41,8 @@ impl Gameplay {
             prev_min_dir: -1,
             speed: 0.10,
             is_erasing: false,
+            frame_count: 0,
+            last_click_time: 0,
         }
     }
 
@@ -74,6 +79,10 @@ impl Gameplay {
 
     pub fn update(&mut self, event_pump: &mut EventPump) -> bool {
         // returns true if we need to end the program (break out of the main loop)
+        let mouse_state = event_pump.mouse_state();
+        let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
+        let grid_height = self.yard_rect.height() as i32 / NUM_ROWS as i32;
+
         for event in event_pump.poll_iter() {
             match event {
                 Event::Quit { .. } => return true,
@@ -85,6 +94,7 @@ impl Gameplay {
                     return true;
                 }
                 Event::MouseButtonDown { x, y, .. } => {
+                    let mut finished_double_click = false;
                     if x > self.start_trains_rect.x() && x - self.start_trains_rect.x() < self.start_trains_rect.width() as i32 && 
                         y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 {
                             match self.yard.state {
@@ -113,14 +123,31 @@ impl Gameplay {
                                 },
                                 _ => {},
                             }
+                    } else if x > self.yard_rect.x() && x - self.yard_rect.x() < self.yard_rect.width() as i32 && 
+                    y > self.yard_rect.y() && y - self.yard_rect.y() < self.yard_rect.height() as i32 {
+                        if self.frame_count - self.last_click_time < DOUBLE_CLICK_THRESHOLD {
+                            match self.yard.state {
+                                YardState::Drawing => {
+                                    let (x, y) = (
+                                        mouse_state.x() - self.yard_rect.x(),
+                                        mouse_state.y() - self.yard_rect.y(),
+                                    );
+                                    let (c, r) = (x / grid_width, y / grid_height);
+                                    self.yard.switch_connections(r as usize, c as usize);
+                                    finished_double_click = true;
+                                },
+                                _ => {},
+                            }
+                        }
                     }
+                    if ! finished_double_click {
+                        self.last_click_time = self.frame_count;
+                    }
+
                 }
                 _ => {}
             }
         }
-        let mouse_state = event_pump.mouse_state();
-        let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
-        let grid_height = self.yard_rect.height() as i32 / NUM_ROWS as i32;
 
         if self.yard.state == YardState::Drawing && !self.is_erasing {
             if mouse_state.left()
@@ -193,6 +220,7 @@ impl Gameplay {
 
         // Update
         self.yard.update(self.speed);
+        self.frame_count += 1;
         false
     }
 

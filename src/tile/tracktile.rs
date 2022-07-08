@@ -65,8 +65,9 @@ impl Tracktile {
         }
         false
     }
-    fn switch_active_passive(&mut self) {
+    pub fn switch_active_passive(&mut self) {
         // this function is called whenever an odd number of trains rolls through a tracktile
+        // or when a user double clicks a tile when drawing
         // if there is no passive connection, then we do nothing
         let c = self.connection_type();
         if c == ConnectionType::M || c == ConnectionType::J {
