@@ -15,6 +15,8 @@ pub struct Gameplay {
     ui_rect: Rect,
     start_trains_rect: Rect,
     erase_rect: Rect,
+    speed_slider_space_rect: Rect,
+    speed_slider_rect: Rect,
     yard: Yard,
     prev_mouse_r: i32,
     prev_mouse_c: i32,
@@ -23,26 +25,38 @@ pub struct Gameplay {
     is_erasing: bool,
     frame_count: u32,
     last_click_time: u32,
+    speed_btn_drag_offset: Option<i32>,
 }
 
 impl Gameplay {
     pub fn new(rect: Rect, level_manager: &LevelManager) -> Gameplay {
-        let ui_rect = Rect::new(rect.x(), rect.y() + rect.height() as i32, 672, 202);
-        let start_trains_rect =  Rect::new(rect.x() + 238, rect.y() + rect.height() as i32 + 10, 424, 104);
-        let erase_rect = Rect::new(rect.x()+10,rect.y() + rect.height() as i32+10,208,88);
+        let (x, y) = (rect.x(), rect.y() + rect.height() as i32);
+        let ui_rect = Rect::new(x, y, 672, 202);
+        let start_trains_rect =  Rect::new(x + 238, y + 10, 424, 104);
+        let erase_rect = Rect::new(x+10,y+10,208,88);
+        let speed_slider_space_rect = Rect::new(x+238,y+134,424,68);
+        let initial_speed = 0.5*MAX_SPEED;
+
+        // the speed button can move 424 - 136 = 288 pixels
+        let speed_btn_offset = ((initial_speed/MAX_SPEED) * 288.0) as i32;
+        let speed_slider_rect = Rect::new(x+238 + speed_btn_offset,y+134,136 ,68);
+
         Gameplay {
             yard_rect: rect,
             ui_rect,
             start_trains_rect,
             erase_rect,
+            speed_slider_space_rect,
+            speed_slider_rect,
             yard: Yard::new(level_manager.get_level("Halifax", "Handlebars")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
-            speed: 0.10,
+            speed: initial_speed,
             is_erasing: false,
             frame_count: 0,
             last_click_time: 0,
+            speed_btn_drag_offset: None,
         }
     }
 
@@ -70,10 +84,8 @@ impl Gameplay {
         }
         
         
-        canvas.copy(&&gs.space_for_speed_slider, None, Rect::new(x+238,y+134,424,68))?;
-        // the speed button can move 424 - 136 = 288 pixels
-        let speed_btn_offset = ((self.speed/MAX_SPEED) * 288.0) as i32;
-        canvas.copy(&&&gs.btn_speed, None, Rect::new(x+238 + speed_btn_offset,y+134,136 ,68))?;
+        canvas.copy(&&gs.space_for_speed_slider, None, self.speed_slider_space_rect)?;
+        canvas.copy(&&&gs.btn_speed, None, self.speed_slider_rect)?;
         Ok(())
     }
 
@@ -149,6 +161,31 @@ impl Gameplay {
             }
         }
 
+        if mouse_state.left() && mouse_state.x() > self.speed_slider_space_rect.x()
+            && mouse_state.x() - self.speed_slider_space_rect.x() < self.speed_slider_space_rect.width() as i32
+            && mouse_state.y() > self.speed_slider_space_rect.y()
+            && mouse_state.y() - self.speed_slider_space_rect.y() < self.speed_slider_space_rect.height() as i32 
+        {
+            match self.speed_btn_drag_offset {
+                Some(offset) => {
+                    let mut new_x = mouse_state.x() - offset;
+                    if new_x < self.speed_slider_space_rect.x() {
+                        new_x = self.speed_slider_space_rect.x();
+                    } else if new_x > self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32 {
+                        new_x = self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32;
+                    }
+                    self.speed_slider_rect = Rect::new(new_x, self.speed_slider_rect.y(), self.speed_slider_rect.width(), self.speed_slider_rect.height());
+                    self.speed = (new_x - self.speed_slider_space_rect.x()) as f64 / (self.speed_slider_space_rect.width() - self.speed_slider_rect.width()) as f64 * MAX_SPEED;
+                }
+                None => {
+                    self.speed_btn_drag_offset = Some(mouse_state.x() - self.speed_slider_rect.x());
+                }
+            }
+        } else {
+            self.speed_btn_drag_offset = None;
+        }
+    
+
         if self.yard.state == YardState::Drawing && !self.is_erasing {
             if mouse_state.left()
                 && mouse_state.x() > self.yard_rect.x()
@@ -174,7 +211,7 @@ impl Gameplay {
                 ];
                 let min_dist = *distances.iter().min().unwrap();
                 let mut min_dir = distances.iter().position(|&x| x == min_dist).unwrap() as i32;
-                if min_dist > grid_width / 7 {
+                if min_dist > grid_width / 4 {
                     min_dir = -1;
                 }
 
