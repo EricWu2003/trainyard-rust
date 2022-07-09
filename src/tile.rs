@@ -56,11 +56,18 @@ impl Tile {
             Tile::Splitter(splitter) => splitter.dispatch_trains(),
         }
     }
-    pub fn process_tick(&mut self) {
+    pub fn process_end_of_tick(&mut self) {
         match self {
             Tile::Tracktile(tracktile) => {
                 tracktile.interact_trains();
             }
+            _ => {}
+        }
+    }
+
+    pub fn process_tick(&mut self) {
+        match self {
+            Tile::Tracktile(_) => {}
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
             Tile::Rock => {}

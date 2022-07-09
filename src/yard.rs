@@ -179,8 +179,17 @@ impl Yard {
     }
 
     pub fn process_edges(&mut self) {
-         // dispatch all trains and store them in edges.
-         for r in 0..NUM_ROWS {
+
+        //interact all trains
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                self.tiles[r][c].process_end_of_tick();
+            }
+        }
+
+
+        // dispatch all trains and store them in edges.
+        for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
                 [
                     self.h_edges[r][c].train_to_a,
@@ -221,7 +230,7 @@ impl Yard {
             }
         }
 
-        // first all tiles pull in trains from the edges. A crash occurs if there is a
+        // all tiles pull in trains from the edges. A crash occurs if there is a
         // train entering a tile but the tile does not pull it in.
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
@@ -508,44 +517,6 @@ impl Yard {
                 }
             }
         }
-
-        //render all trains on borders
-        // for r in 0..(NUM_ROWS + 1) {
-        //     for c in 0..NUM_COLS {
-        //         let rect = Rect::new(
-        //             x0 + block_width / 2 + (c as i32) * block_width - (train_width / 2),
-        //             y0 + r as i32 * block_height - (train_height / 2),
-        //             train_width as u32,
-        //             train_height as u32,
-        //         );
-        //         if let Some(train_going_up) = self.h_edges[r][c].train_to_a {
-        //             gs.set_color(train_going_up);
-        //             canvas.copy_ex(&gs.train, None, rect, 0.0, None, false, false)?;
-        //         }
-        //         if let Some(train_going_down) = self.h_edges[r][c].train_to_b {
-        //             gs.set_color(train_going_down);
-        //             canvas.copy_ex(&gs.train, None, rect, 180.0, None, false, false)?;
-        //         }
-        //     }
-        // }
-        // for r in 0..NUM_ROWS {
-        //     for c in 0..(NUM_COLS + 1) {
-        //         let rect = Rect::new(
-        //             x0 + c as i32 * block_width - (train_width / 2),
-        //             y0 + block_height / 2 + r as i32 * block_height - (train_height / 2),
-        //             train_width as u32,
-        //             train_height as u32,
-        //         );
-        //         if let Some(train_going_left) = self.v_edges[r][c].train_to_a {
-        //             gs.set_color(train_going_left);
-        //             canvas.copy_ex(&gs.train, None, rect, 270.0, None, false, false)?;
-        //         }
-        //         if let Some(train_going_right) = self.v_edges[r][c].train_to_b {
-        //             gs.set_color(train_going_right);
-        //             canvas.copy_ex(&gs.train, None, rect, 90.0, None, false, false)?;
-        //         }
-        //     }
-        // }
 
 
         let current_progress;
