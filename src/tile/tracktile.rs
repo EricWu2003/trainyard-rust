@@ -1,6 +1,13 @@
+use std::f32::consts::PI;
+
 use crate::color::Color;
 use crate::connection::Connection;
 use crate::tile::BorderState;
+use sdl2::rect::Rect;
+use sdl2::render::WindowCanvas;
+use crate::sprites::GameSprites;
+
+const PI_F64:f64 = PI as f64;
 
 // used for storing a train in a Tracktile
 #[derive(Debug, Clone, Copy)]
@@ -373,5 +380,96 @@ impl Tracktile {
     pub fn clear_connections(&mut self) {
         self.active_connection = None;
         self.passive_connection = None;
+    }
+
+
+    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
+        let train_width = (rect.width() as f64 * (32.0 / 96.0)) as u32;
+        let train_height = (rect.height() as f64 * (57.0 / 96.0)) as u32;
+
+        for train in &self.trains {
+            gs.set_color(train.color);
+
+            let mut train_center_x = rect.x();
+            let mut train_center_y = rect.y();
+            let mut rot = 0.0;
+            if train.source == 0 && train.destination == 2 {
+                train_center_x = rect.x() + (rect.width()/2) as i32;
+                train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
+                rot = 180.0;
+            } else if train.source == 2 && train.destination == 0 {
+                train_center_x = rect.x() + (rect.width()/2) as i32;
+                train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                rot = 0.0;
+            } else if train.source == 3 && train.destination == 1 {
+                train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
+                train_center_y = rect.y() + (rect.height()/2) as i32;
+                rot = 90.0;
+            } else if train.source == 1 && train.destination == 3 {
+                train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
+                train_center_y = rect.y() + (rect.height()/2) as i32;
+                rot = 270.0;
+            } else if train.source == 0 && train.destination == 1 {
+                train_center_x = rect.x() + rect.width() as i32 + 
+                    ((rect.width()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() +
+                    ((rect.height()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
+                rot = 180.0 - 90.0*progress/2.0;
+            } else if train.source == 1 && train.destination == 2 {
+                train_center_x = rect.x() + rect.width() as i32 + 
+                    ((rect.width()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() + rect.height() as i32 + 
+                    ((rect.height()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
+                rot = 270.0 - 90.0*progress/2.0;
+            } else if train.source == 2 && train.destination == 3 {
+                train_center_x = rect.x() +
+                    ((rect.width()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() + rect.height() as i32 + 
+                    ((rect.height()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
+                rot = 360.0 - 90.0*progress/2.0;
+            } else if train.source == 3 && train.destination == 0 {
+                train_center_x = rect.x() +
+                    ((rect.width()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() +
+                    ((rect.height()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
+                rot = 90.0 - 90.0*progress/2.0;
+            } else if train.source == 0 && train.destination == 3 {
+                train_center_x = rect.x() +
+                    ((rect.width()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() +
+                    ((rect.height()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
+                rot = 180.0 + 90.0*progress/2.0;
+            } else if train.source == 3 && train.destination == 2 {
+                train_center_x = rect.x() +
+                    ((rect.width()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() + rect.height() as i32 + 
+                    ((rect.height()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
+                rot = 90.0 + 90.0*progress/2.0;
+            }  else if train.source == 2 && train.destination == 1 {
+                train_center_x = rect.x() + rect.width() as i32 + 
+                    ((rect.width()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() + rect.height() as i32 + 
+                    ((rect.height()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
+                rot = 90.0*progress/2.0;
+            } else if train.source == 1 && train.destination == 0 {
+                train_center_x = rect.x() + rect.width() as i32 + 
+                    ((rect.width()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
+                train_center_y = rect.y() + 
+                    ((rect.height()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
+                rot = 270.0 + 90.0*progress/2.0;
+            }
+
+
+
+            let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
+            
+            
+            
+            
+            
+            canvas.copy_ex(&gs.train, None, train_rect, rot, None, false, false)?;
+
+        }
+        Ok(())
     }
 }

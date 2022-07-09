@@ -16,11 +16,19 @@ pub const NUM_ROWS: usize = 7;
 pub const NUM_COLS: usize = 7;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
+
+pub enum NextAction {
+    ProcessTick,
+    ProcessEdges,
+}
+
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum YardState {
     Drawing,
     Playing {
         num_ticks_elapsed: u32,
         progress: f64,
+        next_step: NextAction,
     },
     Crashed,
     Won,
@@ -170,14 +178,30 @@ impl Yard {
         }
     }
 
-    pub fn process_tick(&mut self) {
-        assert!(matches!(
-            self.state,
-            YardState::Playing {
-                num_ticks_elapsed: _,
-                progress: _
+    pub fn process_edges(&mut self) {
+         // dispatch all trains and store them in edges.
+         for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                [
+                    self.h_edges[r][c].train_to_a,
+                    self.v_edges[r][c + 1].train_to_b,
+                    self.h_edges[r + 1][c].train_to_b,
+                    self.v_edges[r][c].train_to_a,
+                ] = self.tiles[r][c].dispatch_trains();
             }
-        ));
+        }
+        // mix edges
+        for r in 0..(NUM_ROWS + 1) {
+            for c in 0..NUM_COLS {
+                self.h_edges[r][c].interact_trains();
+            }
+        }
+        for r in 0..NUM_ROWS {
+            for c in 0..(NUM_COLS + 1) {
+                self.v_edges[r][c].interact_trains();
+            }
+        }
+
         // detect crashes on boundaries (i.e. if a train is about to crash by going
         // too far up where there is no tile left to catch it)
         for c in 0..NUM_COLS {
@@ -214,6 +238,16 @@ impl Yard {
             }
         }
 
+        
+    }
+
+    pub fn process_tick(&mut self) {
+        assert!(matches!(
+            self.state,
+            YardState::Playing {..}
+        ));
+        
+
         // then process tick in all tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
@@ -221,28 +255,6 @@ impl Yard {
             }
         }
 
-        // then dispatch all trains and store them in edges.
-        for r in 0..NUM_ROWS {
-            for c in 0..NUM_COLS {
-                [
-                    self.h_edges[r][c].train_to_a,
-                    self.v_edges[r][c + 1].train_to_b,
-                    self.h_edges[r + 1][c].train_to_b,
-                    self.v_edges[r][c].train_to_a,
-                ] = self.tiles[r][c].dispatch_trains();
-            }
-        }
-        // mix edges
-        for r in 0..(NUM_ROWS + 1) {
-            for c in 0..NUM_COLS {
-                self.h_edges[r][c].interact_trains();
-            }
-        }
-        for r in 0..NUM_ROWS {
-            for c in 0..(NUM_COLS + 1) {
-                self.v_edges[r][c].interact_trains();
-            }
-        }
         if self.has_won() {
             self.state = YardState::Won;
         }
@@ -252,18 +264,31 @@ impl Yard {
         if let YardState::Playing {
             mut num_ticks_elapsed,
             mut progress,
+            mut next_step,
         } = self.state
         {
             progress += speed;
             if progress > 1.0 {
                 progress -= 1.0;
-                self.process_tick();
+                match next_step {
+                    NextAction::ProcessEdges => {
+                        self.process_edges();
+                        next_step = NextAction::ProcessTick;
+                    }
+                    NextAction::ProcessTick => {
+                        self.process_tick();
+                        next_step = NextAction::ProcessEdges;
+
+                    }
+                }
+
                 num_ticks_elapsed += 1;
             }
             if self.state != YardState::Crashed && self.state != YardState::Won {
                 self.state = YardState::Playing {
                     num_ticks_elapsed,
                     progress,
+                    next_step,
                 }
             }
         }
@@ -312,8 +337,7 @@ impl Yard {
     ) -> Result<(), String> {
         let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
         let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
-        let train_width = (block_width as f64 * (32.0 / 96.0)) as i32;
-        let train_height = (block_height as f64 * (57.0 / 96.0)) as i32;
+        
         let plus_sign_width = (block_width as f64 * (52.0 / 96.0)) as i32;
         let plus_sign_height = (block_height as f64 * (52.0 / 96.0)) as i32;
         let x0 = rect.x();
@@ -486,42 +510,74 @@ impl Yard {
         }
 
         //render all trains on borders
-        for r in 0..(NUM_ROWS + 1) {
+        // for r in 0..(NUM_ROWS + 1) {
+        //     for c in 0..NUM_COLS {
+        //         let rect = Rect::new(
+        //             x0 + block_width / 2 + (c as i32) * block_width - (train_width / 2),
+        //             y0 + r as i32 * block_height - (train_height / 2),
+        //             train_width as u32,
+        //             train_height as u32,
+        //         );
+        //         if let Some(train_going_up) = self.h_edges[r][c].train_to_a {
+        //             gs.set_color(train_going_up);
+        //             canvas.copy_ex(&gs.train, None, rect, 0.0, None, false, false)?;
+        //         }
+        //         if let Some(train_going_down) = self.h_edges[r][c].train_to_b {
+        //             gs.set_color(train_going_down);
+        //             canvas.copy_ex(&gs.train, None, rect, 180.0, None, false, false)?;
+        //         }
+        //     }
+        // }
+        // for r in 0..NUM_ROWS {
+        //     for c in 0..(NUM_COLS + 1) {
+        //         let rect = Rect::new(
+        //             x0 + c as i32 * block_width - (train_width / 2),
+        //             y0 + block_height / 2 + r as i32 * block_height - (train_height / 2),
+        //             train_width as u32,
+        //             train_height as u32,
+        //         );
+        //         if let Some(train_going_left) = self.v_edges[r][c].train_to_a {
+        //             gs.set_color(train_going_left);
+        //             canvas.copy_ex(&gs.train, None, rect, 270.0, None, false, false)?;
+        //         }
+        //         if let Some(train_going_right) = self.v_edges[r][c].train_to_b {
+        //             gs.set_color(train_going_right);
+        //             canvas.copy_ex(&gs.train, None, rect, 90.0, None, false, false)?;
+        //         }
+        //     }
+        // }
+
+
+        let current_progress;
+        if let YardState::Playing{progress, next_step, ..} = self.state {
+            if next_step == NextAction::ProcessTick {
+                current_progress = progress;
+            } else {
+                current_progress = progress + 1.0;
+            }
+        } else {
+            current_progress = 2.0;
+        }
+
+        //render all trains on tracktiles
+        for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
                 let rect = Rect::new(
-                    x0 + block_width / 2 + (c as i32) * block_width - (train_width / 2),
-                    y0 + r as i32 * block_height - (train_height / 2),
-                    train_width as u32,
-                    train_height as u32,
+                    x0 + c as i32 * block_width,
+                    y0 + r as i32 * block_height,
+                    block_width as u32,
+                    block_height as u32,
                 );
-                if let Some(train_going_up) = self.h_edges[r][c].train_to_a {
-                    gs.set_color(train_going_up);
-                    canvas.copy_ex(&gs.train, None, rect, 0.0, None, false, false)?;
-                }
-                if let Some(train_going_down) = self.h_edges[r][c].train_to_b {
-                    gs.set_color(train_going_down);
-                    canvas.copy_ex(&gs.train, None, rect, 180.0, None, false, false)?;
-                }
+
+                self.tiles[r][c].render_trains(
+                    canvas,
+                    &rect,
+                    gs,
+                    current_progress
+                )?;
             }
         }
-        for r in 0..NUM_ROWS {
-            for c in 0..(NUM_COLS + 1) {
-                let rect = Rect::new(
-                    x0 + c as i32 * block_width - (train_width / 2),
-                    y0 + block_height / 2 + r as i32 * block_height - (train_height / 2),
-                    train_width as u32,
-                    train_height as u32,
-                );
-                if let Some(train_going_left) = self.v_edges[r][c].train_to_a {
-                    gs.set_color(train_going_left);
-                    canvas.copy_ex(&gs.train, None, rect, 270.0, None, false, false)?;
-                }
-                if let Some(train_going_right) = self.v_edges[r][c].train_to_b {
-                    gs.set_color(train_going_right);
-                    canvas.copy_ex(&gs.train, None, rect, 90.0, None, false, false)?;
-                }
-            }
-        }
+
 
         //render non tracktile tiles
         for r in 0..NUM_ROWS {

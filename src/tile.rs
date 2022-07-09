@@ -11,6 +11,10 @@ use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
+use sdl2::rect::Rect;
+use sdl2::render::WindowCanvas;
+use crate::sprites::GameSprites;
+
 
 pub type BorderState = [Option<Color>; 4];
 
@@ -85,5 +89,13 @@ impl Tile {
             Tile::Painter(_) => 'P',
             Tile::Splitter(_) => 'C',
         }
+    }
+
+    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
+        match self {
+            Tile::Tracktile(tracktile) => tracktile.render_trains(canvas, rect, gs, progress)?,
+            _ => {},
+        }
+        Ok(())
     }
 }

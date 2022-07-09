@@ -1,7 +1,7 @@
 use std::i32;
 
 use crate::connection::Connection;
-use crate::yard::YardState;
+use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
 use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
 use sdl2::event::Event;
@@ -48,7 +48,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Halifax", "Handlebars")),
+            yard: Yard::new(level_manager.get_level("Edmonton", "Yield")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -77,7 +77,7 @@ impl Gameplay {
                 canvas.copy(&gs.btn_status_crashed, None, Rect::new(x+10,y+10,208,168))?;
                 canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
             },
-            YardState::Playing { num_ticks_elapsed: _, progress: _ } | YardState::Won => {
+            YardState::Playing {..} | YardState::Won => {
                 canvas.copy(&gs.btn_status_good, None, Rect::new(x+10,y+10,208,168))?;
                 canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
             }
@@ -117,8 +117,9 @@ impl Gameplay {
                                 YardState::Drawing => {
                                     self.is_erasing = false;
                                     self.yard.state = YardState::Playing {
-                                        num_ticks_elapsed: 0,
+                                        num_ticks_elapsed: 1,
                                         progress: 0.0,
+                                        next_step: NextAction::ProcessTick,
                                     }
                                 },
                                 YardState::Playing {..} => {
