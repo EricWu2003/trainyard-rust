@@ -228,11 +228,10 @@ impl Tracktile {
 
         unreachable!()
     }
-    pub fn interact_trains(&mut self) {
+
+    pub fn process_tick(&mut self) {
+        // This function mixes any train colors (happens when trains are halfway through the tile)
         let my_type = self.connection_type();
-
-        let need_to_switch_active_passive = self.trains.len() % 2 == 1;
-
         if self.trains.len() >= 2 {
             if my_type == ConnectionType::H
                 || my_type == ConnectionType::S
@@ -267,7 +266,24 @@ impl Tracktile {
                 }
                 return;
             }
+        }
+    }
 
+    pub fn interact_trains(&mut self) {
+        // This function merges trains (happens at the moment trains are exiting the tile)
+        let my_type = self.connection_type();
+
+        let need_to_switch_active_passive = self.trains.len() % 2 == 1;
+
+        if self.trains.len() >= 2 {
+            // we don't need to worry about these connection types because we have already handled mixing in the process_tick function
+            if my_type == ConnectionType::H
+                || my_type == ConnectionType::S
+                || my_type == ConnectionType::B
+                || my_type == ConnectionType::Z
+            {
+                return;
+            }
             // At this point, we know we either have a J or M type connection.
 
             // In either case, we will first check to see if there are trains colliding along the active connection.

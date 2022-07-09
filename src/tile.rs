@@ -67,7 +67,9 @@ impl Tile {
 
     pub fn process_tick(&mut self) {
         match self {
-            Tile::Tracktile(_) => {}
+            Tile::Tracktile(tracktile) => {
+                tracktile.process_tick();
+            }
             Tile::Trainsource(_) => {}
             Tile::Trainsink(_) => {}
             Tile::Rock => {}

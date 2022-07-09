@@ -527,7 +527,7 @@ impl Yard {
                 current_progress = progress + 1.0;
             }
         } else {
-            current_progress = 2.0;
+            current_progress = 0.0;
         }
 
         //render all trains on tracktiles
