@@ -919,7 +919,180 @@ s 4,3 down
 
 Drone vs Probe:6
 + 6,2 blue left
-// TODO:
+o 5,6 yellow left
+o 3,6 blue up
+s 3,5 right
+o 3,0 yellow down
+s 3,1 left
+p 1,2 yellow up,down
+* 2,2 3,3 4,4
+---
+
+Ochos Rios:7
++ 1,1 purple up
++ 5,5 green down
+o 2,3 orange,blue left
+s 3,3 right
+---
+
+Port Credit:8
++ 0,1 red down
++ 0,5 red up
+o 0,0 yellow right
+o 0,6 blue right
+p 5,1 blue left,right
+p 5,5 yellow left,right
+* 3,0 3,1 3,2 3,4 3,5 3,6
+---
+
+Turtle:9
++ 0,6 yellow right
+o 0,0 yellow right
+o 0,1 blue,red,yellow,blue right
+s 1,1 down
+
+p 4,3 red up,down
+p 4,4 purple up,down
+p 5,3 yellow up,down
+p 5,4 green up,down
+---
+
+
+Factories:10
++ 1,5 orange,orange up
++ 5,5 purple,purple up
+o 0,4 blue right
+o 6,4 green left
+p 1,3 green up,down
+p 5,1 green up,down
+p 1,1 blue up,down
+p 5,3 blue up,down
+---
+
+Tor:10
++ 0,1 red right
++ 0,3 blue right
++ 2,1 yellow right
++ 2,3 red right
++ 4,1 blue right
++ 4,3 yellow right
+o 1,0 green down
+o 3,0 purple down
+o 5,0 orange down
+---
+
+
+CITY:Niagara Falls
+
+Horhey:8
++ 4,3 red,red,red,red right
+o 3,3 red up,down
+o 2,3 red left
+---
+
+Christmas Eve:6
++ 2,1 red up
++ 4,1 red up
++ 2,5 green down
++ 4,5 green down
+o 3,1 green up
+o 3,5 red down
+* 0,2 0,3 0,4
+* 2,2 2,3 2,4
+* 3,2 3,3 3,4
+* 4,2 4,3 4,4
+* 6,2 6,3 6,4
+---
+
+Candlesticks:7
++ 0,6 green up
++ 1,6 purple up
++ 2,6 orange up
++ 4,6 orange up
++ 5,6 purple up
++ 6,6 green up
+s 3,2 down
+o 0,0 blue down
+o 1,0 blue down
+o 2,0 yellow down
+o 4,0 red down
+o 5,0 red down
+o 6,0 yellow down
+* 0,3 1,3 2,3 4,3 5,3 6,3
+---
+
+Argentan:8
++ 1,1 yellow right
++ 1,2 orange right
++ 1,3 yellow right
++ 1,4 orange right
++ 1,5 yellow right
+o 5,3 yellow,orange right
+---
+
+Wagon Wheels:8
++ 3,3 brown,brown,brown,brown up
+o 3,1 green right
+o 3,5 red left
+o 1,3 yellow up
+o 5,3 blue down
+p 1,1 green right,down
+p 5,5 red up,left
+p 1,5 yellow up,right
+p 5,1 blue left,down
+---
+
+Gaius:6
++ 6,0 red left
+o 0,1 red right
+o 0,3 red right
+o 0,5 red right
+o 0,6 red right
+o 6,2 red left
+o 6,4 red left
+o 6,6 red left
+s 1,1 up
+s 1,3 up
+s 1,5 up
+s 5,2 up
+s 5,4 up
+s 5,6 up
+---
+
+Machine Gun:11
++ 5,6 red up
+s 5,4 down
+o 0,0 red down
+o 1,0 red down
+o 2,0 red down
+o 3,0 red down
+o 4,0 red down
+o 5,0 red down
+o 6,0 red down
+---
+
+Humber:9
++ 0,2 green up
++ 0,4 green down
++ 6,3 orange left
+s 3,3 down
+o 0,3 red,yellow right
+o 6,2 yellow,yellow up
+o 6,4 blue,blue down
+---
+
+Cooksville Creek:11
++ 0,0 blue right
+s 0,2 right
+s 0,5 right
+s 3,6 up
+s 6,2 left
+s 6,4 left
+o 0,3 blue,blue,blue,blue up
+o 0,6 blue,blue,blue,blue up
+o 6,0 blue,blue,blue,blue left
+o 6,3 blue,blue,blue,blue up
+o 6,6 blue,blue,blue,blue up
 ---
 
 
