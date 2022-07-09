@@ -735,6 +735,90 @@ p 3,5 orange up,down
 p 3,3 orange left,right
 ---
 
+
+CITY:Kamloops
+
+Podded Peas:4
++ 0,4 purple down
++ 6,4 purple down
+p 0,6 yellow up,right
+p 6,6 blue up,left
+o 3,0 green,green down
+---
+
+Let Them Yellow:7
++ 3,6 purple,purple,purple,purple up
+o 0,0 yellow down
+o 6,0 yellow down
+o 0,6 yellow up
+o 6,6 yellow up
+p 3,3 yellow up,down
+
+* 0,3
+* 1,3
+* 2,3
+* 4,3
+* 5,3
+* 6,3
+---
+
+The Original:7
++ 3,2 blue,blue up
++ 4,2 yellow up
++ 6,6 red left
+o 3,3 purple,purple down
+o 4,3 green down
+---
+
+
+Stuck To You:7
++ 0,2 purple right
++ 0,4 purple right
+o 6,3 green left
+
+p 3,3 blue up,down
+p 3,4 yellow up,down
+
+* 0,3
+* 6,2
+* 6,4
+---
+
+Diagonal Mirror:7
++ 4,1 blue up
++ 5,2 blue right
+o 5,1 yellow right,up
+p 1,5 yellow down,left
+* 3,3
+* 4,2
+* 2,4
+---
+
+Four Shadowing:8
++ 0,0 red,red,red,red down
+o 6,6 blue,yellow,orange,green up
+
+p 3,2 yellow up,down
+p 3,4 green up,down
+p 2,3 blue left,right
+p 4,3 orange left,right
+---
+
+Fireball Island:10
++ 5,2 yellow right
++ 5,4 yellow right
++ 4,1 red up
++ 4,5 blue down
+
+o 0,0 green,green right,down
+o 0,6 orange,orange right,up
+
+* 6,3
+* 2,5
+* 2,1
+
+---
+
 CITY:Debug
 
 Multiple entrances:1
