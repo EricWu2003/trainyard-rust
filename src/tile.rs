@@ -70,8 +70,12 @@ impl Tile {
             Tile::Tracktile(tracktile) => {
                 tracktile.process_tick();
             }
-            Tile::Trainsource(_) => {}
-            Tile::Trainsink(_) => {}
+            Tile::Trainsource(trainsource) => {
+                trainsource.process_tick();
+            }
+            Tile::Trainsink(trainsink) => {
+                trainsink.process_tick();
+            }
             Tile::Rock => {}
             Tile::Painter(painter) => painter.process_tick(),
             Tile::Splitter(splitter) => splitter.process_tick(),
@@ -103,6 +107,8 @@ impl Tile {
     pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
         match self {
             Tile::Tracktile(tracktile) => tracktile.render_trains(canvas, rect, gs, progress)?,
+            Tile::Trainsink(trainsink) => trainsink.render_trains(canvas, rect, gs, progress)?,
+            Tile::Trainsource(trainsource) => trainsource.render_trains(canvas, rect, gs, progress)?,
             _ => {},
         }
         Ok(())
