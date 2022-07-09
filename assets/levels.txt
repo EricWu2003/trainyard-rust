@@ -595,6 +595,145 @@ o 6,6 blue up
 * 3,4
 ---
 
+CITY:Iqaluit
+
+Inverse:7
++ 0,1 yellow,yellow up
++ 6,1 blue,red up
+o 0,5 green down
+o 6,5 green down
+o 3,3 orange up,down,left,right
+
+* 0,2
+* 0,3
+* 0,4
+* 6,2
+* 6,3
+* 6,4
+---
+
+Totem Pole:5
+o 3,0 orange,orange down
++ 3,3 yellow left
++ 3,4 red left
++ 3,5 red right
++ 3,6 yellow right
+---
+
+Western:6
++ 0,0 yellow right
++ 1,1 blue right
++ 1,3 red right
++ 1,5 yellow right
++ 0,6 blue right
+
+* 3,0
+* 3,1
+* 3,2
+* 3,4
+* 3,5
+* 3,6
+
+o 5,1 red left
+o 5,3 yellow,blue left
+o 5,5 blue left
+o 6,6 yellow up
+---
+
+
+Collider:6
++ 0,2 yellow right
++ 0,3 yellow right
++ 0,4 yellow right
++ 6,2 blue left
++ 6,3 blue left
++ 6,4 blue left
+o 3,3 green,green,green,green,green,green up,left,down,right
+---
+
+
+Starship Sandwich:6
++ 0,1 red right
++ 0,2 red right
++ 0,4 blue right
++ 0,5 blue right
+o 0,0 purple,purple right
+o 0,6 purple,purple right
+
+* 0,3
+* 1,3
+* 2,3
+* 3,3
+* 4,3
+* 5,3
+---
+
+The Classic:7
++ 1,2 red right
++ 1,4 yellow,yellow right
++ 1,6 blue right
+o 0,6 green up
+o 3,0 green down
+o 4,0 orange down
+---
+
+CITY:Joliette
+
+Red Pear:2
+p 0,0 red down,right
++ 0,3 green right
+o 6,3 red left
+---
+
+
+Paint The Town:4
++ 0,0 yellow down
++ 6,0 blue down
+o 3,6 orange up
+p 3,3 red up,down
+---
+
+Lopsided:5
++ 3,6 orange up
++ 4,6 orange up
+o 3,0 orange left
+o 4,0 orange right
+p 3,5 yellow left,down
+p 4,5 red right,down
+
+* 4,2
+* 4,3
+* 4,4
+* 3,2
+* 3,3
+* 3,4
+---
+
+Plus:6
++ 0,3 yellow up
++ 4,3 blue right
+o 0,6 purple up,right
+p 0,0 red down,right
+
+* 3,3
+* 2,3
+* 3,2
+* 3,4
+---
+
+Orange Wall:7
++ 0,3 blue,blue up
++ 6,3 blue,blue down
+
+o 6,0 orange left
+o 0,6 orange right
+o 3,2 orange up
+o 3,4 orange down
+
+p 3,1 orange up,down
+p 3,5 orange up,down
+p 3,3 orange left,right
+---
 
 CITY:Debug
 

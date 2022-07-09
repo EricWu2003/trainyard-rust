@@ -26,7 +26,7 @@ pub type City<'a> = (&'a str, Vec<Level<'a>>);
 
 pub struct LevelManager<'a>(Vec<City<'a>>);
 
-pub static BYTES_LEVEL_INFO: &[u8; 6633] = include_bytes!("../assets/levels.txt");
+pub static BYTES_LEVEL_INFO: &[u8; 8272] = include_bytes!("../assets/levels.txt");
 
 fn convert_string_to_color(s: &str) -> Color {
     match s {
