@@ -26,7 +26,7 @@ pub type City<'a> = (&'a str, Vec<Level<'a>>);
 
 pub struct LevelManager<'a>(Vec<City<'a>>);
 
-pub static BYTES_LEVEL_INFO: &[u8; 10375] = include_bytes!("../assets/levels.txt");
+pub static BYTES_LEVEL_INFO: &[u8; 10696] = include_bytes!("../assets/levels.txt");
 
 fn convert_string_to_color(s: &str) -> Color {
     match s {
@@ -112,11 +112,16 @@ impl LevelManager<'_> {
                         });
                     } else if arr[index].starts_with("* ") {
                         // handle a new rock
-                        level.level_info.push(PositionedTile {
-                            tile: Tile::Rock,
-                            x,
-                            y,
-                        });
+                        let mut positions = arr[index][2..].split(" ");
+                        while let Some(position) = positions.next() {
+                            let x: u8 = position[0..1].parse().unwrap();
+                            let y: u8 = position[2..3].parse().unwrap();
+                            level.level_info.push(PositionedTile {
+                                tile: Tile::Rock,
+                                x,
+                                y,
+                            });
+                        }
                     } else if arr[index].starts_with("p ") {
                         // handle a new painter
                         let fields: Vec<&str> = arr[index].split(" ").collect();

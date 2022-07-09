@@ -48,7 +48,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("London", "Star Stuck")),
+            yard: Yard::new(level_manager.get_level("London", "Pick Your Partner")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
