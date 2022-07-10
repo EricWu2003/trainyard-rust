@@ -48,7 +48,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("London", "Round The Twist")),
+            yard: Yard::new(level_manager.get_level("Halifax", "Laser Master")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -89,7 +89,7 @@ impl Gameplay {
         Ok(())
     }
 
-    pub fn update(&mut self, event_pump: &mut EventPump) -> bool {
+    pub fn update(&mut self, event_pump: &mut EventPump, gs: &GameSprites) -> bool {
         // returns true if we need to end the program (break out of the main loop)
         let mouse_state = event_pump.mouse_state();
         let grid_width = self.yard_rect.width() as i32 / NUM_COLS as i32;
@@ -113,6 +113,7 @@ impl Gameplay {
                                 YardState::Crashed => {
                                     self.yard.reset_self();
                                     self.yard.state = YardState::Drawing;
+                                    gs.sl.play(&gs.sl_button_press);
                                 },
                                 YardState::Drawing => {
                                     self.is_erasing = false;
@@ -120,11 +121,14 @@ impl Gameplay {
                                         num_ticks_elapsed: 1,
                                         progress: 0.0,
                                         next_step: NextAction::ProcessTick,
-                                    }
+                                    };
+                                    gs.sl.play(&gs.sl_button_press);
+
                                 },
                                 YardState::Playing {..} => {
                                     self.yard.reset_self();
                                     self.yard.state = YardState::Drawing;
+                                    gs.sl.play(&gs.sl_button_press);
                                 },
                                 YardState::Won => {},
                             }
@@ -257,7 +261,7 @@ impl Gameplay {
         }
 
         // Update
-        self.yard.update(self.speed);
+        self.yard.update(self.speed, gs);
         self.frame_count += 1;
         false
     }

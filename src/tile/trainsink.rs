@@ -50,8 +50,13 @@ impl Trainsink {
         true
     }
 
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         self.desires = self.private_desires.clone();
+        for train in self.incoming_trains {
+            if let Some(color) = train {
+                gs.play_train_sound(color);
+            }
+        }
         self.incoming_trains = [None,None,None,None]
     }
 

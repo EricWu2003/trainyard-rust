@@ -43,7 +43,7 @@ impl Splitter {
         self.train_going_right = None;
         border_state
     }
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         if let Some(color) = self.incoming_train {
             self.incoming_train = None;
             match color {
@@ -64,6 +64,7 @@ impl Splitter {
                     self.train_going_right = Some(Color::Yellow);
                 }
             }
+            gs.sl.play(&gs.sl_splitter);
         }
     }
 

@@ -187,7 +187,7 @@ impl Yard {
         }
     }
 
-    pub fn process_edges(&mut self) {
+    pub fn process_edges(&mut self, gs: &GameSprites) {
 
         //interact all trains
         for r in 0..NUM_ROWS {
@@ -211,12 +211,12 @@ impl Yard {
         // mix edges
         for r in 0..(NUM_ROWS + 1) {
             for c in 0..NUM_COLS {
-                self.h_edges[r][c].interact_trains();
+                self.h_edges[r][c].interact_trains(gs);
             }
         }
         for r in 0..NUM_ROWS {
             for c in 0..(NUM_COLS + 1) {
-                self.v_edges[r][c].interact_trains();
+                self.v_edges[r][c].interact_trains(gs);
             }
         }
 
@@ -259,7 +259,7 @@ impl Yard {
         
     }
 
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         assert!(matches!(
             self.state,
             YardState::Playing {..}
@@ -269,7 +269,7 @@ impl Yard {
         // then process tick in all tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                self.tiles[r][c].process_tick();
+                self.tiles[r][c].process_tick(gs);
             }
         }
 
@@ -278,7 +278,7 @@ impl Yard {
         }
     }
 
-    pub fn update(&mut self, speed: f64) {
+    pub fn update(&mut self, speed: f64, gs: &GameSprites) {
         if let YardState::Playing {
             mut num_ticks_elapsed,
             mut progress,
@@ -290,11 +290,11 @@ impl Yard {
                 progress -= 1.0;
                 match next_step {
                     NextAction::ProcessEdges => {
-                        self.process_edges();
+                        self.process_edges(gs);
                         next_step = NextAction::ProcessTick;
                     }
                     NextAction::ProcessTick => {
-                        self.process_tick();
+                        self.process_tick(gs);
                         next_step = NextAction::ProcessEdges;
 
                     }
@@ -313,7 +313,7 @@ impl Yard {
             for r in 0..NUM_ROWS {
                 for c in 0..NUM_COLS {
                     if let Tile::Trainsink(trainsink) = &mut self.tiles[r][c] {
-                        trainsink.process_tick();
+                        trainsink.process_tick(gs);
                     }
                 }
             }

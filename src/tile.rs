@@ -65,20 +65,20 @@ impl Tile {
         }
     }
 
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.process_tick();
+                tracktile.process_tick(gs);
             }
             Tile::Trainsource(trainsource) => {
                 trainsource.process_tick();
             }
             Tile::Trainsink(trainsink) => {
-                trainsink.process_tick();
+                trainsink.process_tick(gs);
             }
             Tile::Rock => {}
-            Tile::Painter(painter) => painter.process_tick(),
-            Tile::Splitter(splitter) => splitter.process_tick(),
+            Tile::Painter(painter) => painter.process_tick(gs),
+            Tile::Splitter(splitter) => splitter.process_tick(gs),
         }
     }
     pub fn add_connection(&mut self, conn: Connection) {

@@ -1,4 +1,5 @@
 use crate::color::Color;
+use crate::GameSprites;
 
 pub struct Edge {
     pub train_to_a: Option<Color>,
@@ -13,12 +14,13 @@ impl Edge {
         }
     }
 
-    pub fn interact_trains(&mut self) {
+    pub fn interact_trains(&mut self, gs: &GameSprites) {
         if let Some(t1) = self.train_to_a {
             if let Some(t2) = self.train_to_b {
                 let new_color = Color::mix_many(vec![t1, t2]);
                 self.train_to_a = Some(new_color);
                 self.train_to_b = Some(new_color);
+                gs.play_train_sound(new_color);
             }
         }
     }

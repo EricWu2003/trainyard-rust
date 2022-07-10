@@ -42,7 +42,7 @@ fn main() -> Result<(), String> {
 
     loop {
         // Handle events
-        if gameplay.update(&mut event_pump) {
+        if gameplay.update(&mut event_pump, &game_sprites) {
             break;
         }
 

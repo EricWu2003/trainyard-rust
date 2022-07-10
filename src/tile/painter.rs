@@ -49,12 +49,14 @@ impl Painter {
         }
         border_state
     }
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         if self.train_to_dir1 != None {
             self.train_to_dir1 = Some(self.color);
+            gs.sl.play(&gs.sl_painter);
         }
         if self.train_to_dir2 != None {
             self.train_to_dir2 = Some(self.color);
+            gs.sl.play(&gs.sl_painter);
         }
     }
 

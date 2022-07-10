@@ -229,7 +229,7 @@ impl Tracktile {
         unreachable!()
     }
 
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, gs: &GameSprites) {
         // This function mixes any train colors (happens when trains are halfway through the tile)
         let my_type = self.connection_type();
         if self.trains.len() >= 2 {
@@ -242,6 +242,7 @@ impl Tracktile {
                     Color::mix_many(self.trains.iter().map(|train| train.color).collect());
                 for i in 0..self.trains.len() {
                     self.trains[i].color = new_color;
+                    gs.play_train_sound(new_color);
                 }
                 return;
             }
@@ -255,6 +256,8 @@ impl Tracktile {
                         Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
                     self.trains[i1].color = new_color;
                     self.trains[i2].color = new_color;
+                    gs.play_train_sound(new_color);
+
                 }
                 // then do mixing on Passive Connection
                 if self.indices_of_trains_along(self.passive_connection.unwrap(), &mut i1, &mut i2)
@@ -263,6 +266,7 @@ impl Tracktile {
                         Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
                     self.trains[i1].color = new_color;
                     self.trains[i2].color = new_color;
+                    gs.play_train_sound(new_color);
                 }
                 return;
             }

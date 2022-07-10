@@ -3,6 +3,9 @@ use sdl2::image::LoadTexture;
 use sdl2::render::{Texture, TextureCreator};
 use sdl2::video::WindowContext;
 
+use soloud::{AudioExt, LoadExt, Soloud};
+use soloud::audio::Wav;
+
 pub static BYTES_TRACKTILE_BLANK: &[u8; 1891] =
     include_bytes!("../assets/sprites/Tracktile_blank.png");
 pub static BYTES_TRACKTILE_B: &[u8; 7157] = include_bytes!("../assets/sprites/Tracktile_b.png");
@@ -75,12 +78,45 @@ pub struct GameSprites<'a> {
     pub btn_status_good: Texture<'a>,
     pub btn_stop_erase: Texture<'a>,
     pub space_for_speed_slider: Texture<'a>,
+    pub sl: Soloud,
+    pub sl_button_press: Wav,
+    pub sl_train_brown: Wav,
+    pub sl_train_yellow: Wav,
+    pub sl_train_red: Wav,
+    pub sl_train_blue: Wav,
+    pub sl_train_purple: Wav,
+    pub sl_train_orange: Wav,
+    pub sl_train_green: Wav,
+    pub sl_splitter: Wav,
+    pub sl_painter: Wav,
 }
 
 impl<'a> GameSprites<'a> {
     pub fn new(
         texture_creator: &'a TextureCreator<WindowContext>,
     ) -> Result<GameSprites<'a>, String> {
+        let mut sl_button_press = Wav::default();
+        sl_button_press.load_mem(include_bytes!("../assets/audio/button_press.ogg")).unwrap();
+        let mut sl_train_brown = Wav::default();
+        sl_train_brown.load_mem(include_bytes!("../assets/audio/train_brown.ogg")).unwrap();
+        let mut sl_train_yellow = Wav::default();
+        sl_train_yellow.load_mem(include_bytes!("../assets/audio/train_yellow.ogg")).unwrap();
+        let mut sl_train_red = Wav::default();
+        sl_train_red.load_mem(include_bytes!("../assets/audio/train_red.ogg")).unwrap();
+        let mut sl_train_blue = Wav::default();
+        sl_train_blue.load_mem(include_bytes!("../assets/audio/train_blue.ogg")).unwrap();
+        let mut sl_train_purple = Wav::default();
+        sl_train_purple.load_mem(include_bytes!("../assets/audio/train_purple.ogg")).unwrap();
+        let mut sl_train_orange = Wav::default();
+        sl_train_orange.load_mem(include_bytes!("../assets/audio/train_orange.ogg")).unwrap();
+        let mut sl_train_green = Wav::default();
+        sl_train_green.load_mem(include_bytes!("../assets/audio/train_green.ogg")).unwrap();
+        let mut sl_splitter = Wav::default();
+        sl_splitter.load_mem(include_bytes!("../assets/audio/splitter.ogg")).unwrap();
+        let mut sl_painter = Wav::default();
+        sl_painter.load_mem(include_bytes!("../assets/audio/painter.ogg")).unwrap();
+
+
         Ok(GameSprites {
             tracktile_blank: texture_creator.load_texture_bytes(BYTES_TRACKTILE_BLANK)?,
             tracktile_b: texture_creator.load_texture_bytes(BYTES_TRACKTILE_B)?,
@@ -113,6 +149,17 @@ impl<'a> GameSprites<'a> {
             btn_status_good: texture_creator.load_texture_bytes(BYTES_BTN_STATUS_GOOD)?,
             btn_stop_erase: texture_creator.load_texture_bytes(BYTES_BTN_STOP_ERASE)?,
             space_for_speed_slider: texture_creator.load_texture_bytes(BYTES_SPACE_FOR_SPEED_SLIDER)?,
+            sl: Soloud::default().unwrap(),
+            sl_button_press,
+            sl_train_brown,
+            sl_train_yellow,
+            sl_train_red,
+            sl_train_blue,
+            sl_train_purple,
+            sl_train_orange,
+            sl_train_green,
+            sl_splitter,
+            sl_painter,
         })
     }
 
@@ -132,5 +179,17 @@ impl<'a> GameSprites<'a> {
         self.plus_sign.set_color_mod(red, green, blue);
         self.circle.set_color_mod(red, green, blue);
         self.painter_brush.set_color_mod(red, green, blue);
+    }
+
+    pub fn play_train_sound(&self, color:Color) {
+        match color {
+            Color::Brown => self.sl.play(&self.sl_train_brown),
+            Color::Yellow => self.sl.play(&self.sl_train_yellow),
+            Color::Blue => self.sl.play(&self.sl_train_blue),
+            Color::Red => self.sl.play(&self.sl_train_red),
+            Color::Orange => self.sl.play(&self.sl_train_orange),
+            Color::Green => self.sl.play(&self.sl_train_green),
+            Color::Purple => self.sl.play(&self.sl_train_purple),
+        };
     }
 }
