@@ -8,14 +8,19 @@ use crate::sprites::GameSprites;
 #[derive(Debug, Clone)]
 pub struct Trainsink {
     pub desires: Vec<Option<Color>>,
+    pub private_desires: Vec<Option<Color>>,
     pub incoming_trains: BorderState,
     pub border_state: [bool; 4],
 }
 
 impl Trainsink {
     pub fn new(desires: Vec<Color>, border_state: [bool; 4]) -> Trainsink {
+        // The reason we keep two copies of desires is to account for the edge case where two trains of the
+        // same color try to enter the trainsink at once, while the trainsink only wants one.
+        let desires2 = desires.clone();
         Trainsink {
             desires: desires.into_iter().map(Some).collect(),
+            private_desires: desires2.into_iter().map(Some).collect(),
             border_state,
             incoming_trains: [None,None,None,None],
         }
@@ -28,11 +33,11 @@ impl Trainsink {
                     return false;
                 } else {
                     let mut found = false;
-                    for index in 0..self.desires.len() {
-                        if self.desires[index] == Some(color) {
+                    for index in 0..self.private_desires.len() {
+                        if self.private_desires[index] == Some(color) {
                             found = true;
                             self.incoming_trains[dir] = Some(color);
-                            self.desires[index] = None;
+                            self.private_desires[index] = None;
                             break;
                         }
                     }
@@ -46,6 +51,7 @@ impl Trainsink {
     }
 
     pub fn process_tick(&mut self) {
+        self.desires = self.private_desires.clone();
         self.incoming_trains = [None,None,None,None]
     }
 

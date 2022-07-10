@@ -1107,8 +1107,11 @@ p 5,4 purple down,up
 ---
 
 
-
-
+Race Condition:1
++ 0,0 yellow right
++ 6,0 yellow left
+o 3,0 yellow left,right
+---
 
 
 

@@ -300,6 +300,14 @@ impl Yard {
                     next_step,
                 }
             }
+        } else if self.state == YardState::Crashed {
+            for r in 0..NUM_ROWS {
+                for c in 0..NUM_COLS {
+                    if let Tile::Trainsink(trainsink) = &mut self.tiles[r][c] {
+                        trainsink.process_tick();
+                    }
+                }
+            }
         }
     }
 
