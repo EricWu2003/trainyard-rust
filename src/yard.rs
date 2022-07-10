@@ -36,6 +36,7 @@ pub enum YardState {
 
 pub struct Yard {
     tiles: Vec<Vec<Tile>>,
+    drawn_tiles: Vec<Vec<Tile>>,
     h_edges: Vec<Vec<Edge>>,
     v_edges: Vec<Vec<Edge>>,
     pub state: YardState,
@@ -52,6 +53,7 @@ impl Yard {
             }
             tiles.push(row);
         }
+        let drawn_tiles = tiles.clone();
 
         let mut h_edges: Vec<Vec<Edge>> = Vec::new();
         for _ in 0..(NUM_ROWS + 1) {
@@ -71,24 +73,9 @@ impl Yard {
             v_edges.push(row);
         }
 
-        // DEBUG CODE HERE
-        // tiles[0][0] = Tile::Trainsource(Trainsource::new(
-        //     vec![Color::Green, Color::Red, Color::Blue],
-        //     1,
-        // ));
-        // tiles[4][4] = Tile::Trainsink(Trainsink::new(
-        //     vec![Color::Green, Color::Red, Color::Blue],
-        //     [true, true, false, false],
-        // ));
-        // tiles[3][3] = Tile::Rock;
-        // tiles[5][5] = Tile::Painter(Painter::new(Connection { dir1: 0, dir2: 3 }, Color::Purple));
-
-        // tiles[5][1] = Tile::Splitter(Splitter::new(2));
-
-        // END OF DEBUG CODE
-
         Yard {
             tiles,
+            drawn_tiles,
             h_edges,
             v_edges,
             state: YardState::Drawing,
@@ -104,36 +91,12 @@ impl Yard {
         yard.level_info = level_info.clone();
         yard
     }
-    pub fn clear_trains(&mut self) {
-        // used to recover from a crashed state back to a drawing state.
-        for i in 0..self.level_info.len() {
-            let tile = &self.level_info[i];
-            self.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
-        }
-
-        for r in 0..NUM_ROWS {
-            for c in 0..NUM_COLS {
-                if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
-                    tracktile.clear_trains();
-                }
-            }
-        }
-
-        for r in 0..(NUM_ROWS + 1) {
-            for c in 0..NUM_COLS {
-                self.h_edges[r][c].clear_trains();
-            }
-        }
-        for r in 0..NUM_ROWS {
-            for c in 0..(NUM_COLS + 1) {
-                self.v_edges[r][c].clear_trains();
-            }
-        }
-
-    }
 
     pub fn clear_connections (&mut self, r: usize, c: usize) {
         if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
+            tracktile.clear_connections();
+        }
+        if let Tile::Tracktile(tracktile) = &mut self.drawn_tiles[r][c] {
             tracktile.clear_connections();
         }
     }
@@ -168,6 +131,9 @@ impl Yard {
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn);
+            if let Tile::Tracktile(tt_drawn) = &mut self.drawn_tiles[r][c] {
+                tt_drawn.add_connection(conn);
+            }
         }
     }
 
@@ -175,6 +141,49 @@ impl Yard {
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.switch_active_passive();
+            if let Tile::Tracktile(tt_drawn) = &mut self.tiles[r][c]{
+                if self.state == YardState::Drawing {
+                    tt_drawn.switch_active_passive();
+                }
+            }
+        }
+    }
+    
+    pub fn reset_self(&mut self) {
+        // used to recover from a crashed state back to a drawing state.
+
+        for i in 0..self.level_info.len() {
+            let tile = &self.level_info[i];
+            self.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
+        }
+
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
+                    tracktile.clear_trains();
+                }
+            }
+        }
+
+        for r in 0..(NUM_ROWS + 1) {
+            for c in 0..NUM_COLS {
+                self.h_edges[r][c].clear_trains();
+            }
+        }
+        for r in 0..NUM_ROWS {
+            for c in 0..(NUM_COLS + 1) {
+                self.v_edges[r][c].clear_trains();
+            }
+        }
+
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                if let Tile::Tracktile(tracktile) = &self.drawn_tiles[r][c] {
+                    if tracktile.connection_type() != ConnectionType::None {
+                        self.tiles[r][c] = Tile::Tracktile(tracktile.clone());
+                    }
+                }
+            }
         }
     }
 

@@ -111,7 +111,7 @@ impl Gameplay {
                         y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 {
                             match self.yard.state {
                                 YardState::Crashed => {
-                                    self.yard.clear_trains();
+                                    self.yard.reset_self();
                                     self.yard.state = YardState::Drawing;
                                 },
                                 YardState::Drawing => {
@@ -123,7 +123,7 @@ impl Gameplay {
                                     }
                                 },
                                 YardState::Playing {..} => {
-                                    self.yard.clear_trains();
+                                    self.yard.reset_self();
                                     self.yard.state = YardState::Drawing;
                                 },
                                 YardState::Won => {},
