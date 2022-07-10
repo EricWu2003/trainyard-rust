@@ -109,7 +109,9 @@ impl Tile {
             Tile::Tracktile(tracktile) => tracktile.render_trains(canvas, rect, gs, progress)?,
             Tile::Trainsink(trainsink) => trainsink.render_trains(canvas, rect, gs, progress)?,
             Tile::Trainsource(trainsource) => trainsource.render_trains(canvas, rect, gs, progress)?,
-            _ => {},
+            Tile::Painter(painter) => painter.render_trains(canvas, rect, gs, progress)?,
+            Tile::Splitter(splitter) => splitter.render_trains(canvas, rect, gs, progress)?,
+            Tile::Rock => {},
         }
         Ok(())
     }
