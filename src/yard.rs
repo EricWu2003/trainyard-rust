@@ -92,8 +92,11 @@ impl Yard {
         yard
     }
 
-    pub fn clear_connections (&mut self, r: usize, c: usize) {
+    pub fn clear_connections (&mut self, r: usize, c: usize, gs:&GameSprites) {
         if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
+            if tracktile.connection_type() != ConnectionType::None {
+                gs.sl.play(&gs.sl_erase_track);
+            }
             tracktile.clear_connections();
         }
         if let Tile::Tracktile(tracktile) = &mut self.drawn_tiles[r][c] {
@@ -137,12 +140,12 @@ impl Yard {
         }
     }
 
-    pub fn switch_connections(&mut self, r:usize, c:usize) {
+    pub fn switch_connections(&mut self, r:usize, c:usize, gs: &GameSprites) {
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
-            tt.switch_active_passive();
+            tt.switch_active_passive(gs);
             if let Tile::Tracktile(tt_drawn) = &mut self.drawn_tiles[r][c]{
-                tt_drawn.switch_active_passive();
+                tt_drawn.switch_active_passive(gs);
             }
         }
     }
@@ -190,7 +193,7 @@ impl Yard {
         //interact all trains
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                self.tiles[r][c].process_end_of_tick();
+                self.tiles[r][c].process_end_of_tick(gs);
             }
         }
 
@@ -223,17 +226,21 @@ impl Yard {
         for c in 0..NUM_COLS {
             if let Some(_train) = self.h_edges[0][c].train_to_a {
                 self.state = YardState::Crashed;
+                gs.sl.play(&gs.sl_crash);
             }
             if let Some(_train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
+                gs.sl.play(&gs.sl_crash);
             }
         }
         for r in 0..NUM_ROWS {
             if let Some(_train) = self.v_edges[r][0].train_to_a {
                 self.state = YardState::Crashed;
+                gs.sl.play(&gs.sl_crash);
             }
             if let Some(_train) = self.v_edges[r][NUM_COLS].train_to_b {
                 self.state = YardState::Crashed;
+                gs.sl.play(&gs.sl_crash);
             }
         }
 
@@ -250,6 +257,7 @@ impl Yard {
                 let res = self.tiles[r][c].accept_trains(border_state);
                 if !res {
                     self.state = YardState::Crashed;
+                    gs.sl.play(&gs.sl_crash);
                 }
             }
         }
@@ -273,6 +281,7 @@ impl Yard {
 
         if self.has_won() {
             self.state = YardState::Won;
+            gs.sl.play(&gs.sl_win_level);
         }
     }
 

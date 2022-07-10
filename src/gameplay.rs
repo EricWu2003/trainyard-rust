@@ -48,7 +48,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Halifax", "Laser Master")),
+            yard: Yard::new(level_manager.get_level("Niagara Falls", "Machine Gun")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -137,6 +137,7 @@ impl Gameplay {
                             match self.yard.state {
                                 YardState::Drawing => {
                                     self.is_erasing = !self.is_erasing;
+                                    gs.sl.play(&gs.sl_button_press);
                                 },
                                 _ => {},
                             }
@@ -150,7 +151,7 @@ impl Gameplay {
                                         mouse_state.y() - self.yard_rect.y(),
                                     );
                                     let (c, r) = (x / grid_width, y / grid_height);
-                                    self.yard.switch_connections(r as usize, c as usize);
+                                    self.yard.switch_connections(r as usize, c as usize, gs);
                                     finished_double_click = true;
                                 },
                                 _ => {},
@@ -229,7 +230,8 @@ impl Gameplay {
                                 dir1: self.prev_min_dir as u8,
                                 dir2: min_dir as u8,
                             },
-                        )
+                        );
+                        gs.sl.play(&gs.sl_draw_track);
                     }
                 }
 
@@ -256,7 +258,7 @@ impl Gameplay {
                 );
                 let (c, r) = (x / grid_width, y / grid_height);
 
-                self.yard.clear_connections(r as usize, c as usize);
+                self.yard.clear_connections(r as usize, c as usize, gs);
             }
         }
 

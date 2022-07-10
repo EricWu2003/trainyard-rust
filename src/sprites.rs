@@ -89,6 +89,11 @@ pub struct GameSprites<'a> {
     pub sl_train_green: Wav,
     pub sl_splitter: Wav,
     pub sl_painter: Wav,
+    pub sl_draw_track: Wav,
+    pub sl_switch_track: Wav,
+    pub sl_erase_track: Wav,
+    pub sl_crash: Wav,
+    pub sl_win_level: Wav,
 }
 
 impl<'a> GameSprites<'a> {
@@ -115,6 +120,16 @@ impl<'a> GameSprites<'a> {
         sl_splitter.load_mem(include_bytes!("../assets/audio/splitter.ogg")).unwrap();
         let mut sl_painter = Wav::default();
         sl_painter.load_mem(include_bytes!("../assets/audio/painter.ogg")).unwrap();
+        let mut sl_draw_track = Wav::default();
+        sl_draw_track.load_mem(include_bytes!("../assets/audio/draw_track.ogg")).unwrap();
+        let mut sl_switch_track = Wav::default();
+        sl_switch_track.load_mem(include_bytes!("../assets/audio/switch_track.ogg")).unwrap();
+        let mut sl_erase_track = Wav::default();
+        sl_erase_track.load_mem(include_bytes!("../assets/audio/erase_track.ogg")).unwrap();
+        let mut sl_crash = Wav::default();
+        sl_crash.load_mem(include_bytes!("../assets/audio/crash.ogg")).unwrap();
+        let mut sl_win_level = Wav::default();
+        sl_win_level.load_mem(include_bytes!("../assets/audio/win_level.ogg")).unwrap();
 
 
         Ok(GameSprites {
@@ -160,6 +175,11 @@ impl<'a> GameSprites<'a> {
             sl_train_green,
             sl_splitter,
             sl_painter,
+            sl_draw_track,
+            sl_switch_track,
+            sl_erase_track,
+            sl_crash,
+            sl_win_level,
         })
     }
 

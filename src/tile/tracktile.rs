@@ -72,7 +72,7 @@ impl Tracktile {
         }
         false
     }
-    pub fn switch_active_passive(&mut self) {
+    pub fn switch_active_passive(&mut self, gs: &GameSprites) {
         // this function is called whenever an odd number of trains rolls through a tracktile
         // or when a user double clicks a tile when drawing
         // if there is no passive connection, then we do nothing
@@ -81,6 +81,7 @@ impl Tracktile {
             let temp = self.passive_connection;
             self.passive_connection = self.active_connection;
             self.active_connection = temp;
+            gs.sl.play(&gs.sl_switch_track);
         }
     }
 
@@ -273,7 +274,7 @@ impl Tracktile {
         }
     }
 
-    pub fn interact_trains(&mut self) {
+    pub fn interact_trains(&mut self, gs:&GameSprites) {
         // This function merges trains (happens at the moment trains are exiting the tile)
         let my_type = self.connection_type();
 
@@ -313,6 +314,7 @@ impl Tracktile {
                             Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
                         self.trains[i1].color = new_color;
                         self.trains.remove(i2);
+                        gs.play_train_sound(new_color);
                         break 'outer;
                     }
                 }
@@ -320,7 +322,7 @@ impl Tracktile {
         }
 
         if need_to_switch_active_passive {
-            self.switch_active_passive();
+            self.switch_active_passive(gs);
         }
     }
 
