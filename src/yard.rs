@@ -141,10 +141,8 @@ impl Yard {
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.switch_active_passive();
-            if let Tile::Tracktile(tt_drawn) = &mut self.tiles[r][c]{
-                if self.state == YardState::Drawing {
-                    tt_drawn.switch_active_passive();
-                }
+            if let Tile::Tracktile(tt_drawn) = &mut self.drawn_tiles[r][c]{
+                tt_drawn.switch_active_passive();
             }
         }
     }
