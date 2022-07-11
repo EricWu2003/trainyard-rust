@@ -5,7 +5,6 @@ pub mod trainsink;
 pub mod trainsource;
 
 use crate::color::Color;
-use crate::connection::Connection;
 use crate::tile::painter::Painter;
 use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::Tracktile;
@@ -81,18 +80,7 @@ impl Tile {
             Tile::Splitter(splitter) => splitter.process_tick(gs),
         }
     }
-    pub fn add_connection(&mut self, conn: Connection) {
-        match self {
-            Tile::Tracktile(tracktile) => {
-                tracktile.add_connection(conn);
-            }
-            Tile::Trainsource(_) => {}
-            Tile::Trainsink(_) => {}
-            Tile::Rock => {}
-            Tile::Painter(_) => {}
-            Tile::Splitter(_) => {}
-        }
-    }
+    
     pub fn get_char(&self) -> char {
         match self {
             Tile::Tracktile(tracktile) => tracktile.connection_type().get_char(),

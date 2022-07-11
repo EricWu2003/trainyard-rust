@@ -230,8 +230,8 @@ impl Gameplay {
                                 dir1: self.prev_min_dir as u8,
                                 dir2: min_dir as u8,
                             },
+                            gs,
                         );
-                        gs.sl.play(&gs.sl_draw_track);
                     }
                 }
 

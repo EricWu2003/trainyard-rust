@@ -130,12 +130,12 @@ impl Yard {
         std::io::stdout().flush().unwrap();
     }
 
-    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection) {
+    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &GameSprites) {
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
-            tt.add_connection(conn);
+            tt.add_connection(conn, gs);
             if let Tile::Tracktile(tt_drawn) = &mut self.drawn_tiles[r][c] {
-                tt_drawn.add_connection(conn);
+                tt_drawn.add_connection(conn, gs);
             }
         }
     }
