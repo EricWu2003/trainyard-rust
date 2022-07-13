@@ -1087,7 +1087,7 @@ s 0,2 right
 s 0,5 right
 s 3,6 up
 s 6,2 left
-s 6,4 left
+s 6,5 left
 o 0,3 blue,blue,blue,blue up
 o 0,6 blue,blue,blue,blue up
 o 6,0 blue,blue,blue,blue left
