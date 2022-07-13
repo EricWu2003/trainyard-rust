@@ -1113,5 +1113,63 @@ Race Condition:1
 o 3,0 yellow left,right
 ---
 
+Lag Anyone?:1
++ 0,0 red,green,red,green,red,green,red,green,red down
++ 1,0 red,green,red,green,red,green,red,green,red down
++ 2,0 red,green,red,green,red,green,red,green,red down
++ 3,0 red,green,red,green,red,green,red,green,red down
++ 4,0 red,green,red,green,red,green,red,green,red down
++ 5,0 red,green,red,green,red,green,red,green,red down
++ 6,0 red,green,red,green,red,green,red,green,red down
+o 0,1 red,green,red,green,red,green,red,green,red up
+o 1,1 red,green,red,green,red,green,red,green,red up
+o 2,1 red,green,red,green,red,green,red,green,red up
+o 3,1 red,green,red,green,red,green,red,green,red up
+o 4,1 red,green,red,green,red,green,red,green,red up
+o 5,1 red,green,red,green,red,green,red,green,red up
+o 6,1 red,green,red,green,red,green,red,green,red up
 
++ 0,2 red,green,red,green,red,green,red,green,red down
++ 1,2 red,green,red,green,red,green,red,green,red down
++ 2,2 red,green,red,green,red,green,red,green,red down
++ 3,2 red,green,red,green,red,green,red,green,red down
++ 4,2 red,green,red,green,red,green,red,green,red down
++ 5,2 red,green,red,green,red,green,red,green,red down
++ 6,2 red,green,red,green,red,green,red,green,red down
+o 0,4 red,green,red,green,red,green,red,green,red up
+o 1,4 red,green,red,green,red,green,red,green,red up
+o 2,4 red,green,red,green,red,green,red,green,red up
+o 3,4 red,green,red,green,red,green,red,green,red up
+o 4,4 red,green,red,green,red,green,red,green,red up
+o 5,4 red,green,red,green,red,green,red,green,red up
+o 6,4 red,green,red,green,red,green,red,green,red up
 
++ 0,5 red,green,red,green,red,green,red,green,red down
++ 1,5 red,green,red,green,red,green,red,green,red down
++ 2,5 red,green,red,green,red,green,red,green,red down
++ 3,5 red,green,red,green,red,green,red,green,red down
++ 4,5 red,green,red,green,red,green,red,green,red down
++ 5,5 red,green,red,green,red,green,red,green,red down
++ 6,5 red,green,red,green,red,green,red,green,red down
+o 0,6 red,green,red,green,red,green,red,green,red up
+o 1,6 red,green,red,green,red,green,red,green,red up
+o 2,6 red,green,red,green,red,green,red,green,red up
+o 3,6 red,green,red,green,red,green,red,green,red up
+o 4,6 red,green,red,green,red,green,red,green,red up
+o 5,6 red,green,red,green,red,green,red,green,red up
+o 6,6 red,green,red,green,red,green,red,green,red up
+---
+
+Four Sorts:1
++ 1,0 red,yellow,green,blue down
++ 2,0 red,yellow,green,blue down
++ 3,0 red,yellow,green,blue down
++ 4,0 red,yellow,green,blue down
+
+o 1,6 red,red,red,red up
+o 2,6 yellow,yellow,yellow,yellow up
+o 3,6 green,green,green,green up
+o 4,6 blue,blue,blue,blue up
+
+* 0,0 0,6 6,0 6,6
+---
