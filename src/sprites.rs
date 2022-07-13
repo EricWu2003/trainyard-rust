@@ -147,13 +147,13 @@ impl<'a> GameSprites<'a> {
     pub fn set_color(&mut self, color: Color) {
         let tint;
         match color {
-            Color::Brown => tint = (139, 69, 19),
-            Color::Blue => tint = (0, 0, 255),
-            Color::Red => tint = (255, 0, 0),
-            Color::Yellow => tint = (255, 255, 0),
-            Color::Orange => tint = (255, 140, 0),
-            Color::Green => tint = (34, 139, 34),
-            Color::Purple => tint = (148, 0, 211),
+            Color::Brown => tint = (120, 85, 59),
+            Color::Blue => tint = (42, 80, 197),
+            Color::Red => tint = (187, 39, 31),
+            Color::Yellow => tint = (234, 234, 101),
+            Color::Orange => tint = (233, 159, 56),
+            Color::Green => tint = (96, 201, 59),
+            Color::Purple => tint = (161, 32, 197),
         }
         let (red, green, blue) = tint;
         self.atlas_color.set_color_mod(red, green, blue);
