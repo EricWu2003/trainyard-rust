@@ -271,6 +271,17 @@ impl Tracktile {
                 }
                 return;
             }
+
+            if my_type == ConnectionType::J || my_type == ConnectionType::M {
+                let mut i1: usize = 0;
+                let mut i2: usize = 0;
+                if self.indices_of_trains_along(self.active_connection.unwrap(), &mut i1, &mut i2) {
+                    let new_color = Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
+                    self.trains[i1].color = new_color;
+                    self.trains[i2].color = new_color;
+                    gs.play_train_sound(new_color);
+                }
+            }
         }
     }
 
@@ -291,17 +302,7 @@ impl Tracktile {
             }
             // At this point, we know we either have a J or M type connection.
 
-            // In either case, we will first check to see if there are trains colliding along the active connection.
-            // If there are, we mix those.
-            // Then, we merge the trains (if there are any going to the same destination)
-
-            let mut i1: usize = 0;
-            let mut i2: usize = 0;
-            if self.indices_of_trains_along(self.active_connection.unwrap(), &mut i1, &mut i2) {
-                let new_color = Color::mix_many(vec![self.trains[i1].color, self.trains[i2].color]);
-                self.trains[i1].color = new_color;
-                self.trains[i2].color = new_color;
-            }
+            // We simply merge trains (if there are any going to the same destination)
 
             'outer: for i1 in 0..self.trains.len() {
                 for i2 in 0..self.trains.len() {
