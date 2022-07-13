@@ -491,7 +491,7 @@ impl Tracktile {
             
             
             
-            canvas.copy_ex(&gs.train, None, train_rect, rot, None, false, false)?;
+            canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
 
         }
         Ok(())

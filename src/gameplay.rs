@@ -67,25 +67,25 @@ impl Gameplay {
         match self.yard.state {
             YardState::Drawing => {
                 if !self.is_erasing {
-                    canvas.copy(&gs.btn_erase, None, self.erase_rect)?;
+                    canvas.copy(&gs.atlas, gs.btn_erase, self.erase_rect)?;
                 } else {
-                    canvas.copy(&gs.btn_stop_erase, None, self.erase_rect)?;
+                    canvas.copy(&gs.atlas, gs.btn_stop_erase, self.erase_rect)?;
                 }
-                canvas.copy(&gs.btn_start_trains, None, self.start_trains_rect)?;
+                canvas.copy(&gs.atlas, gs.btn_start_trains, self.start_trains_rect)?;
             },
             YardState::Crashed => {
-                canvas.copy(&gs.btn_status_crashed, None, Rect::new(x+10,y+10,208,168))?;
-                canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
+                canvas.copy(&gs.atlas, gs.btn_status_crashed, Rect::new(x+10,y+10,208,168))?;
+                canvas.copy(&gs.atlas, gs.btn_back_to_drawing, self.start_trains_rect)?;
             },
             YardState::Playing {..} | YardState::Won => {
-                canvas.copy(&gs.btn_status_good, None, Rect::new(x+10,y+10,208,168))?;
-                canvas.copy(&gs.btn_back_to_drawing, None, self.start_trains_rect)?;
+                canvas.copy(&gs.atlas, gs.btn_status_good, Rect::new(x+10,y+10,208,168))?;
+                canvas.copy(&gs.atlas, gs.btn_back_to_drawing, self.start_trains_rect)?;
             }
         }
         
         
-        canvas.copy(&&gs.space_for_speed_slider, None, self.speed_slider_space_rect)?;
-        canvas.copy(&&&gs.btn_speed, None, self.speed_slider_rect)?;
+        canvas.copy(&gs.atlas, gs.space_for_speed_slider, self.speed_slider_space_rect)?;
+        canvas.copy(&gs.atlas, gs.btn_speed, self.speed_slider_rect)?;
         Ok(())
     }
 

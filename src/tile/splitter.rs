@@ -98,7 +98,7 @@ impl Splitter {
                 rot = 90.0;
             }
             let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-            canvas.copy_ex(&gs.train, None, train_rect, rot, None, false, false)?;
+            canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
         }
         if let Some(color) = self.train_going_left {
             gs.set_color(color);
@@ -123,7 +123,7 @@ impl Splitter {
                 rot = 90.0;
             }
             let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-            canvas.copy_ex(&gs.train, None, train_rect, rot, None, false, false)?;
+            canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
         }
 
         if let Some(color) = self.train_going_right {
@@ -149,7 +149,7 @@ impl Splitter {
                 rot = 90.0;
             }
             let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-            canvas.copy_ex(&gs.train, None, train_rect, rot, None, false, false)?;
+            canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
         }
         
         Ok(())

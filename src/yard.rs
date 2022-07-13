@@ -465,8 +465,8 @@ impl Yard {
                             }
                         }
                         canvas.copy_ex(
-                            texture,
-                            None,
+                            &gs.atlas,
+                            *texture,
                             rect,
                             rot as f64 * 90.0,
                             None,
@@ -476,8 +476,8 @@ impl Yard {
                     }
                     Tile::Trainsource(trainsource) => {
                         canvas.copy_ex(
-                            &gs.trainsource_exit,
-                            None,
+                            &gs.atlas,
+                            gs.trainsource_exit,
                             rect,
                             trainsource.dir as f64 * 90.0,
                             None,
@@ -486,13 +486,13 @@ impl Yard {
                         )?;
                     }
                     Tile::Trainsink(trainsink) => {
-                        canvas.copy(&gs.tracktile_blank, None, rect)?;
+                        canvas.copy(&gs.atlas, gs.tracktile_blank, rect)?;
                         if !trainsink.is_satisfied() {
                             for dir in 0..4 {
                                 if trainsink.border_state[dir] {
                                     canvas.copy_ex(
-                                        &gs.trainsink_entry,
-                                        None,
+                                        &gs.atlas,
+                                        gs.trainsink_entry,
                                         rect,
                                         dir as f64 * 90.0,
                                         None,
@@ -504,13 +504,13 @@ impl Yard {
                         }
                     }
                     Tile::Rock => {
-                        canvas.copy(&gs.rock, None, rect)?;
+                        canvas.copy(&gs.atlas, gs.rock, rect)?;
                     }
                     Tile::Painter(painter) => {
-                        canvas.copy(&gs.tracktile_blank, None, rect)?;
+                        canvas.copy(&gs.atlas, gs.tracktile_blank, rect)?;
                         canvas.copy_ex(
-                            &gs.trainsink_entry,
-                            None,
+                            &gs.atlas,
+                            gs.trainsink_entry,
                             rect,
                             painter.connection.dir1 as f64 * 90.0,
                             None,
@@ -518,8 +518,8 @@ impl Yard {
                             false,
                         )?;
                         canvas.copy_ex(
-                            &gs.trainsink_entry,
-                            None,
+                            &gs.atlas,
+                            gs.trainsink_entry,
                             rect,
                             painter.connection.dir2 as f64 * 90.0,
                             None,
@@ -529,8 +529,8 @@ impl Yard {
                     }
                     Tile::Splitter(splitter) => {
                         canvas.copy_ex(
-                            &gs.splitter_bg,
-                            None,
+                            &gs.atlas,
+                            gs.splitter_bg,
                             rect,
                             splitter.incoming_dir as f64 * 90.0,
                             None,
@@ -587,7 +587,7 @@ impl Yard {
                 match &self.tiles[r][c] {
                     Tile::Tracktile(_) => {}
                     Tile::Trainsource(trainsource) => {
-                        canvas.copy(&gs.source_sink_border, None, rect)?;
+                        canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
 
                         let num_cols;
                         if trainsource.trains.len() <= 1 {
@@ -613,8 +613,8 @@ impl Yard {
                                     + curr_row as i32 * scaled_plus_sign_height;
                                 gs.set_color(color);
                                 canvas.copy(
-                                    &gs.plus_sign,
-                                    None,
+                                    &gs.atlas_color,
+                                    gs.plus_sign,
                                     Rect::new(
                                         x_pos,
                                         y_pos,
@@ -627,7 +627,7 @@ impl Yard {
                     }
                     Tile::Trainsink(trainsink) => {
                         if !trainsink.is_satisfied() {
-                            canvas.copy(&gs.source_sink_border, None, rect)?;
+                            canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
 
                             let num_cols;
                             if trainsink.desires.len() <= 1 {
@@ -654,8 +654,8 @@ impl Yard {
                                         + curr_row as i32 * scaled_plus_sign_height;
                                     gs.set_color(color);
                                     canvas.copy(
-                                        &gs.circle,
-                                        None,
+                                        &gs.atlas_color,
+                                        gs.circle,
                                         Rect::new(
                                             x_pos,
                                             y_pos,
@@ -666,19 +666,19 @@ impl Yard {
                                 }
                             }
                         } else {
-                            canvas.copy(&gs.sink_satisfied, None, rect)?;
+                            canvas.copy(&gs.atlas, gs.sink_satisfied, rect)?;
                         }
                     }
                     Tile::Rock => {}
                     Tile::Painter(painter) => {
-                        canvas.copy(&gs.painter_bg, None, rect)?;
+                        canvas.copy(&gs.atlas, gs.painter_bg, rect)?;
                         gs.set_color(painter.color);
-                        canvas.copy(&gs.painter_brush, None, rect)?;
+                        canvas.copy(&gs.atlas_color, gs.painter_brush, rect)?;
                     }
                     Tile::Splitter(splitter) => {
                         canvas.copy_ex(
-                            &gs.splitter,
-                            None,
+                            &gs.atlas,
+                            gs.splitter,
                             rect,
                             splitter.incoming_dir as f64 * 90.0,
                             None,
