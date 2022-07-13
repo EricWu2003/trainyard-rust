@@ -26,8 +26,6 @@ pub type City<'a> = (&'a str, Vec<Level<'a>>);
 
 pub struct LevelManager<'a>(Vec<City<'a>>);
 
-pub static BYTES_LEVEL_INFO: &[u8; 13205] = include_bytes!("../assets/levels.txt");
-
 fn convert_string_to_color(s: &str) -> Color {
     match s {
         "red" => Red,
@@ -54,7 +52,7 @@ fn convert_string_to_dir(s: &str) -> usize {
 impl LevelManager<'_> {
     pub fn new() -> LevelManager<'static> {
         let mut lm = LevelManager(vec![]);
-        let info_str = str::from_utf8(BYTES_LEVEL_INFO).unwrap();
+        let info_str = str::from_utf8(include_bytes!("../assets/levels.txt")).unwrap();
         let arr: Vec<&str> = info_str
             .split("\n")
             .filter(|line| !(line.starts_with("//") || line.is_empty()))
