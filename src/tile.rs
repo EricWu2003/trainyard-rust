@@ -142,4 +142,25 @@ impl Tile {
         }
         Ok(())
     }
+
+    pub fn set_rect(&mut self, rect:Rect) {
+        match self {
+            Tile::Tracktile(tracktile) => {
+                // tracktile.set_rect(rect);
+            }
+            Tile::Trainsink(trainsink) => {
+                trainsink.set_rect(rect);
+            }
+            Tile::Trainsource(trainsource) => {
+                // trainsource.set_rect(rect);
+            }
+            Tile::Painter(painter) => {
+                // painter.set_rect(rect);
+            }
+            Tile::Splitter(splitter) => {
+                // splitter.set_rect(rect);
+            }
+            Tile::Rock => {}
+        }
+    }
 }

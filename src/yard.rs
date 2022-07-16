@@ -45,10 +45,11 @@ pub struct Yard {
     v_edges: Vec<Vec<Edge>>,
     pub state: YardState,
     level_info: LevelInfo,
+    pub rect: Rect,
 }
 
 impl Yard {
-    pub fn new_blank() -> Yard {
+    pub fn new_blank(rect: Rect) -> Yard {
         let mut tiles: Vec<Vec<Tile>> = Vec::new();
         for _ in 0..NUM_ROWS {
             let mut row: Vec<Tile> = Vec::new();
@@ -84,13 +85,29 @@ impl Yard {
             v_edges,
             state: YardState::Drawing,
             level_info: vec![],
+            rect,
         }
     }
-    pub fn new(level_info: &LevelInfo) -> Yard {
-        let mut yard = Yard::new_blank();
+    pub fn new(level_info: &LevelInfo, rect: Rect) -> Yard {
+        let mut yard = Yard::new_blank(rect);
         for i in 0..level_info.len() {
             let tile = &level_info[i];
             yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
+        }
+        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
+        let new_w = w/(NUM_COLS as u32);
+        let new_h = h/(NUM_ROWS as u32);
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                yard.tiles[row][col].set_rect(
+                    Rect::new(
+                        x + (new_w*col as u32) as i32,
+                        y + (new_h*row as u32) as i32,
+                        new_w,
+                        new_h,
+                    )
+                )
+            }
         }
         yard.level_info = level_info.clone();
         yard

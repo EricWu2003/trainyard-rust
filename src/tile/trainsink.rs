@@ -13,6 +13,7 @@ pub struct Trainsink {
     pub private_desires: Vec<Option<Color>>,
     pub incoming_trains: BorderState,
     pub border_state: [bool; 4],
+    pub rect: Option<Rect>,
 }
 
 impl Trainsink {
@@ -25,6 +26,7 @@ impl Trainsink {
             private_desires: desires2.into_iter().map(Some).collect(),
             border_state,
             incoming_trains: [None,None,None,None],
+            rect: None,
         }
     }
 
@@ -61,7 +63,7 @@ impl Trainsink {
         for train in self.incoming_trains {
             if let Some(color) = train {
                 gs.play_train_sound(color);
-                p.push(Box::new(ShrinkingCircle::new(Rect::new(0,0,0,0), color)));
+                p.push(Box::new(ShrinkingCircle::new(self.rect.unwrap(), color)));
             }
         }
         self.incoming_trains = [None,None,None,None]
@@ -80,6 +82,9 @@ impl Trainsink {
         return true;
     }
 
+    pub fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
+    }
 
     pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
         let train_width = (rect.width() as f64 * (32.0 / 96.0)) as u32;

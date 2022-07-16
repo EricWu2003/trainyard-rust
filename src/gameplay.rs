@@ -51,7 +51,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level( "Purple Parcels")),
+            yard: Yard::new(level_manager.get_level( "Purple Parcels"), rect),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -87,7 +87,7 @@ impl Gameplay {
             }
         }
         for particle in &self.particles {
-            particle.render(canvas, gs);
+            particle.render(canvas, gs)?;
         }
         
         
@@ -259,6 +259,7 @@ impl Gameplay {
         for particle in &mut self.particles {
             particle.pass_one_frame();
         }
+        self.particles.retain(|particle| particle.still_exists());
 
         false
     }
