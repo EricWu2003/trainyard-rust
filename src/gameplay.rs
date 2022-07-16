@@ -1,6 +1,7 @@
 use std::i32;
 
 use crate::connection::Connection;
+use crate::particle::ParticleList;
 use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
 use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
@@ -19,6 +20,7 @@ pub struct Gameplay {
     speed_slider_space_rect: Rect,
     speed_slider_rect: Rect,
     yard: Yard,
+    particles: ParticleList,
     prev_mouse_r: i32,
     prev_mouse_c: i32,
     prev_min_dir: i32,
@@ -58,6 +60,7 @@ impl Gameplay {
             frame_count: 0,
             last_click_time: 0,
             speed_btn_drag_offset: None,
+            particles: vec![],
         }
     }
 
@@ -82,6 +85,9 @@ impl Gameplay {
                 canvas.copy(&gs.atlas, gs.btn_status_good, Rect::new(x+10,y+10,208,168))?;
                 canvas.copy(&gs.atlas, gs.btn_back_to_drawing, self.start_trains_rect)?;
             }
+        }
+        for particle in &self.particles {
+            particle.render(canvas, gs);
         }
         
         
@@ -247,8 +253,13 @@ impl Gameplay {
         }
 
         // Update
-        self.yard.update(self.speed, gs);
+        self.yard.update(self.speed, gs, &mut self.particles);
         self.frame_count += 1;
+
+        for particle in &mut self.particles {
+            particle.pass_one_frame();
+        }
+
         false
     }
 

@@ -4,6 +4,8 @@ use crate::tile::BorderState;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
+use crate::particle::ParticleList;
+use crate::particle::shrinking_circle::ShrinkingCircle;
 
 #[derive(Debug, Clone)]
 pub struct Trainsink {
@@ -52,13 +54,14 @@ impl Trainsink {
         true
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         // when processing the tick, we update our public desires
         // this happens when the trains reach the center of the trainsink
         self.desires = self.private_desires.clone();
         for train in self.incoming_trains {
             if let Some(color) = train {
                 gs.play_train_sound(color);
+                p.push(Box::new(ShrinkingCircle::new(Rect::new(0,0,0,0), color)));
             }
         }
         self.incoming_trains = [None,None,None,None]

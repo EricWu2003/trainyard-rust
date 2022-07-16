@@ -13,6 +13,7 @@ use crate::tile::trainsource::Trainsource;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
+use crate::particle::ParticleList;
 
 
 pub type BorderState = [Option<Color>; 4];
@@ -87,7 +88,7 @@ impl Tile {
         }
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         match self {
             Tile::Tracktile(tracktile) => {
                 tracktile.process_tick(gs);
@@ -96,7 +97,7 @@ impl Tile {
                 trainsource.process_tick();
             }
             Tile::Trainsink(trainsink) => {
-                trainsink.process_tick(gs);
+                trainsink.process_tick(gs, p);
             }
             Tile::Painter(painter) => {
                 painter.process_tick(gs)

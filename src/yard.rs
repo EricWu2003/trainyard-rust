@@ -1,6 +1,7 @@
 use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::levels::LevelInfo;
+use crate::particle::ParticleList;
 use crate::sprites::GameSprites;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
@@ -278,7 +279,7 @@ impl Yard {
         
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         assert!(matches!(
             self.state,
             YardState::Playing {..}
@@ -288,7 +289,7 @@ impl Yard {
         // then process tick in all tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                self.tiles[r][c].process_tick(gs);
+                self.tiles[r][c].process_tick(gs, p);
             }
         }
 
@@ -298,7 +299,7 @@ impl Yard {
         }
     }
 
-    pub fn update(&mut self, speed: f64, gs: &GameSprites) {
+    pub fn update(&mut self, speed: f64, gs: &GameSprites, p: &mut ParticleList) {
         if let YardState::Playing {
             mut num_ticks_elapsed,
             mut progress,
@@ -314,7 +315,7 @@ impl Yard {
                         next_step = NextAction::ProcessTick;
                     }
                     NextAction::ProcessTick => {
-                        self.process_tick(gs);
+                        self.process_tick(gs, p);
                         next_step = NextAction::ProcessEdges;
 
                     }
@@ -335,7 +336,7 @@ impl Yard {
                     if let Tile::Trainsink(trainsink) = &mut self.tiles[r][c] {
                         // this only exists for the edge case where two trains simultaneously enter a trainsink with only 1 desire.
                         // in that case, one train enters, the other crashes.
-                        trainsink.process_tick(gs);
+                        trainsink.process_tick(gs, p);
                     }
                 }
             }
