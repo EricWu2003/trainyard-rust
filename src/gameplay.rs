@@ -4,6 +4,7 @@ use crate::connection::Connection;
 use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
 use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
+use crate::utils::{point_in_rect, mouse_state_in_rect};
 use sdl2::event::Event;
 use sdl2::keyboard::Keycode;
 use sdl2::{rect::Rect, render::WindowCanvas, EventPump};
@@ -107,8 +108,9 @@ impl Gameplay {
                 }
                 Event::MouseButtonDown { x, y, .. } => {
                     let mut finished_double_click = false;
-                    if x > self.start_trains_rect.x() && x - self.start_trains_rect.x() < self.start_trains_rect.width() as i32 && 
-                        y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 {
+                    // if x > self.start_trains_rect.x() && x - self.start_trains_rect.x() < self.start_trains_rect.width() as i32 && 
+                    //     y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 
+                    if point_in_rect(x, y, self.start_trains_rect){
                             match self.yard.state {
                                 YardState::Crashed => {
                                     self.yard.reset_self();
@@ -132,8 +134,7 @@ impl Gameplay {
                                 },
                                 YardState::Won => {},
                             }
-                    } else if x > self.erase_rect.x() && x - self.erase_rect.x() < self.erase_rect.width() as i32 && 
-                        y > self.erase_rect.y() && y - self.erase_rect.y() < self.erase_rect.height() as i32 {
+                    } else if point_in_rect(x, y, self.erase_rect) {
                             match self.yard.state {
                                 YardState::Drawing => {
                                     self.is_erasing = !self.is_erasing;
@@ -141,8 +142,7 @@ impl Gameplay {
                                 },
                                 _ => {},
                             }
-                    } else if x > self.yard_rect.x() && x - self.yard_rect.x() < self.yard_rect.width() as i32 && 
-                    y > self.yard_rect.y() && y - self.yard_rect.y() < self.yard_rect.height() as i32 {
+                    } else if point_in_rect(x, y, self.yard_rect) {
                         if self.frame_count - self.last_click_time < DOUBLE_CLICK_THRESHOLD {
                             match self.yard.state {
                                 YardState::Drawing => {
@@ -167,10 +167,8 @@ impl Gameplay {
             }
         }
 
-        if mouse_state.left() && mouse_state.x() > self.speed_slider_space_rect.x()
-            && mouse_state.x() - self.speed_slider_space_rect.x() < self.speed_slider_space_rect.width() as i32
-            && mouse_state.y() > self.speed_slider_space_rect.y()
-            && mouse_state.y() - self.speed_slider_space_rect.y() < self.speed_slider_space_rect.height() as i32 
+        if mouse_state.left() 
+            && mouse_state_in_rect(mouse_state, self.speed_slider_rect) 
         {
             match self.speed_btn_drag_offset {
                 Some(offset) => {
@@ -193,14 +191,9 @@ impl Gameplay {
     
 
         if self.yard.state == YardState::Drawing && !self.is_erasing {
-            if mouse_state.left()
-                && mouse_state.x() > self.yard_rect.x()
-                && mouse_state.x() - self.yard_rect.x() < self.yard_rect.width() as i32
-                && mouse_state.y() > self.yard_rect.y()
-                && mouse_state.y() - self.yard_rect.y() < self.yard_rect.height() as i32
+            if mouse_state.left() && mouse_state_in_rect(mouse_state, self.yard_rect)
             {
-                
-
+                // handle adding a connection to the yard when the user is drawing:
                 let (x, y) = (
                     mouse_state.x() - self.yard_rect.x(),
                     mouse_state.y() - self.yard_rect.y(),
@@ -247,10 +240,7 @@ impl Gameplay {
             }
         } else if self.yard.state == YardState::Drawing && self.is_erasing {
             if mouse_state.left()
-                && mouse_state.x() > self.yard_rect.x()
-                && mouse_state.x() - self.yard_rect.x() < self.yard_rect.width() as i32
-                && mouse_state.y() > self.yard_rect.y()
-                && mouse_state.y() - self.yard_rect.y() < self.yard_rect.height() as i32
+                && mouse_state_in_rect(mouse_state, self.yard_rect)
             {
                 let (x, y) = (
                     mouse_state.x() - self.yard_rect.x(),

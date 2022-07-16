@@ -6,6 +6,7 @@ pub mod levels;
 pub mod sprites;
 pub mod tile;
 pub mod yard;
+pub mod utils;
 use crate::gameplay::Gameplay;
 use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
