@@ -54,7 +54,8 @@ o 5,1 purple right
 + 1,5 blue down
 o 5,5 blue up
 ---
-
+----
+// 4 dashes marks the end of a single city.
 
 CITY:Brampton
 
@@ -126,6 +127,7 @@ o 6,0 orange down
 * 5,6
 * 6,4
 ---
+----
 
 CITY:Calgary
 Rainbow:1
@@ -187,6 +189,7 @@ o 3,6 blue up
 + 0,3 red right
 o 6,3 red left
 ---
+----
 
 CITY:Delson
 
@@ -276,6 +279,7 @@ o 3,0 green,green,green,green,blue,blue,blue,blue,orange,orange,orange,orange do
 * 5,3
 * 6,3
 ---
+----
 CITY:Edmonton
 
 Yield:3
@@ -333,6 +337,7 @@ Nurple:3
 + 5,5 blue up
 o 3,3 purple up,down,left,right
 ---
+----
 
 CITY:Fredericton
 
@@ -407,6 +412,7 @@ o 1,1 green down
 * 5,5
 * 4,6
 ---
+----
 
 CITY:Guelph
 
@@ -515,6 +521,7 @@ Spiced:4
 + 6,0 yellow,yellow left
 o 3,3 orange,orange up,down,left,right
 ---
+----
 
 CITY:Halifax
 Handlebars:4
@@ -594,6 +601,7 @@ o 6,6 blue up
 * 3,3
 * 3,4
 ---
+----
 
 CITY:Iqaluit
 
@@ -676,6 +684,7 @@ o 0,6 green up
 o 3,0 green down
 o 4,0 orange down
 ---
+----
 
 CITY:Joliette
 
@@ -734,6 +743,7 @@ p 3,1 orange up,down
 p 3,5 orange up,down
 p 3,3 orange left,right
 ---
+----
 
 
 CITY:Kamloops
@@ -818,6 +828,7 @@ o 0,6 orange,orange right,up
 * 2,1
 
 ---
+----
 
 CITY:London
 
@@ -897,6 +908,7 @@ o 4,2 red,blue,red,blue up
 p 3,4 blue right,down
 p 3,5 red up,left
 ---
+----
 
 CITY:Mississauga
 
@@ -980,6 +992,7 @@ o 1,0 green down
 o 3,0 purple down
 o 5,0 orange down
 ---
+----
 
 
 CITY:Niagara Falls
@@ -1094,6 +1107,7 @@ o 6,0 blue,blue,blue,blue left
 o 6,3 blue,blue,blue,blue up
 o 6,6 blue,blue,blue,blue up
 ---
+----
 
 
 CITY:Debug
@@ -1173,3 +1187,4 @@ o 4,6 blue,blue,blue,blue up
 
 * 0,0 0,6 6,0 6,6
 ---
+----
