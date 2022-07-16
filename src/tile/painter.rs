@@ -25,14 +25,14 @@ impl Painter {
     }
 
     pub fn accept_trains(&mut self, trains: BorderState) -> bool {
-        for i in 0..4 {
-            if i == self.connection.dir1 {
-                self.train_to_dir2 = trains[i as usize];
-            } else if i == self.connection.dir2 {
-                self.train_to_dir1 = trains[i as usize];
+        for (dir, train) in trains.iter().enumerate() {
+            if dir as u8 == self.connection.dir1 {
+                self.train_to_dir2 = *train;
+            } else if dir as u8 == self.connection.dir2 {
+                self.train_to_dir1 = *train;
             } else {
-                if trains[i as usize] != None {
-                    return false;
+                if train.is_some() {
+                    return false.clone();
                 }
             }
         }
@@ -50,11 +50,11 @@ impl Painter {
         border_state
     }
     pub fn process_tick(&mut self, gs: &GameSprites) {
-        if self.train_to_dir1 != None {
+        if self.train_to_dir1.is_some() {
             self.train_to_dir1 = Some(self.color);
             gs.sl.play(&gs.sl_painter);
         }
-        if self.train_to_dir2 != None {
+        if self.train_to_dir2.is_some() {
             self.train_to_dir2 = Some(self.color);
             gs.sl.play(&gs.sl_painter);
         }

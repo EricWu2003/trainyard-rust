@@ -9,12 +9,12 @@ use crate::sprites::GameSprites;
 #[derive(Debug, Clone)]
 pub struct Trainsource {
     pub trains: Vec<Option<Color>>,
-    pub dir: usize,
+    pub dir: u8,
     pub outgoing_train: Option<Color>
 }
 
 impl Trainsource {
-    pub fn new(trains: Vec<Color>, dir: usize) -> Trainsource {
+    pub fn new(trains: Vec<Color>, dir: u8) -> Trainsource {
         Trainsource {
             trains: trains.into_iter().map(Some).collect(),
             dir,
@@ -23,8 +23,8 @@ impl Trainsource {
     }
 
     pub fn accept_trains(&self, trains: BorderState) -> bool {
-        for i in 0..4 {
-            if trains[i] != None {
+        for train in trains {
+            if train.is_some() {
                 return false;
             }
         }
@@ -32,10 +32,10 @@ impl Trainsource {
     }
 
     pub fn process_tick(&mut self) {
-        for i in 0..self.trains.len() {
-            if let Some(color) = self.trains[i] {
+        for (index, train) in self.trains.iter().enumerate() {
+            if let Some(color) = *train {
                 self.outgoing_train = Some(color);
-                self.trains[i] = None;
+                self.trains[index] = None;
                 return;
             }
         }
@@ -43,14 +43,14 @@ impl Trainsource {
 
     pub fn dispatch_trains(&mut self) -> BorderState {
         let mut border_state = [None, None, None, None];
-        border_state[self.dir] = self.outgoing_train;
+        border_state[self.dir as usize] = self.outgoing_train;
         self.outgoing_train = None;
         border_state
     }
 
     pub fn is_empty(&self) -> bool {
-        for i in 0..self.trains.len() {
-            if self.trains[i] != None {
+        for train in &self.trains {
+            if train.is_some() {
                 return false;
             }
         }

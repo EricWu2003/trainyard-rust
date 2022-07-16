@@ -49,7 +49,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Calgary", "Rainbow")),
+            yard: Yard::new(level_manager.get_level("Debug", "Race Condition")),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -108,40 +108,35 @@ impl Gameplay {
                 }
                 Event::MouseButtonDown { x, y, .. } => {
                     let mut finished_double_click = false;
-                    // if x > self.start_trains_rect.x() && x - self.start_trains_rect.x() < self.start_trains_rect.width() as i32 && 
-                    //     y > self.start_trains_rect.y() && y - self.start_trains_rect.y() < self.start_trains_rect.height() as i32 
                     if point_in_rect(x, y, self.start_trains_rect){
-                            match self.yard.state {
-                                YardState::Crashed => {
-                                    self.yard.reset_self();
-                                    self.yard.state = YardState::Drawing;
-                                    gs.sl.play(&gs.sl_button_press);
-                                },
-                                YardState::Drawing => {
-                                    self.is_erasing = false;
-                                    self.yard.state = YardState::Playing {
-                                        num_ticks_elapsed: 1,
-                                        progress: 0.0,
-                                        next_step: NextAction::ProcessTick,
-                                    };
-                                    gs.sl.play(&gs.sl_button_press);
-
-                                },
-                                YardState::Playing {..} => {
-                                    self.yard.reset_self();
-                                    self.yard.state = YardState::Drawing;
-                                    gs.sl.play(&gs.sl_button_press);
-                                },
-                                YardState::Won => {},
-                            }
+                        match self.yard.state {
+                            YardState::Crashed => {
+                                self.yard.reset_self();
+                                self.yard.state = YardState::Drawing;
+                            },
+                            YardState::Drawing => {
+                                self.is_erasing = false;
+                                self.yard.state = YardState::Playing {
+                                    num_ticks_elapsed: 1,
+                                    progress: 0.0,
+                                    next_step: NextAction::ProcessTick,
+                                };
+                            },
+                            YardState::Playing {..} => {
+                                self.yard.reset_self();
+                                self.yard.state = YardState::Drawing;
+                            },
+                            YardState::Won => {},
+                        }
+                        gs.sl.play(&gs.sl_button_press);
                     } else if point_in_rect(x, y, self.erase_rect) {
-                            match self.yard.state {
-                                YardState::Drawing => {
-                                    self.is_erasing = !self.is_erasing;
-                                    gs.sl.play(&gs.sl_button_press);
-                                },
-                                _ => {},
-                            }
+                        match self.yard.state {
+                            YardState::Drawing => {
+                                self.is_erasing = !self.is_erasing;
+                                gs.sl.play(&gs.sl_button_press);
+                            },
+                            _ => {},
+                        }
                     } else if point_in_rect(x, y, self.yard_rect) {
                         if self.frame_count - self.last_click_time < DOUBLE_CLICK_THRESHOLD {
                             match self.yard.state {
@@ -158,7 +153,7 @@ impl Gameplay {
                             }
                         }
                     }
-                    if ! finished_double_click {
+                    if !finished_double_click {
                         self.last_click_time = self.frame_count;
                     }
 
@@ -170,21 +165,20 @@ impl Gameplay {
         if mouse_state.left() 
             && mouse_state_in_rect(mouse_state, self.speed_slider_rect) 
         {
-            match self.speed_btn_drag_offset {
-                Some(offset) => {
-                    let mut new_x = mouse_state.x() - offset;
-                    if new_x < self.speed_slider_space_rect.x() {
-                        new_x = self.speed_slider_space_rect.x();
-                    } else if new_x > self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32 {
-                        new_x = self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32;
-                    }
-                    self.speed_slider_rect = Rect::new(new_x, self.speed_slider_rect.y(), self.speed_slider_rect.width(), self.speed_slider_rect.height());
-                    self.speed = (new_x - self.speed_slider_space_rect.x()) as f64 / (self.speed_slider_space_rect.width() - self.speed_slider_rect.width()) as f64 * MAX_SPEED;
+            if let Some(offset) = self.speed_btn_drag_offset {
+                let mut new_x = mouse_state.x() - offset;
+                if new_x < self.speed_slider_space_rect.x() {
+                    new_x = self.speed_slider_space_rect.x();
+                } else if new_x > self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32 {
+                    new_x = self.speed_slider_space_rect.x() + self.speed_slider_space_rect.width() as i32 - self.speed_slider_rect.width() as i32;
                 }
-                None => {
-                    self.speed_btn_drag_offset = Some(mouse_state.x() - self.speed_slider_rect.x());
-                }
+                self.speed_slider_rect = Rect::new(new_x, self.speed_slider_rect.y(), self.speed_slider_rect.width(), self.speed_slider_rect.height());
+                self.speed = (new_x - self.speed_slider_space_rect.x()) as f64 / (self.speed_slider_space_rect.width() - self.speed_slider_rect.width()) as f64 * MAX_SPEED;
             }
+            else  {
+                self.speed_btn_drag_offset = Some(mouse_state.x() - self.speed_slider_rect.x());
+            }
+            
         } else {
             self.speed_btn_drag_offset = None;
         }

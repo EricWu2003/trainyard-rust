@@ -16,7 +16,6 @@ pub const NUM_ROWS: usize = 7;
 pub const NUM_COLS: usize = 7;
 
 #[derive(Copy, Clone, PartialEq, Debug)]
-
 pub enum NextAction {
     ProcessTick,
     ProcessEdges,
@@ -34,6 +33,10 @@ pub enum YardState {
     Won,
 }
 
+// In the Yard struct, we keep a copy of tiles and drawn_tiles. When the user is drawing, we update both.
+// When the yard is in the Playing state, we only update tiles (and keep drawn_tiles static) when trains switch
+// active/passive connections. This way we can use drawn_tiles to revert the tiles if the user 
+// returns to the drawing board.
 pub struct Yard {
     tiles: Vec<Vec<Tile>>,
     drawn_tiles: Vec<Vec<Tile>>,
@@ -105,6 +108,7 @@ impl Yard {
     }
 
     pub fn display(&self) {
+        // deprecated, used for displaying stuff to the terminal.
         for r in 0..NUM_ROWS {
             print!(" ");
             for c in 0..NUM_COLS {
@@ -131,6 +135,7 @@ impl Yard {
     }
 
     pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &GameSprites) {
+        // we only allow a yard to add_connection during the drawing state.
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn, gs);
@@ -141,6 +146,8 @@ impl Yard {
     }
 
     pub fn switch_connections(&mut self, r:usize, c:usize, gs: &GameSprites) {
+        // we only allow a yard to manually switch connections during the drawing state.
+        // during a playing state each tracktile is responsible for switching itself.
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.switch_active_passive(gs);
@@ -152,9 +159,9 @@ impl Yard {
     
     pub fn reset_self(&mut self) {
         // used to recover from a crashed state back to a drawing state.
+        // also used when the user presses "back to drawing board".
 
-        for i in 0..self.level_info.len() {
-            let tile = &self.level_info[i];
+        for tile in &self.level_info {
             self.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
         }
 
@@ -181,6 +188,8 @@ impl Yard {
             for c in 0..NUM_COLS {
                 if let Tile::Tracktile(tracktile) = &self.drawn_tiles[r][c] {
                     if tracktile.connection_type() != ConnectionType::None {
+                        // we only do this if the connection_type is not none because otherwise we would
+                        // overwrite other tiles like trainsources.
                         self.tiles[r][c] = Tile::Tracktile(tracktile.clone());
                     }
                 }
@@ -189,8 +198,12 @@ impl Yard {
     }
 
     pub fn process_edges(&mut self, gs: &GameSprites) {
+        assert!(matches!(
+            self.state,
+            YardState::Playing {..}
+        ));
 
-        //interact all trains
+        // merge all trains that are still in tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
                 self.tiles[r][c].process_end_of_tick(gs);
@@ -221,7 +234,7 @@ impl Yard {
             }
         }
 
-        // detect crashes on boundaries (i.e. if a train is about to crash by going
+        // detect crashes on boundaries of yard (i.e. if a train is about to crash by going
         // too far up where there is no tile left to catch it)
         for c in 0..NUM_COLS {
             if let Some(_train) = self.h_edges[0][c].train_to_a {
@@ -254,8 +267,8 @@ impl Yard {
                     self.h_edges[r + 1][c].train_to_a,
                     self.v_edges[r][c].train_to_b,
                 ];
-                let res = self.tiles[r][c].accept_trains(border_state);
-                if !res {
+                let not_crashed = self.tiles[r][c].accept_trains(border_state);
+                if !not_crashed {
                     self.state = YardState::Crashed;
                     gs.sl.play(&gs.sl_crash);
                 }
@@ -320,6 +333,8 @@ impl Yard {
             for r in 0..NUM_ROWS {
                 for c in 0..NUM_COLS {
                     if let Tile::Trainsink(trainsink) = &mut self.tiles[r][c] {
+                        // this only exists for the edge case where two trains simultaneously enter a trainsink with only 1 desire.
+                        // in that case, one train enters, the other crashes.
                         trainsink.process_tick(gs);
                     }
                 }
@@ -543,8 +558,11 @@ impl Yard {
         }
 
 
-        let current_progress;
+        let current_progress: f64;
         if let YardState::Playing{progress, next_step, ..} = self.state {
+            // we do this to account for differences in how each tile's render methods expect progress to be passed in,
+            // and how the yard struct stores progress.
+            // progress is how yard stores it. current_progress is how each tile expects it.
             if next_step == NextAction::ProcessTick {
                 current_progress = progress;
             } else {

@@ -27,8 +27,10 @@ impl Trainsink {
     }
 
     pub fn accept_trains(&mut self, trains: BorderState) -> bool {
-        for dir in 0..4 {
-            if let Some(color) = trains[dir] {
+        // when accepting the trains, we update the private desires while keeping public desires static.
+        // this happens when trains are at the edge of the trainsink (still haven't reached the center yet)
+        for (dir, train) in trains.iter().enumerate() {
+            if let Some(color) = *train {
                 if !self.border_state[dir] {
                     return false;
                 } else {
@@ -51,6 +53,8 @@ impl Trainsink {
     }
 
     pub fn process_tick(&mut self, gs: &GameSprites) {
+        // when processing the tick, we update our public desires
+        // this happens when the trains reach the center of the trainsink
         self.desires = self.private_desires.clone();
         for train in self.incoming_trains {
             if let Some(color) = train {
@@ -65,8 +69,8 @@ impl Trainsink {
     }
 
     pub fn is_satisfied(&self) -> bool {
-        for i in 0..self.desires.len() {
-            if self.desires[i] != None {
+        for possible_desire in &self.desires {
+            if possible_desire.is_some() {
                 return false;
             }
         }

@@ -6,14 +6,14 @@ use crate::sprites::GameSprites;
 
 #[derive(Debug, Clone)]
 pub struct Splitter {
-    pub incoming_dir: usize,
+    pub incoming_dir: u8,
     pub incoming_train: Option<Color>,
     pub train_going_left: Option<Color>,
     pub train_going_right: Option<Color>,
 }
 
 impl Splitter {
-    pub fn new(dir: usize) -> Splitter {
+    pub fn new(dir: u8) -> Splitter {
         Splitter {
             incoming_dir: dir,
             incoming_train: None,
@@ -23,11 +23,11 @@ impl Splitter {
     }
 
     pub fn accept_trains(&mut self, trains: BorderState) -> bool {
-        for i in 0..4 {
-            if i == self.incoming_dir {
-                self.incoming_train = trains[i];
+        for (dir, train) in trains.iter().enumerate() {
+            if dir as u8 == self.incoming_dir {
+                self.incoming_train = *train;
             } else {
-                if trains[i] != None {
+                if train.is_some() {
                     return false;
                 }
             }
@@ -37,12 +37,15 @@ impl Splitter {
 
     pub fn dispatch_trains(&mut self) -> BorderState {
         let mut border_state = [None, None, None, None];
-        border_state[(self.incoming_dir + 1) % 4] = self.train_going_left;
-        border_state[(self.incoming_dir + 3) % 4] = self.train_going_right;
+        let left_exit_dir = ((self.incoming_dir + 1) % 4) as usize;
+        let right_exit_dir = ((self.incoming_dir + 3) % 4) as usize;
+        border_state[left_exit_dir] = self.train_going_left;
+        border_state[right_exit_dir] = self.train_going_right;
         self.train_going_left = None;
         self.train_going_right = None;
         border_state
     }
+
     pub fn process_tick(&mut self, gs: &GameSprites) {
         if let Some(color) = self.incoming_train {
             self.incoming_train = None;

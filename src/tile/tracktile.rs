@@ -183,10 +183,10 @@ impl Tracktile {
     }
 
     pub fn connection_type(&self) -> ConnectionType {
-        if self.active_connection == None {
+        if self.active_connection.is_none() {
             return ConnectionType::None;
         }
-        if self.passive_connection == None {
+        if self.passive_connection.is_none() {
             if self.has_connection_up_to_rot(Connection { dir1: 0, dir2: 2 }) != -1 {
                 return ConnectionType::S;
             }
@@ -329,10 +329,10 @@ impl Tracktile {
 
     pub fn accept_trains(&mut self, colors: BorderState) -> bool {
         // return true if no trains crash, and return false if trains crashed.
-        for dir in 0..4 {
-            let possible_color = colors[dir as usize];
+        for (dir, train) in colors.iter().enumerate() {
+            let dir = dir as u8;
 
-            if let Some(color) = possible_color {
+            if let Some(color) = *train {
                 if !self.has_any_connection(dir) {
                     return false;
                 }
@@ -380,8 +380,8 @@ impl Tracktile {
         let mut res = [None, None, None, None];
         while let Some(train) = self.trains.pop() {
             let dest = train.destination;
-            if res[dest as usize] != None {
-                panic!();
+            if res[dest as usize].is_some() {
+                panic!("Two trains had the same direction when exiting a tracktile! This should have been handled by the function interact_trains()");
             }
             res[dest as usize] = Some(train.color);
         }

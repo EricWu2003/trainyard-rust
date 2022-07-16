@@ -39,7 +39,7 @@ fn convert_string_to_color(s: &str) -> Color {
     }
 }
 
-fn convert_string_to_dir(s: &str) -> usize {
+fn convert_string_to_dir(s: &str) -> u8 {
     match s {
         "up" => 0,
         "right" => 1,
@@ -101,7 +101,7 @@ impl LevelManager<'_> {
                         let dirs = fields[3].split(",").map(convert_string_to_dir);
                         let mut border_state = [false, false, false, false];
                         for dir in dirs {
-                            border_state[dir] = true;
+                            border_state[dir as usize] = true;
                         }
                         level.level_info.push(PositionedTile {
                             tile: Tile::Trainsink(Trainsink::new(colors, border_state)),
@@ -124,7 +124,7 @@ impl LevelManager<'_> {
                         // handle a new painter
                         let fields: Vec<&str> = arr[index].split(" ").collect();
                         let color = convert_string_to_color(fields[2]);
-                        let dirs: Vec<usize> =
+                        let dirs: Vec<u8> =
                             fields[3].split(",").map(convert_string_to_dir).collect();
 
                         level.level_info.push(PositionedTile {
