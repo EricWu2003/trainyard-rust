@@ -123,7 +123,7 @@ impl<'a> GameSprites<'a> {
             btn_start_trains: Rect::new(0,1804,424,104),
             btn_status_crashed: Rect::new(424, 1700, 208,168),
             btn_status_good: Rect::new(424, 1868, 208,168),
-            btn_stop_erase: Rect::new(0,1908, 208,88),
+            btn_stop_erase: Rect::new(208,1908, 208,88),
             space_for_speed_slider: Rect::new(0, 1632, 424, 68),
             sl: Soloud::default().unwrap(),
             sl_button_press,
