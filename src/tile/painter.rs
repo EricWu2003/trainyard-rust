@@ -5,6 +5,8 @@ use crate::tile::BorderState;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
+use crate::particle::ParticleList;
+use crate::particle::painter_particle::PainterParticle;
 
 #[derive(Debug, Clone)]
 pub struct Painter {
@@ -12,6 +14,7 @@ pub struct Painter {
     pub color: Color,
     pub train_to_dir1: Option<Color>,
     pub train_to_dir2: Option<Color>,
+    rect: Option<Rect>,
 }
 
 impl Painter {
@@ -21,6 +24,7 @@ impl Painter {
             color,
             train_to_dir1: None,
             train_to_dir2: None,
+            rect: None
         }
     }
 
@@ -49,7 +53,7 @@ impl Painter {
         }
         border_state
     }
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         if self.train_to_dir1.is_some() {
             self.train_to_dir1 = Some(self.color);
             gs.sl.play(&gs.sl_painter);
@@ -58,6 +62,16 @@ impl Painter {
             self.train_to_dir2 = Some(self.color);
             gs.sl.play(&gs.sl_painter);
         }
+        if self.train_to_dir1.is_some() || self.train_to_dir2.is_some() {
+            p.push(Box::new(PainterParticle::new(
+                self.rect.unwrap(),
+                self.color,
+            )));
+        }
+    }
+
+    pub fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
     }
 
     pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {

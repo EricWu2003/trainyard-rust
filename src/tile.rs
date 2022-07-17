@@ -100,7 +100,7 @@ impl Tile {
                 trainsink.process_tick(gs, p);
             }
             Tile::Painter(painter) => {
-                painter.process_tick(gs)
+                painter.process_tick(gs, p)
             }
             Tile::Splitter(splitter) => {
                 splitter.process_tick(gs, p)
@@ -154,8 +154,8 @@ impl Tile {
             Tile::Trainsource(trainsource) => {
                 trainsource.set_rect(rect);
             }
-            Tile::Painter(_painter) => {
-                // painter.set_rect(rect);
+            Tile::Painter(painter) => {
+                painter.set_rect(rect);
             }
             Tile::Splitter(splitter) => {
                 splitter.set_rect(rect);
