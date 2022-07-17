@@ -2,6 +2,7 @@ pub mod shrinking_circle;
 pub mod shrinking_plus;
 pub mod splitter_particle;
 pub mod painter_particle;
+pub mod drawn_arrow;
 
 use crate::sprites::GameSprites;
 use sdl2::render::WindowCanvas;

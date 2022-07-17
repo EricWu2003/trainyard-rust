@@ -2,6 +2,7 @@ use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::levels::LevelInfo;
 use crate::particle::ParticleList;
+use crate::particle::drawn_arrow::DrawnArrow;
 use crate::sprites::GameSprites;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
@@ -152,11 +153,43 @@ impl Yard {
         std::io::stdout().flush().unwrap();
     }
 
-    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &GameSprites) {
+    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &GameSprites, p: &mut ParticleList) {
         // we only allow a yard to add_connection during the drawing state.
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn, gs);
+
+            let center_x = self.rect.x() as u32 + gs.tracktile_blank.width()/2 + gs.tracktile_blank.width() * c as u32;
+            let center_y = self.rect.y() as u32 + gs.tracktile_blank.height()/2 + gs.tracktile_blank.height() * r as u32;
+            if conn.contains(0) {
+                p.push(Box::new(DrawnArrow::new(
+                    center_x as i32, 
+                    (center_y - gs.tracktile_blank.width()/2) as i32, 
+                    0,
+                )));
+            }
+            if conn.contains(2) {
+                p.push(Box::new(DrawnArrow::new(
+                    center_x as i32, 
+                    (center_y + gs.tracktile_blank.width()/2) as i32, 
+                    2,
+                )));
+            }
+            if conn.contains(1) {
+                p.push(Box::new(DrawnArrow::new(
+                    (center_x + gs.tracktile_blank.width()/2) as i32, 
+                    center_y as i32,
+                    1,
+                )));
+            }
+            if conn.contains(3) {
+                p.push(Box::new(DrawnArrow::new(
+                    (center_x - gs.tracktile_blank.width()/2) as i32, 
+                    center_y as i32,
+                    3,
+                )));
+            }
+
             if let Tile::Tracktile(tt_drawn) = &mut self.drawn_tiles[r][c] {
                 tt_drawn.add_connection(conn, gs);
             }

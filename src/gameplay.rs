@@ -224,6 +224,7 @@ impl Gameplay {
                                 dir2: min_dir as u8,
                             },
                             gs,
+                            &mut self.particles,
                         );
                     }
                 }
