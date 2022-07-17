@@ -1,4 +1,5 @@
 pub mod shrinking_circle;
+pub mod shrinking_plus;
 use crate::sprites::GameSprites;
 use sdl2::render::WindowCanvas;
 

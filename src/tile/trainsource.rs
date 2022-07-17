@@ -4,6 +4,8 @@ use crate::tile::BorderState;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
+use crate::particle::ParticleList;
+use crate::particle::shrinking_plus::ShrinkingPlus;
 
 
 #[derive(Debug, Clone)]
@@ -35,11 +37,15 @@ impl Trainsource {
         true
     }
 
-    pub fn process_tick(&mut self) {
+    pub fn process_tick(&mut self, p: &mut ParticleList) {
         for (index, train) in self.trains.iter().enumerate() {
             if let Some(color) = *train {
                 self.outgoing_train = Some(color);
                 self.trains[index] = None;
+                p.push(Box::new(ShrinkingPlus::new(
+                    self.icon_rects[index], 
+                    color,
+                )));
                 return;
             }
         }

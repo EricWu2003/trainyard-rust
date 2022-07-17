@@ -190,6 +190,23 @@ impl Yard {
                 }
             }
         }
+        let rect = self.rect;
+        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
+        let new_w = w/(NUM_COLS as u32);
+        let new_h = h/(NUM_ROWS as u32);
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                self.tiles[row][col].set_rect(
+                    Rect::new(
+                        x + (new_w*col as u32) as i32,
+                        y + (new_h*row as u32) as i32,
+                        new_w,
+                        new_h,
+                    )
+                )
+            }
+        }
+
 
         for r in 0..(NUM_ROWS + 1) {
             for c in 0..NUM_COLS {

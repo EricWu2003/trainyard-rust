@@ -94,7 +94,7 @@ impl Tile {
                 tracktile.process_tick(gs);
             }
             Tile::Trainsource(trainsource) => {
-                trainsource.process_tick();
+                trainsource.process_tick(p);
             }
             Tile::Trainsink(trainsink) => {
                 trainsink.process_tick(gs, p);
