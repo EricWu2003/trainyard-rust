@@ -10,7 +10,9 @@ use crate::sprites::GameSprites;
 pub struct Trainsource {
     pub trains: Vec<Option<Color>>,
     pub dir: u8,
-    pub outgoing_train: Option<Color>
+    pub outgoing_train: Option<Color>,
+    pub icon_rects: Vec<Rect>,
+    pub rect: Option<Rect>,
 }
 
 impl Trainsource {
@@ -19,6 +21,8 @@ impl Trainsource {
             trains: trains.into_iter().map(Some).collect(),
             dir,
             outgoing_train: None,
+            rect: None,
+            icon_rects: vec![],
         }
     }
 
@@ -55,6 +59,44 @@ impl Trainsource {
             }
         }
         return true;
+    }
+
+    pub fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
+
+        let plus_sign_width = (rect.width() as f64 * (52.0 / 96.0)) as i32;
+        let plus_sign_height = (rect.height() as f64 * (52.0 / 96.0)) as i32;
+        let num_cols;
+        if self.trains.len() <= 1 {
+            num_cols = 1;
+        } else if self.trains.len() <= 4 {
+            num_cols = 2;
+        } else if self.trains.len() <= 9 {
+            num_cols = 3;
+        } else {
+            num_cols = 4;
+        }
+        for i in 0..self.trains.len() {
+            let curr_col = i % num_cols;
+            let curr_row = i / num_cols;
+            let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
+            let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
+            let x_pos = rect.x()
+                + (rect.width() as i32 - plus_sign_width) / 2
+                + curr_col as i32 * scaled_plus_sign_width;
+            let y_pos = rect.y()
+                + (rect.width() as i32 - plus_sign_height) / 2
+                + curr_row as i32 * scaled_plus_sign_height;
+            self.icon_rects.push(
+                Rect::new(
+                    x_pos,
+                    y_pos,
+                    scaled_plus_sign_width as u32,
+                    scaled_plus_sign_height as u32,
+                )
+            );
+            
+        }
     }
 
 

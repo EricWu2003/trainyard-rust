@@ -13,6 +13,7 @@ pub struct Trainsink {
     pub private_desires: Vec<Option<Color>>,
     pub incoming_trains: BorderState,
     pub border_state: [bool; 4],
+    pub icon_rects: Vec<Rect>,
     pub rect: Option<Rect>,
 }
 
@@ -27,6 +28,7 @@ impl Trainsink {
             border_state,
             incoming_trains: [None,None,None,None],
             rect: None,
+            icon_rects: vec![],
         }
     }
 
@@ -59,11 +61,20 @@ impl Trainsink {
     pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         // when processing the tick, we update our public desires
         // this happens when the trains reach the center of the trainsink
+        for index in 0..self.desires.len() {
+            if self.desires[index].is_some() && self.private_desires[index].is_none() {
+                let color = self.desires[index].unwrap();
+                p.push(Box::new(ShrinkingCircle::new(
+                    self.icon_rects[index], 
+                    color,
+                )));
+            }
+        }
+        
         self.desires = self.private_desires.clone();
         for train in self.incoming_trains {
             if let Some(color) = train {
                 gs.play_train_sound(color);
-                p.push(Box::new(ShrinkingCircle::new(self.rect.unwrap(), color)));
             }
         }
         self.incoming_trains = [None,None,None,None]
@@ -84,6 +95,40 @@ impl Trainsink {
 
     pub fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
+
+        let plus_sign_width = (rect.width() as f64 * (52.0 / 96.0)) as i32;
+        let plus_sign_height = (rect.height() as f64 * (52.0 / 96.0)) as i32;
+        let num_cols;
+        if self.desires.len() <= 1 {
+            num_cols = 1;
+        } else if self.desires.len() <= 4 {
+            num_cols = 2;
+        } else if self.desires.len() <= 9 {
+            num_cols = 3;
+        } else {
+            num_cols = 4;
+        }
+        for i in 0..self.desires.len() {
+            let curr_col = i % num_cols;
+            let curr_row = i / num_cols;
+            let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
+            let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
+            let x_pos = rect.x()
+                + (rect.width() as i32 - plus_sign_width) / 2
+                + curr_col as i32 * scaled_plus_sign_width;
+            let y_pos = rect.y()
+                + (rect.width() as i32 - plus_sign_height) / 2
+                + curr_row as i32 * scaled_plus_sign_height;
+            self.icon_rects.push(
+                Rect::new(
+                    x_pos,
+                    y_pos,
+                    scaled_plus_sign_width as u32,
+                    scaled_plus_sign_height as u32,
+                )
+            );
+            
+        }
     }
 
     pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {

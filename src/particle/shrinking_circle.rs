@@ -4,7 +4,7 @@ use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::GameSprites;
 
-pub static INITIAL_TTL: i32 = 30;
+pub static INITIAL_TTL: i32 = 20;
 
 pub struct ShrinkingCircle {
     bounding_rect: Rect,

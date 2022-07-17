@@ -403,9 +403,7 @@ impl Yard {
     ) -> Result<(), String> {
         let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
         let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
-        
-        let plus_sign_width = (block_width as f64 * (52.0 / 96.0)) as i32;
-        let plus_sign_height = (block_height as f64 * (52.0 / 96.0)) as i32;
+
         let x0 = rect.x();
         let y0 = rect.y();
 
@@ -624,39 +622,13 @@ impl Yard {
                     Tile::Tracktile(_) => {}
                     Tile::Trainsource(trainsource) => {
                         canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
-
-                        let num_cols;
-                        if trainsource.trains.len() <= 1 {
-                            num_cols = 1;
-                        } else if trainsource.trains.len() <= 4 {
-                            num_cols = 2;
-                        } else if trainsource.trains.len() <= 9 {
-                            num_cols = 3;
-                        } else {
-                            num_cols = 4;
-                        }
                         for i in 0..trainsource.trains.len() {
                             if let Some(color) = trainsource.trains[i] {
-                                let curr_col = i % num_cols;
-                                let curr_row = i / num_cols;
-                                let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
-                                let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
-                                let x_pos = rect.x()
-                                    + (block_width - plus_sign_width) / 2
-                                    + curr_col as i32 * scaled_plus_sign_width;
-                                let y_pos = rect.y()
-                                    + (block_height - plus_sign_height) / 2
-                                    + curr_row as i32 * scaled_plus_sign_height;
                                 gs.set_color(color);
                                 canvas.copy(
                                     &gs.atlas_color,
                                     gs.plus_sign,
-                                    Rect::new(
-                                        x_pos,
-                                        y_pos,
-                                        scaled_plus_sign_width as u32,
-                                        scaled_plus_sign_height as u32,
-                                    ),
+                                    trainsource.icon_rects[i],
                                 )?;
                             }
                         }
@@ -664,40 +636,13 @@ impl Yard {
                     Tile::Trainsink(trainsink) => {
                         if !trainsink.is_satisfied() {
                             canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
-
-                            let num_cols;
-                            if trainsink.desires.len() <= 1 {
-                                num_cols = 1;
-                            } else if trainsink.desires.len() <= 4 {
-                                num_cols = 2;
-                            } else if trainsink.desires.len() <= 9 {
-                                num_cols = 3;
-                            } else {
-                                num_cols = 4;
-                            }
                             for i in 0..trainsink.desires.len() {
                                 if let Some(color) = trainsink.desires[i] {
-                                    let curr_col = i % num_cols;
-                                    let curr_row = i / num_cols;
-                                    let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
-                                    let scaled_plus_sign_height =
-                                        plus_sign_height / num_cols as i32;
-                                    let x_pos = rect.x()
-                                        + (block_width - plus_sign_width) / 2
-                                        + curr_col as i32 * scaled_plus_sign_width;
-                                    let y_pos = rect.y()
-                                        + (block_height - plus_sign_height) / 2
-                                        + curr_row as i32 * scaled_plus_sign_height;
                                     gs.set_color(color);
                                     canvas.copy(
                                         &gs.atlas_color,
                                         gs.circle,
-                                        Rect::new(
-                                            x_pos,
-                                            y_pos,
-                                            scaled_plus_sign_width as u32,
-                                            scaled_plus_sign_height as u32,
-                                        ),
+                                        trainsink.icon_rects[i],
                                     )?;
                                 }
                             }
