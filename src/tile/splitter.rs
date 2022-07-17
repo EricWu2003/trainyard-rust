@@ -3,6 +3,8 @@ use crate::tile::BorderState;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
+use crate::particle::ParticleList;
+use crate::particle::splitter_particle::SplitterParticle;
 
 #[derive(Debug, Clone)]
 pub struct Splitter {
@@ -10,6 +12,7 @@ pub struct Splitter {
     pub incoming_train: Option<Color>,
     pub train_going_left: Option<Color>,
     pub train_going_right: Option<Color>,
+    pub rect: Option<Rect>,
 }
 
 impl Splitter {
@@ -19,6 +22,7 @@ impl Splitter {
             incoming_train: None,
             train_going_left: None,
             train_going_right: None,
+            rect: None,
         }
     }
 
@@ -46,7 +50,7 @@ impl Splitter {
         border_state
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         if let Some(color) = self.incoming_train {
             self.incoming_train = None;
             match color {
@@ -67,8 +71,16 @@ impl Splitter {
                     self.train_going_right = Some(Color::Yellow);
                 }
             }
+            p.push(Box::new(SplitterParticle::new(
+                self.rect.unwrap(),
+                self.incoming_dir,
+            )));
             gs.sl.play(&gs.sl_splitter);
         }
+    }
+
+    pub fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
     }
 
     pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> { 

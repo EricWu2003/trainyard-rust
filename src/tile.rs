@@ -103,7 +103,7 @@ impl Tile {
                 painter.process_tick(gs)
             }
             Tile::Splitter(splitter) => {
-                splitter.process_tick(gs)
+                splitter.process_tick(gs, p)
             }
             Tile::Rock => {}
         }
@@ -157,8 +157,8 @@ impl Tile {
             Tile::Painter(_painter) => {
                 // painter.set_rect(rect);
             }
-            Tile::Splitter(_splitter) => {
-                // splitter.set_rect(rect);
+            Tile::Splitter(splitter) => {
+                splitter.set_rect(rect);
             }
             Tile::Rock => {}
         }
