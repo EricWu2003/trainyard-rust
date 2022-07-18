@@ -24,8 +24,9 @@ fn main() -> Result<(), String> {
     let video_subsystem = sdl_context.video()?;
     let _image_context = image::init(InitFlag::PNG | InitFlag::JPG)?;
     let window = video_subsystem
-        .window("game tutorial", 700, 900)
+        .window("Trainyard", 700, 900)
         .position_centered()
+        .resizable()
         .build()
         .expect("could not initialize video subsystem");
 
