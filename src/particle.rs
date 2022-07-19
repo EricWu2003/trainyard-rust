@@ -4,6 +4,7 @@ pub mod splitter_particle;
 pub mod painter_particle;
 pub mod drawn_arrow;
 pub mod smoke;
+pub mod sparkle;
 
 use crate::sprites::GameSprites;
 use sdl2::render::WindowCanvas;

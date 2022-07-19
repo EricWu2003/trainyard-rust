@@ -1,5 +1,6 @@
 use crate::color::Color;
 
+use crate::particle::sparkle::Sparkle;
 use crate::tile::BorderState;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
@@ -70,6 +71,12 @@ impl Trainsink {
                 p.push(Box::new(ShrinkingCircle::new(
                     self.icon_rects[index], 
                     color,
+                )));
+                let rect = self.rect.unwrap();
+                let center_x = rect.x() + rect.width() as i32/2;
+                let center_y = rect.y() + rect.height() as i32/2;
+                p.push(Box::new(Sparkle::new(
+                    center_x, center_y, color
                 )));
             }
         }
