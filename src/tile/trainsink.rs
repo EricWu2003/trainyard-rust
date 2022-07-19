@@ -32,13 +32,16 @@ impl Trainsink {
         }
     }
 
-    pub fn accept_trains(&mut self, trains: BorderState) -> bool {
+    pub fn accept_trains(&mut self, trains: BorderState) -> BorderState {
         // when accepting the trains, we update the private desires while keeping public desires static.
         // this happens when trains are at the edge of the trainsink (still haven't reached the center yet)
+
+        let mut border_state = [None, None, None, None];
+
         for (dir, train) in trains.iter().enumerate() {
             if let Some(color) = *train {
                 if !self.border_state[dir] {
-                    return false;
+                    border_state[dir] = Some(color);
                 } else {
                     let mut found = false;
                     for index in 0..self.private_desires.len() {
@@ -50,12 +53,12 @@ impl Trainsink {
                         }
                     }
                     if !found {
-                        return false;
+                        border_state[dir] = Some(color);
                     }
                 }
             }
         }
-        true
+        border_state
     }
 
     pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {

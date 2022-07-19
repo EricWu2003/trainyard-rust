@@ -3,6 +3,7 @@ use crate::edge::Edge;
 use crate::levels::LevelInfo;
 use crate::particle::ParticleList;
 use crate::particle::drawn_arrow::DrawnArrow;
+use crate::particle::smoke::Smoke;
 use crate::sprites::GameSprites;
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
@@ -223,23 +224,6 @@ impl Yard {
                 }
             }
         }
-        let rect = self.rect;
-        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
-        let new_w = w/(NUM_COLS as u32);
-        let new_h = h/(NUM_ROWS as u32);
-        for row in 0..NUM_ROWS {
-            for col in 0..NUM_COLS {
-                self.tiles[row][col].set_rect(
-                    Rect::new(
-                        x + (new_w*col as u32) as i32,
-                        y + (new_h*row as u32) as i32,
-                        new_w,
-                        new_h,
-                    )
-                )
-            }
-        }
-
 
         for r in 0..(NUM_ROWS + 1) {
             for c in 0..NUM_COLS {
@@ -263,9 +247,26 @@ impl Yard {
                 }
             }
         }
+
+        let rect = self.rect;
+        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
+        let new_w = w/(NUM_COLS as u32);
+        let new_h = h/(NUM_ROWS as u32);
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                self.tiles[row][col].set_rect(
+                    Rect::new(
+                        x + (new_w*col as u32) as i32,
+                        y + (new_h*row as u32) as i32,
+                        new_w,
+                        new_h,
+                    )
+                )
+            }
+        }
     }
 
-    pub fn process_edges(&mut self, gs: &GameSprites) {
+    pub fn process_edges(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         assert!(matches!(
             self.state,
             YardState::Playing {..}
@@ -305,22 +306,42 @@ impl Yard {
         // detect crashes on boundaries of yard (i.e. if a train is about to crash by going
         // too far up where there is no tile left to catch it)
         for c in 0..NUM_COLS {
-            if let Some(_train) = self.h_edges[0][c].train_to_a {
+            if let Some(train) = self.h_edges[0][c].train_to_a {
                 self.state = YardState::Crashed;
+                p.push(Box::new(Smoke::new(
+                    self.rect.x() + gs.tracktile_blank.width() as i32 /2 + (gs.tracktile_blank.width() as i32 * c as i32),
+                    self.rect.y(),
+                    train,
+                )));
                 gs.sl.play(&gs.sl_crash);
             }
-            if let Some(_train) = self.h_edges[NUM_ROWS][c].train_to_b {
+            if let Some(train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
+                p.push(Box::new(Smoke::new(
+                    self.rect.x() + gs.tracktile_blank.width() as i32 /2 + (gs.tracktile_blank.width() as i32 * c as i32),
+                    self.rect.y() + self.rect.height() as i32,
+                    train,
+                )));
                 gs.sl.play(&gs.sl_crash);
             }
         }
         for r in 0..NUM_ROWS {
-            if let Some(_train) = self.v_edges[r][0].train_to_a {
+            if let Some(train) = self.v_edges[r][0].train_to_a {
                 self.state = YardState::Crashed;
+                p.push(Box::new(Smoke::new(
+                    self.rect.x(),
+                    self.rect.y() + gs.tracktile_blank.height() as i32 /2 + (gs.tracktile_blank.height() as i32 * r as i32),
+                    train,
+                )));
                 gs.sl.play(&gs.sl_crash);
             }
-            if let Some(_train) = self.v_edges[r][NUM_COLS].train_to_b {
+            if let Some(train) = self.v_edges[r][NUM_COLS].train_to_b {
                 self.state = YardState::Crashed;
+                p.push(Box::new(Smoke::new(
+                    self.rect.x() + self.rect.width() as i32,
+                    self.rect.y() + gs.tracktile_blank.height() as i32 /2 + (gs.tracktile_blank.height() as i32 * r as i32),
+                    train,
+                )));
                 gs.sl.play(&gs.sl_crash);
             }
         }
@@ -335,7 +356,7 @@ impl Yard {
                     self.h_edges[r + 1][c].train_to_a,
                     self.v_edges[r][c].train_to_b,
                 ];
-                let not_crashed = self.tiles[r][c].accept_trains(border_state);
+                let not_crashed = self.tiles[r][c].accept_trains(border_state, p);
                 if !not_crashed {
                     self.state = YardState::Crashed;
                     gs.sl.play(&gs.sl_crash);
@@ -378,7 +399,7 @@ impl Yard {
                 progress -= 1.0;
                 match next_step {
                     NextAction::ProcessEdges => {
-                        self.process_edges(gs);
+                        self.process_edges(gs, p);
                         next_step = NextAction::ProcessTick;
                     }
                     NextAction::ProcessTick => {
@@ -584,7 +605,7 @@ impl Yard {
                             }
                         }
                     }
-                    Tile::Rock => {
+                    Tile::Rock(_) => {
                         canvas.copy(&gs.atlas, gs.rock, rect)?;
                     }
                     Tile::Painter(painter) => {
@@ -700,7 +721,7 @@ impl Yard {
                             canvas.copy(&gs.atlas, gs.sink_satisfied, rect)?;
                         }
                     }
-                    Tile::Rock => {}
+                    Tile::Rock(_) => {}
                     Tile::Painter(painter) => {
                         canvas.copy(&gs.atlas, gs.painter_bg, rect)?;
                         gs.set_color(painter.color);

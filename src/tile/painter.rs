@@ -14,7 +14,7 @@ pub struct Painter {
     pub color: Color,
     pub train_to_dir1: Option<Color>,
     pub train_to_dir2: Option<Color>,
-    rect: Option<Rect>,
+    pub rect: Option<Rect>,
 }
 
 impl Painter {
@@ -28,7 +28,8 @@ impl Painter {
         }
     }
 
-    pub fn accept_trains(&mut self, trains: BorderState) -> bool {
+    pub fn accept_trains(&mut self, trains: BorderState) -> BorderState {
+        let mut border_state = [None, None, None, None];
         for (dir, train) in trains.iter().enumerate() {
             if dir as u8 == self.connection.dir1 {
                 self.train_to_dir2 = *train;
@@ -36,11 +37,11 @@ impl Painter {
                 self.train_to_dir1 = *train;
             } else {
                 if train.is_some() {
-                    return false.clone();
+                    border_state[dir] = *train;
                 }
             }
         }
-        true
+        border_state
     }
 
     pub fn dispatch_trains(&mut self) -> BorderState {

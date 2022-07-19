@@ -172,7 +172,7 @@ impl LevelManager<'_> {
                             let y: u8 = position[2..3].parse()
                                 .expect(&format!("invalid single-digit number on line {line_num}"));
                             level_info.push(PositionedTile {
-                                tile: Tile::Rock,
+                                tile: Tile::Rock(None),
                                 x,
                                 y,
                             });

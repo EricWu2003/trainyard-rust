@@ -22,6 +22,7 @@ pub struct Tracktile {
     active_connection: Option<Connection>,
     passive_connection: Option<Connection>,
     trains: Vec<Train>,
+    pub rect: Option<Rect>,
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ConnectionType {
@@ -56,6 +57,7 @@ impl Tracktile {
             active_connection,
             passive_connection,
             trains: Vec::new(),
+            rect: None,
         }
     }
 
@@ -327,16 +329,26 @@ impl Tracktile {
         }
     }
 
-    pub fn accept_trains(&mut self, colors: BorderState) -> bool {
-        // return true if no trains crash, and return false if trains crashed.
+    pub fn accept_trains(&mut self, colors: BorderState) -> BorderState {
+        // return None if no trains on edge, and return Some(_) on edge if train crashed.
+        
+        let mut crashed = false;
+        let mut border_state = [None, None, None, None];
+        for (dir, train) in colors.iter().enumerate() {
+            if let Some(color) = *train {
+                if !self.has_any_connection(dir as u8) {
+                    crashed = true;
+                    border_state[dir] = Some(color);
+                }
+            }
+        }
+        if crashed {
+            return border_state;
+        }
         for (dir, train) in colors.iter().enumerate() {
             let dir = dir as u8;
 
             if let Some(color) = *train {
-                if !self.has_any_connection(dir) {
-                    return false;
-                }
-
                 //now we have to determine the train's destination based on it's source direction (dir).
                 if let Some(active_conn) = self.active_connection {
                     if active_conn.contains(dir) {
@@ -372,7 +384,7 @@ impl Tracktile {
             }
         }
 
-        true
+        [None, None, None, None]
     }
 
     pub fn dispatch_trains(&mut self) -> BorderState {
@@ -404,6 +416,10 @@ impl Tracktile {
     pub fn clear_connections(&mut self) {
         self.active_connection = None;
         self.passive_connection = None;
+    }
+
+    pub fn set_rect(&mut self, rect: Rect) {
+        self.rect = Some(rect);
     }
 
 

@@ -9,3 +9,12 @@ pub fn point_in_rect(x: i32, y: i32, rect: Rect) -> bool {
 pub fn mouse_state_in_rect(mouse_state: MouseState, rect: Rect) -> bool {
     point_in_rect(mouse_state.x(), mouse_state.y(), rect)
 }
+
+pub fn centered_rect(x:i32, y:i32, w:u32, h:u32) -> Rect {
+    Rect::new(
+        x - (w/2) as i32,
+        y - (h/2) as i32,
+        w,
+        h,
+    )
+}

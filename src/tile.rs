@@ -14,6 +14,7 @@ use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
 use crate::particle::ParticleList;
+use crate::particle::smoke::Smoke;
 
 
 pub type BorderState = [Option<Color>; 4];
@@ -23,38 +24,67 @@ pub enum Tile {
     Tracktile(Tracktile),
     Trainsource(Trainsource),
     Trainsink(Trainsink),
-    Rock,
+    Rock(Option<Rect>),
     Painter(Painter),
     Splitter(Splitter),
 }
 
 impl Tile {
-    pub fn accept_trains(&mut self, trains: BorderState) -> bool {
+    pub fn accept_trains(&mut self, trains: BorderState, p: &mut ParticleList) -> bool {
+        let border_state: BorderState;
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.accept_trains(trains)
+                border_state = tracktile.accept_trains(trains);
             }
             Tile::Trainsource(trainsource) => {
-                trainsource.accept_trains(trains)
+                border_state = trainsource.accept_trains(trains);
             }
             Tile::Trainsink(trainsink) => {
-                trainsink.accept_trains(trains)
+                border_state = trainsink.accept_trains(trains);
             }
-            Tile::Rock => {
-                for train in trains {
-                    if train.is_some() {
-                        return false;
-                    }
-                }
-                return true;
+            Tile::Rock(_) => {
+                border_state = trains;
             }
             Tile::Painter(painter) => {
-                painter.accept_trains(trains)
+                border_state = painter.accept_trains(trains);
             }
             Tile::Splitter(splitter) => {
-                splitter.accept_trains(trains)
+                border_state = splitter.accept_trains(trains);
             }
         }
+        let mut no_crashes = true;
+        let rect = self.get_rect();
+        for (dir, train) in border_state.iter().enumerate() {
+            if let Some(color) = train {
+                no_crashes = false;
+                match dir {
+                    0 => p.push(Box::new(Smoke::new(
+                        rect.x() + rect.width() as i32 /2,
+                        rect.y(),
+                        *color,
+                    ))),
+                    1 => p.push(Box::new(Smoke::new(
+                        rect.x() + rect.width() as i32,
+                        rect.y() + rect.height() as i32 /2,
+                        *color,
+                    ))),
+                    2 => p.push(Box::new(Smoke::new(
+                        rect.x() + rect.width() as i32/2,
+                        rect.y() + rect.height() as i32,
+                        *color,
+                    ))),
+                    3 => p.push(Box::new(Smoke::new(
+                        rect.x(),
+                        rect.y() + rect.height() as i32/2,
+                        *color,
+                    ))),
+                    _ => unreachable!(),
+                }
+            }
+        }
+
+
+        return no_crashes;
     }
     pub fn dispatch_trains(&mut self) -> BorderState {
         match self {
@@ -67,7 +97,7 @@ impl Tile {
             Tile::Trainsink(trainsink) => {
                 trainsink.dispatch_trains()
             }
-            Tile::Rock => {
+            Tile::Rock(_) => {
                 [None, None, None, None]
             }
             Tile::Painter(painter) => {
@@ -105,7 +135,7 @@ impl Tile {
             Tile::Splitter(splitter) => {
                 splitter.process_tick(gs, p)
             }
-            Tile::Rock => {}
+            Tile::Rock(_) => {}
         }
     }
     
@@ -115,7 +145,7 @@ impl Tile {
             Tile::Tracktile(tracktile) => tracktile.connection_type().get_char(),
             Tile::Trainsource(_) => 'S',
             Tile::Trainsink(_) => 'S',
-            Tile::Rock => 'R',
+            Tile::Rock(_) => 'R',
             Tile::Painter(_) => 'P',
             Tile::Splitter(_) => 'C',
         }
@@ -138,15 +168,15 @@ impl Tile {
             Tile::Splitter(splitter) => {
                 splitter.render_trains(canvas, rect, gs, progress)?
             }
-            Tile::Rock => {}
+            Tile::Rock(_) => {}
         }
         Ok(())
     }
 
     pub fn set_rect(&mut self, rect:Rect) {
         match self {
-            Tile::Tracktile(_tracktile) => {
-                // tracktile.set_rect(rect);
+            Tile::Tracktile(tracktile) => {
+                tracktile.set_rect(rect);
             }
             Tile::Trainsink(trainsink) => {
                 trainsink.set_rect(rect);
@@ -160,7 +190,32 @@ impl Tile {
             Tile::Splitter(splitter) => {
                 splitter.set_rect(rect);
             }
-            Tile::Rock => {}
+            Tile::Rock(r) => {
+                *r = Some(rect);
+            }
+        }
+    }
+
+    pub fn get_rect(&self) -> Rect {
+        match self {
+            Tile::Tracktile(tracktile) => {
+                tracktile.rect.unwrap()
+            }
+            Tile::Trainsink(trainsink) => {
+                trainsink.rect.unwrap()
+            }
+            Tile::Trainsource(trainsource) => {
+                trainsource.rect.unwrap()
+            }
+            Tile::Painter(painter) => {
+                painter.rect.unwrap()
+            }
+            Tile::Splitter(splitter) => {
+                splitter.rect.unwrap()
+            }
+            Tile::Rock(rect) => {
+                rect.unwrap()
+            }
         }
     }
 }

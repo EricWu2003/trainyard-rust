@@ -26,17 +26,18 @@ impl Splitter {
         }
     }
 
-    pub fn accept_trains(&mut self, trains: BorderState) -> bool {
+    pub fn accept_trains(&mut self, trains: BorderState) -> BorderState {
+        let mut border_state = [None, None, None, None];
         for (dir, train) in trains.iter().enumerate() {
             if dir as u8 == self.incoming_dir {
                 self.incoming_train = *train;
             } else {
                 if train.is_some() {
-                    return false;
+                    border_state[dir] = *train;
                 }
             }
         }
-        true
+        border_state
     }
 
     pub fn dispatch_trains(&mut self) -> BorderState {

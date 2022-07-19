@@ -28,13 +28,8 @@ impl Trainsource {
         }
     }
 
-    pub fn accept_trains(&self, trains: BorderState) -> bool {
-        for train in trains {
-            if train.is_some() {
-                return false;
-            }
-        }
-        true
+    pub fn accept_trains(&self, trains: BorderState) -> BorderState {
+        return trains;
     }
 
     pub fn process_tick(&mut self, p: &mut ParticleList) {

@@ -41,6 +41,8 @@ pub struct GameSprites<'a> {
     pub btn_stop_erase: Rect,
     pub space_for_speed_slider: Rect,
     pub draw_track_arrow: Rect,
+    pub smoke: Rect,
+    pub fire: Rect,
     pub sl: Soloud,
     pub sl_button_press: Wav,
     pub sl_train_brown: Wav,
@@ -127,6 +129,8 @@ impl<'a> GameSprites<'a> {
             btn_stop_erase: Rect::new(208,1908, 208,88),
             space_for_speed_slider: Rect::new(0, 1632, 424, 68),
             draw_track_arrow: Rect::new(136, 96, 36, 36),
+            smoke: Rect::new(172, 96, 64, 64),
+            fire: Rect::new(236, 96, 64, 64),
             sl: Soloud::default().unwrap(),
             sl_button_press,
             sl_train_brown,
@@ -159,6 +163,9 @@ impl<'a> GameSprites<'a> {
         }
         let (red, green, blue) = tint;
         self.atlas_color.set_color_mod(red, green, blue);
+    }
+    pub fn set_alpha(&mut self, alpha: u8) {
+        self.atlas_color.set_alpha_mod(alpha);
     }
 
     pub fn play_train_sound(&self, color:Color) {
