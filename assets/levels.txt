@@ -1109,6 +1109,112 @@ o 6,6 blue,blue,blue,blue up
 ---
 ----
 
+CITY:Oakville
+
+Rocky Road:10
++ 0,0 yellow right
++ 0,6 blue right
+o 6,0 green left
+o 6,6 green left
+
+* 0,3 1,3
+* 3,0 3,1 3,2 3,4 3,5 3,6
+* 5,1 5,2 5,3 5,4 5,5
+* 6,1 6,2 6,3 6,4 6,5
+---
+
+Clown Car:10
++ 0,0 red down
++ 1,0 yellow down
++ 2,0 blue down
++ 6,0 red left
++ 6,1 yellow left
++ 6,2 blue left
++ 6,6 red up
++ 5,6 yellow up
++ 4,6 blue up
++ 0,6 red right
++ 0,5 yellow right
++ 0,4 blue right
+o 3,3 green,green,green,green,orange,orange,orange,orange,purple,purple,purple,purple up,left,down,right
+---
+
+Alleyway:6
++ 2,0 red down
++ 4,0 blue down
++ 3,1 yellow down
+s 3,5 up
+o 0,5 brown right
+o 6,5 brown left
+* 0,6 1,6 2,6 3,6 4,6 5,6 6,6
+* 0,4 1,4 2,4 4,4 5,4 6,4
+---
+
+Recycling Garbage:8
++ 0,0 red right
++ 6,0 green left
++ 0,6 yellow right
++ 6,6 blue left
+o 3,3 brown,brown,brown,brown up,left,down,right
+---
+
+Shanimal:11
++ 0,5 blue,blue up
++ 6,1 red,red down
+o 1,6 blue,purple right
+o 5,0 red,purple left
+* 0,6 1,5 5,1 6,0
+* 2,2 2,3 2,4 4,2 4,3 4,4
+---
+
+Cayman:11
++ 0,6 yellow right
+o 0,0 yellow right
+o 0,1 blue,red,yellow,blue,red,yellow right
+s 1,1 down
+p 4,3 red up,down
+p 4,4 blue up,down
+p 5,3 yellow up,down
+p 5,4 blue up,down
+---
+
+Pwr Ovrwhlmng:11
++ 6,3 green left
+s 2,3 right
+s 3,1 right
+s 3,5 right
+s 1,1 down
+s 1,5 up
+o 3,0 yellow down
+o 4,0 yellow down
+o 3,6 blue up
+o 4,6 blue up
+o 0,1 blue right
+o 0,5 yellow right
+---
+
+Axiom:8
++ 3,6 orange,orange,orange,orange up
+o 0,6 green up
+o 1,6 green up
+o 5,6 green up
+o 6,6 green up
+s 3,3 down
+p 2,0 blue left,down
+p 4,0 yellow right,down
+---
+
+Jagd:9
++ 1,1 yellow right
++ 1,2 purple right
++ 1,3 yellow right
++ 1,4 purple right
++ 1,5 yellow right
+* 3,1 3,2 3,3 3,4 3,5
+o 5,3 yellow,purple right
+---
+----
+
 
 CITY:Debug
 
