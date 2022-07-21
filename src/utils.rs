@@ -18,3 +18,39 @@ pub fn centered_rect(x:i32, y:i32, w:u32, h:u32) -> Rect {
         h,
     )
 }
+
+pub struct Position {
+    pub x: i32,
+    pub y: i32,
+}
+
+pub fn top_midpoint(rect: Rect) -> (i32, i32) {
+    let x = rect.x() + rect.width() as i32 /2;
+    let y = rect.y();
+    (x, y)
+}
+pub fn bottom_midpoint(rect: Rect) -> (i32, i32) {
+    let x = rect.x() + rect.width() as i32 /2;
+    let y = rect.y() + rect.height() as i32;
+    (x, y)
+}
+pub fn left_midpoint(rect: Rect) -> (i32, i32) {
+    let x = rect.x();
+    let y = rect.y() + rect.height() as i32/2;
+    (x, y)
+}
+pub fn right_midpoint(rect: Rect) -> (i32, i32) {
+    let x = rect.x() + rect.width() as i32;
+    let y = rect.y() + rect.height() as i32/2;
+    (x, y)
+}
+
+pub fn direction_midpoint(rect: Rect, dir: u8) -> (i32, i32) {
+    match dir {
+        0 => top_midpoint(rect),
+        1 => right_midpoint(rect),
+        2 => bottom_midpoint(rect),
+        3 => left_midpoint(rect),
+        _ => unreachable!(),
+    }
+}

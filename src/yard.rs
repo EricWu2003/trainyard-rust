@@ -62,20 +62,29 @@ impl Yard {
         }
         let drawn_tiles = tiles.clone();
 
+        let w = rect.width() as i32/NUM_COLS as i32;
+        let h = rect.height() as i32/NUM_ROWS as i32;
+        let half_w = w/2;
+        let half_h = h/2;
+
         let mut h_edges: Vec<Vec<Edge>> = Vec::new();
-        for _ in 0..(NUM_ROWS + 1) {
+        for r in 0..(NUM_ROWS + 1) {
             let mut row: Vec<Edge> = Vec::new();
-            for _ in 0..NUM_COLS {
-                row.push(Edge::new());
+            for c in 0..NUM_COLS {
+                let x_pos = rect.x() + half_w + c as i32 * w;
+                let y_pos = rect.y() + r as i32 * h;
+                row.push(Edge::new(x_pos, y_pos));
             }
             h_edges.push(row);
         }
 
         let mut v_edges: Vec<Vec<Edge>> = Vec::new();
-        for _ in 0..NUM_ROWS {
+        for r in 0..NUM_ROWS {
             let mut row: Vec<Edge> = Vec::new();
-            for _ in 0..(NUM_COLS + 1) {
-                row.push(Edge::new());
+            for c in 0..(NUM_COLS + 1) {
+                let x_pos = rect.x() + c as i32 * w;
+                let y_pos = rect.y() + half_h + r as i32 * h;
+                row.push(Edge::new(x_pos, y_pos));
             }
             v_edges.push(row);
         }
@@ -275,7 +284,7 @@ impl Yard {
         // merge all trains that are still in tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                self.tiles[r][c].process_end_of_tick(gs);
+                self.tiles[r][c].process_end_of_tick(gs, p);
             }
         }
 
@@ -294,12 +303,12 @@ impl Yard {
         // mix edges
         for r in 0..(NUM_ROWS + 1) {
             for c in 0..NUM_COLS {
-                self.h_edges[r][c].interact_trains(gs);
+                self.h_edges[r][c].interact_trains(gs, p);
             }
         }
         for r in 0..NUM_ROWS {
             for c in 0..(NUM_COLS + 1) {
-                self.v_edges[r][c].interact_trains(gs);
+                self.v_edges[r][c].interact_trains(gs, p);
             }
         }
 

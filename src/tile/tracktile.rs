@@ -1,8 +1,11 @@
-use std::f32::consts::PI;
+use std::f32::consts::{PI, SQRT_2};
 
 use crate::color::Color;
 use crate::connection::Connection;
+use crate::particle::ParticleList;
+use crate::particle::fire::Fire;
 use crate::tile::BorderState;
+use crate::utils::direction_midpoint;
 use sdl2::rect::Rect;
 use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
@@ -232,7 +235,7 @@ impl Tracktile {
         unreachable!()
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites) {
+    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         // This function mixes any train colors (happens when trains are halfway through the tile)
         let my_type = self.connection_type();
         if self.trains.len() >= 2 {
@@ -245,8 +248,12 @@ impl Tracktile {
                     Color::mix_many(self.trains.iter().map(|train| train.color).collect());
                 for i in 0..self.trains.len() {
                     self.trains[i].color = new_color;
-                    gs.play_train_sound(new_color);
                 }
+                gs.play_train_sound(new_color);
+                let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
+                p.push(Box::new(Fire::new(
+                    x, y, new_color
+                )));
                 return;
             }
 
@@ -260,6 +267,10 @@ impl Tracktile {
                     self.trains[i1].color = new_color;
                     self.trains[i2].color = new_color;
                     gs.play_train_sound(new_color);
+                    let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
+                    p.push(Box::new(Fire::new(
+                        x, y, new_color
+                    )));
 
                 }
                 // then do mixing on Passive Connection
@@ -270,6 +281,10 @@ impl Tracktile {
                     self.trains[i1].color = new_color;
                     self.trains[i2].color = new_color;
                     gs.play_train_sound(new_color);
+                    let (x, y) = get_midpoint_of_conn(self.passive_connection.unwrap(), self.rect.unwrap());
+                    p.push(Box::new(Fire::new(
+                        x, y, new_color
+                    )));
                 }
                 return;
             }
@@ -282,12 +297,16 @@ impl Tracktile {
                     self.trains[i1].color = new_color;
                     self.trains[i2].color = new_color;
                     gs.play_train_sound(new_color);
+                    let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
+                    p.push(Box::new(Fire::new(
+                        x, y, new_color
+                    )));
                 }
             }
         }
     }
 
-    pub fn interact_trains(&mut self, gs:&GameSprites) {
+    pub fn interact_trains(&mut self, gs:&GameSprites, p: &mut ParticleList) {
         // This function merges trains (happens at the moment trains are exiting the tile)
         let my_type = self.connection_type();
 
@@ -318,6 +337,13 @@ impl Tracktile {
                         self.trains[i1].color = new_color;
                         self.trains.remove(i2);
                         gs.play_train_sound(new_color);
+
+                        let dir = self.trains[i1].destination;
+                        let (x, y) = direction_midpoint(self.rect.unwrap(), dir);
+                        p.push(Box::new(Fire::new(
+                            x, y, new_color
+                        )));
+
                         break 'outer;
                     }
                 }
@@ -512,4 +538,32 @@ impl Tracktile {
         }
         Ok(())
     }
+}
+
+
+pub fn get_midpoint_of_conn(conn: Connection, rect: Rect) -> (i32, i32) {
+    let (x, y, w, h) = (rect.x(), rect.y(), rect.width() as i32, rect.height() as i32);
+    let small_w = (SQRT_2/4.0 * w as f32) as i32;
+    let small_h = (SQRT_2/4.0 * h as f32) as i32;
+    let big_w = w - small_w;
+    let big_h = h - small_h;
+
+
+    if conn == (Connection {dir1: 0, dir2: 2}) || conn == (Connection {dir1: 1, dir2: 3}) {
+        return (x + w/2, y + h/2);
+    }
+    if conn == (Connection {dir1: 3, dir2: 0}) {
+        return (x + small_w, y + small_h);
+    }
+    if conn == (Connection {dir1: 0, dir2: 1}) {
+        return (x + big_w, y + small_h);
+    }
+    if conn == (Connection {dir1: 1, dir2: 2}) {
+        return (x + big_w, y + big_h);
+    }
+    if conn == (Connection {dir1: 2, dir2: 3}) {
+        return (x + small_w, y + big_h);
+    }
+
+    unreachable!()
 }

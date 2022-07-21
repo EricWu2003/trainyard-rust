@@ -108,11 +108,11 @@ impl Tile {
             }
         }
     }
-    pub fn process_end_of_tick(&mut self, gs: &GameSprites) {
+    pub fn process_end_of_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         // the tracktile Tile type is the only one which needs to process things at the end of each tick (merging trains)
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.interact_trains(gs);
+                tracktile.interact_trains(gs, p);
             }
             _ => {}
         }
@@ -121,7 +121,7 @@ impl Tile {
     pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.process_tick(gs);
+                tracktile.process_tick(gs, p);
             }
             Tile::Trainsource(trainsource) => {
                 trainsource.process_tick(p);

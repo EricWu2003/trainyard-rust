@@ -1,25 +1,35 @@
 use crate::color::Color;
 use crate::GameSprites;
+use crate::particle::ParticleList;
+use crate::particle::fire::Fire;
+use crate::utils::Position;
 
 pub struct Edge {
     pub train_to_a: Option<Color>,
     pub train_to_b: Option<Color>,
+    position: Position,
 }
 
 impl Edge {
-    pub fn new() -> Edge {
+    pub fn new(x:i32, y:i32) -> Edge {
         Edge {
             train_to_a: None,
             train_to_b: None,
+            position: Position{x, y},
         }
     }
 
-    pub fn interact_trains(&mut self, gs: &GameSprites) {
+    pub fn interact_trains(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         if let (Some(t1), Some(t2)) = (self.train_to_a, self.train_to_b) {
             let new_color = Color::mix_many(vec![t1, t2]);
             self.train_to_a = Some(new_color);
             self.train_to_b = Some(new_color);
             gs.play_train_sound(new_color);
+            println!("mixing colors");
+            println!("{}, {}", self.position.x, self.position.y);
+            p.push(Box::new(Fire::new(
+                self.position.x, self.position.y, new_color
+            )));
         }
     }
 
