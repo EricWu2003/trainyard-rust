@@ -51,7 +51,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Tonelympics"), rect),
+            yard: Yard::new(level_manager.get_level("Licorice Allsorts"), rect),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,

@@ -1323,6 +1323,115 @@ o 4,3 purple right
 ---
 
 ----
+CITY: Quebec
+
+Picnic:7
++ 0,2 red,red right
++ 0,3 yellow,yellow right
++ 0,4 blue,blue right
+o 6,2 orange left
+o 6,3 purple,purple left
+o 6,4 green left
+---
+
+Spindle:8
++ 3,2 red up
++ 2,3 yellow left
++ 3,4 blue down
++ 4,3 green right
+o 2,2 green up
+o 2,4 red left
+o 4,2 blue right
+o 4,4 yellow down
+* 3,3 1,2 4,1 2,5 2,6 5,4
+---
+
+Fire Eyed:7
++ 0,1 yellow up
++ 0,5 yellow down
++ 6,1 red up
++ 6,5 red down
++ 1,3 red left
++ 5,3 yellow right
+o 3,0 orange down
+o 3,6 orange up
+---
+
+Rebelt:10
++ 0,5 green right
++ 6,5 green left
+o 2,0 yellow down
+o 3,0 blue,blue down
+o 4,0 orange down
+s 3,3 down
+p 4,3 orange down,left
+---
+
+RGB:11
++ 0,3 red down
++ 1,3 green down
++ 2,3 blue down
++ 4,3 blue down
++ 5,3 green down
++ 6,3 red down
+o 0,2 blue up
+o 1,2 green up
+o 2,2 red up
+o 4,2 red up
+o 5,2 green up
+o 6,2 blue up
+---
+
+Dr. Linus:11
++ 2,4 red down
++ 4,4 blue down
++ 2,2 yellow,yellow up
++ 4,2 red,red up
+o 3,1 purple up
+o 3,5 orange,orange down
+* 1,3 2,3 3,3 4,3 5,3 3,2 3,4
+---
+
+Glockenspiel:11
++ 6,0 green,green,green down
+o 3,3 red,red,red,red,blue,blue,blue,blue,yellow,yellow,yellow,yellow up,down,left,right
+p 0,0 yellow right,down
+p 0,6 blue right,up
+p 6,6 red left,up
+s 3,0 down
+s 3,6 up
+s 0,3 right
+s 6,3 left
+---
+
+Jamboree:12
++ 3,3 red,red,red,red right
+o 2,3 green up,down
+o 1,2 blue,yellow down
+o 1,4 blue,yellow up
+s 1,3 left
+p 0,0 blue right,down
+p 0,2 blue up,down
+p 0,4 yellow up,down
+p 0,6 yellow up,right
+---
+
+Licorice Allsorts:13
++ 0,4 red down
++ 1,4 yellow down
++ 2,4 blue down
++ 3,4 orange down
++ 4,4 green down
++ 5,4 purple down
+o 0,3 purple up
+o 1,3 green up
+o 2,3 orange up
+o 3,3 blue up
+o 4,3 yellow up
+o 5,3 red up
+---
+
+----
 CITY:Debug
 
 Multiple entrances:1
