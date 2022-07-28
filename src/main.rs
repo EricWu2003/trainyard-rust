@@ -25,11 +25,11 @@ async fn main() {
     loop {
         clear_background(LIGHTGRAY);
         draw_texture_ex(
-           gs.atlas,
+           gs.train,
             screen_width() / 2.,
             screen_height() / 2.,
             BLUE,
-            DrawTextureParams { dest_size: None, source: Some(gs.train), rotation: 0., flip_x: false, flip_y: false, pivot: None }
+            DrawTextureParams { dest_size: None, source: None, rotation: 0., flip_x: false, flip_y: false, pivot: None }
         );
         next_frame().await;
     }
