@@ -6,10 +6,13 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-soloud = "1"
 rand = "0.8.5"
+macroquad = "0.3.23"
 
-[dependencies.sdl2]
-version = "0.35.2"
-default-features = false
-features = ["image"]
+# Enable only a small amount of optimization in debug mode
+[profile.dev]
+opt-level = 1
+
+# Enable high optimizations for dependencies (incl. macroquad), but not for our code:
+[profile.dev.package."*"]
+opt-level = 3
