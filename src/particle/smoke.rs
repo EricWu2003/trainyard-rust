@@ -1,9 +1,9 @@
+use macroquad::prelude::*;
 use crate::particle::Particle;
-use sdl2::render::WindowCanvas;
 use crate::GameSprites;
 use crate::utils::centered_rect;
 use crate::color::Color;
-use rand::Rng;
+use macroquad::rand::gen_range;
 
 pub static INITIAL_TTL: i32 = 170;
 
@@ -13,7 +13,7 @@ pub struct Smoke {
 }
 
 impl Smoke {
-    pub fn new(x: i32, y:i32, color: Color) -> Smoke {
+    pub fn new(x: f32, y:f32, color: Color) -> Smoke {
         Smoke {
             smokes: [
                 SmokeParticle::new(x, y, color),
@@ -27,11 +27,10 @@ impl Smoke {
 
 
 impl Particle for Smoke {
-    fn render(&self, canvas: &mut WindowCanvas, gs: &mut GameSprites) -> Result<(), String> {
+    fn render(&self, gs: &GameSprites) {
         for smoke in &self.smokes {
-            smoke.render(canvas, gs)?;
+            smoke.render(gs);
         }
-        Ok(())
     }
     fn pass_one_frame(&mut self) {
         for smoke in &mut self.smokes {
@@ -45,21 +44,21 @@ impl Particle for Smoke {
 }
 
 pub struct SmokeParticle {
-    x: f64,
-    y: f64,
-    dx: f64,
-    dy: f64,
+    x: f32,
+    y: f32,
+    dx: f32,
+    dy: f32,
     color: Color,
     ttl: i32,
 }
 
 impl SmokeParticle {
-    pub fn new(x: i32, y:i32, color: Color) -> SmokeParticle {
-        let angle: f64 = rand::thread_rng().gen_range(0.0..6.283185);
+    pub fn new(x: f32, y:f32, color: Color) -> SmokeParticle {
+        let angle: f32 = gen_range(0.0, 6.283185);
         let v_magnitude = 0.15;
         SmokeParticle {
-            x: x as f64,
-            y: y as f64,
+            x: x,
+            y: y,
             dx: v_magnitude * angle.sin(),
             dy: v_magnitude * angle.cos(),
             color,
@@ -70,14 +69,11 @@ impl SmokeParticle {
 
 
 impl Particle for SmokeParticle {
-    fn render(&self, canvas: &mut WindowCanvas, gs: &mut GameSprites) -> Result<(), String> {
-        let rect = centered_rect(self.x as i32, self.y as i32, gs.smoke.width(), gs.smoke.height());
+    fn render(&self, gs: &GameSprites) {
 
-        gs.set_color(self.color);
-        gs.set_alpha((self.ttl * 255 / INITIAL_TTL) as u8);
-        canvas.copy(&gs.atlas_color, gs.smoke, rect)?;
-        gs.set_alpha(255);
-        Ok(())
+        // gs.set_color(self.color);
+        // gs.set_alpha((self.ttl * 255 / INITIAL_TTL) as u8);
+        draw_texture(gs.smoke, self.x, self.y, WHITE);
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

@@ -1,3 +1,4 @@
+use macroquad::prelude::*;
 pub mod painter;
 pub mod splitter;
 pub mod tracktile;
@@ -10,8 +11,6 @@ use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
 use crate::particle::ParticleList;
 use crate::particle::smoke::Smoke;
@@ -59,23 +58,23 @@ impl Tile {
                 no_crashes = false;
                 match dir {
                     0 => p.push(Box::new(Smoke::new(
-                        rect.x() + rect.width() as i32 /2,
-                        rect.y(),
+                        rect.x + rect.w / 2.,
+                        rect.y,
                         *color,
                     ))),
                     1 => p.push(Box::new(Smoke::new(
-                        rect.x() + rect.width() as i32,
-                        rect.y() + rect.height() as i32 /2,
+                        rect.x + rect.w,
+                        rect.y + rect.h / 2.,
                         *color,
                     ))),
                     2 => p.push(Box::new(Smoke::new(
-                        rect.x() + rect.width() as i32/2,
-                        rect.y() + rect.height() as i32,
+                        rect.x + rect.w / 2.,
+                        rect.y + rect.h,
                         *color,
                     ))),
                     3 => p.push(Box::new(Smoke::new(
-                        rect.x(),
-                        rect.y() + rect.height() as i32/2,
+                        rect.x,
+                        rect.y + rect.h / 2.,
                         *color,
                     ))),
                     _ => unreachable!(),
@@ -151,26 +150,25 @@ impl Tile {
         }
     }
 
-    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
+    pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.render_trains(canvas, rect, gs, progress)?
+                tracktile.render_trains(gs, progress)
             }
             Tile::Trainsink(trainsink) => {
-                trainsink.render_trains(canvas, rect, gs, progress)?
+                trainsink.render_trains(gs, progress)
             }
             Tile::Trainsource(trainsource) => {
-                trainsource.render_trains(canvas, rect, gs, progress)?
+                trainsource.render_trains(gs, progress)
             }
             Tile::Painter(painter) => {
-                painter.render_trains(canvas, rect, gs, progress)?
+                painter.render_trains(gs, progress)
             }
             Tile::Splitter(splitter) => {
-                splitter.render_trains(canvas, rect, gs, progress)?
+                splitter.render_trains(gs, progress)
             }
             Tile::Rock(_) => {}
         }
-        Ok(())
     }
 
     pub fn set_rect(&mut self, rect:Rect) {

@@ -1,12 +1,15 @@
+use macroquad::audio::play_sound_once;
+use macroquad::prelude::*;
 use crate::color::Color;
 
 use crate::connection::Connection;
 use crate::tile::BorderState;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
+
 use crate::sprites::GameSprites;
 use crate::particle::ParticleList;
 use crate::particle::painter_particle::PainterParticle;
+
+use std::f32::consts::PI;
 
 #[derive(Debug, Clone)]
 pub struct Painter {
@@ -57,11 +60,11 @@ impl Painter {
     pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         if self.train_to_dir1.is_some() {
             self.train_to_dir1 = Some(self.color);
-            gs.sl.play(&gs.sl_painter);
+            play_sound_once(gs.sl_painter);
         }
         if self.train_to_dir2.is_some() {
             self.train_to_dir2 = Some(self.color);
-            gs.sl.play(&gs.sl_painter);
+            play_sound_once(gs.sl_painter);
         }
         if self.train_to_dir1.is_some() || self.train_to_dir2.is_some() {
             p.push(Box::new(PainterParticle::new(
@@ -75,118 +78,137 @@ impl Painter {
         self.rect = Some(rect);
     }
 
-    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
-        let train_width = (rect.width() as f64 * (32.0 / 96.0)) as u32;
-        let train_height = (rect.height() as f64 * (57.0 / 96.0)) as u32;
+    pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
+        let rect = self.rect.unwrap();
+        let train_width = rect.w * (32.0 / 96.0);
+        let train_height = rect.h * (57.0 / 96.0);
         
         if progress <= 1.0 {
             // render the incoming trains
             if let Some(color) = self.train_to_dir2 {
-                gs.set_color(color);
+                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
                 if self.connection.dir1 == 0 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                    rot = 180.0;
+                    train_center_x = rect.x + (rect.w/2.) ;
+                    train_center_y = rect.y + (rect.h * progress/2.0) ;
+                    rot = PI;
                 } else if self.connection.dir1 == 1 {
-                    train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 270.0;
+                    train_center_x = rect.x + (rect.w * (1.0 - progress/2.0)) ;
+                    train_center_y = rect.y + (rect.h/2.) ;
+                    rot = 3.*PI/2.;
                 } else if self.connection.dir1 == 2 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                    train_center_x = rect.x + (rect.w/2.) ;
+                    train_center_y = rect.y + (rect.h * (1.0 - progress/2.0)) ;
                     rot = 0.0;
                 } else {
-                    train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 90.0;
+                    train_center_x = rect.x + (rect.w * progress/2.0) ;
+                    train_center_y = rect.y + (rect.h/2.) ;
+                    rot = PI/2.;
                 }
-                let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-                canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
+                draw_texture_ex(
+                    gs.train,
+                    train_center_x - (train_width/2.),
+                    train_center_y - (train_height/2.),
+                    WHITE,
+                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                );
             }
             if let Some(color) = self.train_to_dir1 {
-                gs.set_color(color);
+                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
                 if self.connection.dir2 == 0 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                    rot = 180.0;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * progress/2.0);
+                    rot = PI;
                 } else if self.connection.dir2 == 1 {
-                    train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 270.0;
+                    train_center_x = rect.x + (rect.w * (1.0 - progress/2.0));
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = 3.*PI/2.;
                 } else if self.connection.dir2 == 2 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * (1.0 - progress/2.0));
                     rot = 0.0;
                 } else {
-                    train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 90.0;
+                    train_center_x = rect.x + (rect.w * progress/2.0);
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = PI/2.;
                 }
-                let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-                canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
+                draw_texture_ex(
+                    gs.train,
+                    train_center_x - (train_width/2.),
+                    train_center_y - (train_height/2.),
+                    WHITE,
+                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                );
             }
         } else {
             //render the outgoing trains
 
 
             if let Some(color) = self.train_to_dir1 {
-                gs.set_color(color);
+                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
                 if self.connection.dir1 == 2 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                    rot = 180.0;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * progress/2.0);
+                    rot = PI;
                 } else if self.connection.dir1 == 3 {
-                    train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 270.0;
+                    train_center_x = rect.x + (rect.w * (1.0 - progress/2.0));
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = 3.*PI/2.;
                 } else if self.connection.dir1 == 0 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * (1.0 - progress/2.0));
                     rot = 0.0;
                 } else {
-                    train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 90.0;
+                    train_center_x = rect.x + (rect.w * progress/2.0);
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = PI/2.;
                 }
-                let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-                canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
+                draw_texture_ex(
+                    gs.train,
+                    train_center_x - (train_width/2.),
+                    train_center_y - (train_height/2.),
+                    WHITE,
+                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                );
             }
             if let Some(color) = self.train_to_dir2 {
-                gs.set_color(color);
+                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
                 if self.connection.dir2 == 2 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                    rot = 180.0;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * progress/2.0);
+                    rot = PI;
                 } else if self.connection.dir2 == 3 {
-                    train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 270.0;
+                    train_center_x = rect.x + (rect.w * (1.0 - progress/2.0));
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = 3.*PI/2.;
                 } else if self.connection.dir2 == 0 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * (1.0 - progress/2.0));
                     rot = 0.0;
                 } else {
-                    train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 90.0;
+                    train_center_x = rect.x + (rect.w * progress/2.0);
+                    train_center_y = rect.y + (rect.h/2.);
+                    rot = PI/2.;
                 }
-                let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-                canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
+                draw_texture_ex(
+                    gs.train,
+                    train_center_x - (train_width/2.),
+                    train_center_y - (train_height/2.),
+                    WHITE,
+                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                );
             }
         }
-        
-        Ok(())
     }
 }

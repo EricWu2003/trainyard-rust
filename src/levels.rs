@@ -164,7 +164,6 @@ impl LevelManager<'_> {
                             y,
                         });
                     } else if line.starts_with("* ") {
-                        // handle a new rock (TODO:)
                         let mut positions = line[2..].split(" ");
                         while let Some(position) = positions.next() {
                             let x: u8 = position[0..1].parse()

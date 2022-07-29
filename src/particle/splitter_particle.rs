@@ -1,6 +1,5 @@
+use macroquad::prelude::*;
 use crate::particle::Particle;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
 use crate::GameSprites;
 
 pub static INITIAL_TTL: i32 = 10;
@@ -19,12 +18,13 @@ impl SplitterParticle {
 }
 
 impl Particle for SplitterParticle {
-    fn render(&self, canvas: &mut WindowCanvas, gs: &mut GameSprites) -> Result<(), String> {
-        let rect = Rect::new((self.ttl * NUM_FRAMES / INITIAL_TTL) * 96, 400, 96, 96);
+    fn render(&self, gs: &GameSprites) {
+        // let rect = Rect::new((self.ttl * NUM_FRAMES / INITIAL_TTL) * 96, 400, 96, 96);
 
-        canvas.copy_ex(&gs.atlas, rect, self.bounding_rect,
-            90.0 * self.dir as f64, None, false, false)?;
-        Ok(())
+        // canvas.copy_ex(&gs.atlas, rect, self.bounding_rect,
+        //     90.0 * self.dir as f64, None, false, false)?;
+        println!("TODO: implement SplitterParticle rendering");
+
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

@@ -1,12 +1,13 @@
+use macroquad::prelude::*;
 use crate::color::Color;
 
 use crate::particle::sparkle::Sparkle;
 use crate::tile::BorderState;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
 use crate::particle::ParticleList;
 use crate::particle::shrinking_circle::ShrinkingCircle;
+
+use std::f32::consts::PI;
 
 #[derive(Debug, Clone)]
 pub struct Trainsink {
@@ -73,8 +74,8 @@ impl Trainsink {
                     color,
                 )));
                 let rect = self.rect.unwrap();
-                let center_x = rect.x() + rect.width() as i32/2;
-                let center_y = rect.y() + rect.height() as i32/2;
+                let center_x = rect.x + rect.w/2.;
+                let center_y = rect.y + rect.h/2.;
                 p.push(Box::new(Sparkle::new(
                     center_x, center_y, color
                 )));
@@ -106,8 +107,8 @@ impl Trainsink {
     pub fn set_rect(&mut self, rect: Rect) {
         self.rect = Some(rect);
 
-        let plus_sign_width = (rect.width() as f64 * (52.0 / 96.0)) as i32;
-        let plus_sign_height = (rect.height() as f64 * (52.0 / 96.0)) as i32;
+        let plus_sign_width = rect.w * (52.0 / 96.0);
+        let plus_sign_height = rect.h * (52.0 / 96.0);
         let num_cols;
         if self.desires.len() <= 1 {
             num_cols = 1;
@@ -121,58 +122,70 @@ impl Trainsink {
         for i in 0..self.desires.len() {
             let curr_col = i % num_cols;
             let curr_row = i / num_cols;
-            let scaled_plus_sign_width = plus_sign_width / num_cols as i32;
-            let scaled_plus_sign_height = plus_sign_height / num_cols as i32;
-            let x_pos = rect.x()
-                + (rect.width() as i32 - plus_sign_width) / 2
-                + curr_col as i32 * scaled_plus_sign_width;
-            let y_pos = rect.y()
-                + (rect.width() as i32 - plus_sign_height) / 2
-                + curr_row as i32 * scaled_plus_sign_height;
+            let scaled_plus_sign_width = plus_sign_width / num_cols as f32;
+            let scaled_plus_sign_height = plus_sign_height / num_cols as f32;
+            let x_pos = rect.x
+                + (rect.w - plus_sign_width) / 2.
+                + curr_col as f32 * scaled_plus_sign_width;
+            let y_pos = rect.y
+                + (rect.w - plus_sign_height) / 2.
+                + curr_row as f32 * scaled_plus_sign_height;
             self.icon_rects.push(
                 Rect::new(
                     x_pos,
                     y_pos,
-                    scaled_plus_sign_width as u32,
-                    scaled_plus_sign_height as u32,
+                    scaled_plus_sign_width,
+                    scaled_plus_sign_height,
                 )
             );
             
         }
     }
 
-    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
-        let train_width = (rect.width() as f64 * (32.0 / 96.0)) as u32;
-        let train_height = (rect.height() as f64 * (57.0 / 96.0)) as u32;
+    pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
+        let rect = self.rect.unwrap();
+        let train_width = rect.w * (32.0 / 96.0);
+        let train_height = rect.h * (57.0 / 96.0);
 
         for i in 0..4 {
             if let Some(color) = self.incoming_trains[i] {
-                gs.set_color(color);
+                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
                 if i == 0 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                    rot = 180.0;
+                    train_center_x = rect.x + (rect.w/2.);
+                    train_center_y = rect.y + (rect.h * progress/2.0) ;
+                    rot = PI;
                 } else if i == 1 {
-                    train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 270.0;
+                    train_center_x = rect.x + (rect.w * (1.0 - progress/2.0)) ;
+                    train_center_y = rect.y + (rect.h/2.) ;
+                    rot = 3. * PI/2.;
                 } else if i == 2 {
-                    train_center_x = rect.x() + (rect.width()/2) as i32;
-                    train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                    train_center_x = rect.x + (rect.w/2.) ;
+                    train_center_y = rect.y + (rect.h * (1.0 - progress/2.0)) ;
                     rot = 0.0;
                 } else {
-                    train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                    train_center_y = rect.y() + (rect.height()/2) as i32;
-                    rot = 90.0;
+                    train_center_x = rect.x + (rect.w * progress/2.0) ;
+                    train_center_y = rect.y + (rect.h/2.) ;
+                    rot = PI/2.;
                 }
-                let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
-                canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
+                draw_texture_ex(
+                    gs.train, 
+                    train_center_x - (train_width/2.),
+                    train_center_y - (train_height/2.),
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: None,
+                        source: None,
+                        rotation: rot,
+                        flip_x: false,
+                        flip_y: false,
+                        pivot: None,
+                    },
+                );
             }
 
         }
-        Ok(())
     }
 }

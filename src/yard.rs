@@ -1,3 +1,5 @@
+use macroquad::audio::play_sound_once;
+use macroquad::prelude::*;
 use crate::connection::Connection;
 use crate::edge::Edge;
 use crate::levels::LevelInfo;
@@ -11,9 +13,7 @@ use crate::tile::BorderState;
 use crate::tile::Tile;
 
 use std::io::Write;
-
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
+use std::f32::consts::PI;
 
 pub const NUM_ROWS: usize = 7;
 pub const NUM_COLS: usize = 7;
@@ -29,7 +29,7 @@ pub enum YardState {
     Drawing,
     Playing {
         num_ticks_elapsed: u32,
-        progress: f64,
+        progress: f32,
         next_step: NextAction,
     },
     Crashed,
@@ -62,17 +62,17 @@ impl Yard {
         }
         let drawn_tiles = tiles.clone();
 
-        let w = rect.width() as i32/NUM_COLS as i32;
-        let h = rect.height() as i32/NUM_ROWS as i32;
-        let half_w = w/2;
-        let half_h = h/2;
+        let w = rect.w/NUM_COLS as f32;
+        let h = rect.h/NUM_ROWS as f32;
+        let half_w = w/2.;
+        let half_h = h/2.;
 
         let mut h_edges: Vec<Vec<Edge>> = Vec::new();
         for r in 0..(NUM_ROWS + 1) {
             let mut row: Vec<Edge> = Vec::new();
             for c in 0..NUM_COLS {
-                let x_pos = rect.x() + half_w + c as i32 * w;
-                let y_pos = rect.y() + r as i32 * h;
+                let x_pos = rect.x + half_w + c as f32 * w;
+                let y_pos = rect.y + r as f32 * h;
                 row.push(Edge::new(x_pos, y_pos));
             }
             h_edges.push(row);
@@ -82,8 +82,8 @@ impl Yard {
         for r in 0..NUM_ROWS {
             let mut row: Vec<Edge> = Vec::new();
             for c in 0..(NUM_COLS + 1) {
-                let x_pos = rect.x() + c as i32 * w;
-                let y_pos = rect.y() + half_h + r as i32 * h;
+                let x_pos = rect.x + c as f32 * w;
+                let y_pos = rect.y + half_h + r as f32 * h;
                 row.push(Edge::new(x_pos, y_pos));
             }
             v_edges.push(row);
@@ -105,15 +105,15 @@ impl Yard {
             let tile = &level_info[i];
             yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
         }
-        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
-        let new_w = w/(NUM_COLS as u32);
-        let new_h = h/(NUM_ROWS as u32);
+        let (x, y, w, h) = (rect.x, rect.y, rect.w, rect.h);
+        let new_w = w/(NUM_COLS as f32);
+        let new_h = h/(NUM_ROWS as f32);
         for row in 0..NUM_ROWS {
             for col in 0..NUM_COLS {
                 yard.tiles[row][col].set_rect(
                     Rect::new(
-                        x + (new_w*col as u32) as i32,
-                        y + (new_h*row as u32) as i32,
+                        x + (new_w*col as f32),
+                        y + (new_h*row as f32),
                         new_w,
                         new_h,
                     )
@@ -127,7 +127,7 @@ impl Yard {
     pub fn clear_connections (&mut self, r: usize, c: usize, gs:&GameSprites) {
         if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
             if tracktile.connection_type() != ConnectionType::None {
-                gs.sl.play(&gs.sl_erase_track);
+                play_sound_once(gs.sl_erase_track);
             }
             tracktile.clear_connections();
         }
@@ -169,33 +169,33 @@ impl Yard {
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn, gs);
 
-            let center_x = self.rect.x() as u32 + gs.tracktile_blank.width()/2 + gs.tracktile_blank.width() * c as u32;
-            let center_y = self.rect.y() as u32 + gs.tracktile_blank.height()/2 + gs.tracktile_blank.height() * r as u32;
+            let center_x = self.rect.x + gs.tracktile_blank.width()/2. + gs.tracktile_blank.width() * c as f32;
+            let center_y = self.rect.y + gs.tracktile_blank.height()/2. + gs.tracktile_blank.height() * r as f32;
             if conn.contains(0) {
                 p.push(Box::new(DrawnArrow::new(
-                    center_x as i32, 
-                    (center_y - gs.tracktile_blank.width()/2) as i32, 
+                    center_x, 
+                    center_y - gs.tracktile_blank.width()/2., 
                     0,
                 )));
             }
             if conn.contains(2) {
                 p.push(Box::new(DrawnArrow::new(
-                    center_x as i32, 
-                    (center_y + gs.tracktile_blank.width()/2) as i32, 
+                    center_x, 
+                    center_y + gs.tracktile_blank.width()/2., 
                     2,
                 )));
             }
             if conn.contains(1) {
                 p.push(Box::new(DrawnArrow::new(
-                    (center_x + gs.tracktile_blank.width()/2) as i32, 
-                    center_y as i32,
+                    center_x + gs.tracktile_blank.width()/2., 
+                    center_y,
                     1,
                 )));
             }
             if conn.contains(3) {
                 p.push(Box::new(DrawnArrow::new(
-                    (center_x - gs.tracktile_blank.width()/2) as i32, 
-                    center_y as i32,
+                    center_x - gs.tracktile_blank.width()/2., 
+                    center_y,
                     3,
                 )));
             }
@@ -258,15 +258,15 @@ impl Yard {
         }
 
         let rect = self.rect;
-        let (x, y, w, h) = (rect.x(), rect.y(), rect.width(), rect.height());
-        let new_w = w/(NUM_COLS as u32);
-        let new_h = h/(NUM_ROWS as u32);
+        let (x, y, w, h) = (rect.x, rect.y, rect.w, rect.h);
+        let new_w = w/(NUM_COLS as f32);
+        let new_h = h/(NUM_ROWS as f32);
         for row in 0..NUM_ROWS {
             for col in 0..NUM_COLS {
                 self.tiles[row][col].set_rect(
                     Rect::new(
-                        x + (new_w*col as u32) as i32,
-                        y + (new_h*row as u32) as i32,
+                        x + (new_w*col as f32),
+                        y + (new_h*row as f32),
                         new_w,
                         new_h,
                     )
@@ -318,40 +318,40 @@ impl Yard {
             if let Some(train) = self.h_edges[0][c].train_to_a {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x() + gs.tracktile_blank.width() as i32 /2 + (gs.tracktile_blank.width() as i32 * c as i32),
-                    self.rect.y(),
+                    self.rect.x + gs.tracktile_blank.width() /2. + (gs.tracktile_blank.width() * c as f32),
+                    self.rect.y,
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                play_sound_once(gs.sl_crash);
             }
             if let Some(train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x() + gs.tracktile_blank.width() as i32 /2 + (gs.tracktile_blank.width() as i32 * c as i32),
-                    self.rect.y() + self.rect.height() as i32,
+                    self.rect.x + gs.tracktile_blank.width() /2. + (gs.tracktile_blank.width() * c as f32),
+                    self.rect.y + self.rect.h,
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                play_sound_once(gs.sl_crash);
             }
         }
         for r in 0..NUM_ROWS {
             if let Some(train) = self.v_edges[r][0].train_to_a {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x(),
-                    self.rect.y() + gs.tracktile_blank.height() as i32 /2 + (gs.tracktile_blank.height() as i32 * r as i32),
+                    self.rect.x,
+                    self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                play_sound_once(gs.sl_crash);
             }
             if let Some(train) = self.v_edges[r][NUM_COLS].train_to_b {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x() + self.rect.width() as i32,
-                    self.rect.y() + gs.tracktile_blank.height() as i32 /2 + (gs.tracktile_blank.height() as i32 * r as i32),
+                    self.rect.x + self.rect.w,
+                    self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                play_sound_once(gs.sl_crash);
             }
         }
 
@@ -368,7 +368,7 @@ impl Yard {
                 let not_crashed = self.tiles[r][c].accept_trains(border_state, p);
                 if !not_crashed {
                     self.state = YardState::Crashed;
-                    gs.sl.play(&gs.sl_crash);
+                    play_sound_once(gs.sl_crash);
                 }
             }
         }
@@ -392,11 +392,11 @@ impl Yard {
 
         if self.has_won() {
             self.state = YardState::Won;
-            gs.sl.play(&gs.sl_win_level);
+            play_sound_once(gs.sl_win_level);
         }
     }
 
-    pub fn update(&mut self, speed: f64, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn update(&mut self, speed: f32, gs: &GameSprites, p: &mut ParticleList) {
         if let YardState::Playing {
             mut num_ticks_elapsed,
             mut progress,
@@ -477,26 +477,25 @@ impl Yard {
 
     pub fn render(
         &self,
-        canvas: &mut WindowCanvas,
-        rect: &Rect,
-        gs: &mut GameSprites,
-    ) -> Result<(), String> {
-        let block_width = (rect.width() / (NUM_COLS as u32)) as i32;
-        let block_height = (rect.height() / (NUM_ROWS as u32)) as i32;
+        gs: &GameSprites,
+    ) {
+        let rect = self.rect;
 
-        let x0 = rect.x();
-        let y0 = rect.y();
+        let block_width = rect.w / (NUM_COLS as f32);
+        let block_height = rect.h / (NUM_ROWS as f32);
+
+        let dest_size = Some(Vec2::new(block_width, block_height));
+
+        let x0 = rect.x;
+        let y0 = rect.y;
 
         //render all tracktiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                let rect = Rect::new(
-                    x0 + c as i32 * block_width,
-                    y0 + r as i32 * block_height,
-                    block_width as u32,
-                    block_height as u32,
-                );
-                let mut texture = &gs.tracktile_blank;
+                let x_pos = x0 + c as f32 * block_width;
+                let y_pos = y0 + r as f32 * block_height;
+
+                let mut texture = gs.tracktile_blank;
                 let mut h_flip = false;
                 let mut rot = 0;
 
@@ -505,29 +504,29 @@ impl Yard {
                         match tracktile.connection_type() {
                             ConnectionType::None => {}
                             ConnectionType::B => {
-                                texture = &gs.tracktile_b;
+                                texture = gs.tracktile_b;
                                 rot = tracktile
                                     .has_connection_up_to_rot(Connection { dir1: 2, dir2: 3 });
                             }
                             ConnectionType::S => {
-                                texture = &gs.tracktile_s;
+                                texture = gs.tracktile_s;
                                 rot = tracktile
                                     .has_connection_up_to_rot(Connection { dir1: 0, dir2: 2 });
                             }
                             ConnectionType::H => {
-                                texture = &gs.tracktile_h;
+                                texture = gs.tracktile_h;
                                 rot = tracktile.has_active_connection_up_to_rot(Connection {
                                     dir1: 0,
                                     dir2: 2,
                                 });
                             }
                             ConnectionType::Z => {
-                                texture = &gs.tracktile_z;
+                                texture = gs.tracktile_z;
                                 rot = tracktile
                                     .has_connection_up_to_rot(Connection { dir1: 0, dir2: 1 });
                             }
                             ConnectionType::M => {
-                                texture = &gs.tracktile_m;
+                                texture = gs.tracktile_m;
                                 if tracktile.has_active_passive_connections_up_to_rot(
                                     Connection { dir1: 2, dir2: 3 },
                                     Connection { dir1: 1, dir2: 2 },
@@ -552,9 +551,9 @@ impl Yard {
                                     dir2: 1,
                                 }) != -1
                                 {
-                                    texture = &gs.tracktile_jb;
+                                    texture = gs.tracktile_jb;
                                 } else {
-                                    texture = &gs.tracktile_js;
+                                    texture = gs.tracktile_js;
                                 }
                                 if tracktile.has_connections_up_to_rot(
                                     Connection { dir1: 0, dir2: 2 },
@@ -575,86 +574,131 @@ impl Yard {
                                 }
                             }
                         }
-                        canvas.copy_ex(
-                            &gs.atlas,
-                            *texture,
-                            rect,
-                            rot as f64 * 90.0,
-                            None,
-                            h_flip,
-                            false,
-                        )?;
+                        draw_texture_ex(
+                            texture,
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: rot as f32 * PI/2.,
+                                flip_x: h_flip,
+                                flip_y: false,
+                                pivot: None
+                            }
+                        );
                     }
                     Tile::Trainsource(trainsource) => {
-                        canvas.copy_ex(
-                            &gs.atlas,
+                        draw_texture_ex(
                             gs.trainsource_exit,
-                            rect,
-                            trainsource.dir as f64 * 90.0,
-                            None,
-                            false,
-                            false,
-                        )?;
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: trainsource.dir as f32 * PI/2.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
+                        );
                     }
                     Tile::Trainsink(trainsink) => {
-                        canvas.copy(&gs.atlas, gs.tracktile_blank, rect)?;
+                        draw_texture(
+                            gs.tracktile_blank,
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                        );
                         if !trainsink.is_satisfied() {
                             for dir in 0..4 {
                                 if trainsink.border_state[dir] {
-                                    canvas.copy_ex(
-                                        &gs.atlas,
+                                    draw_texture_ex(
                                         gs.trainsink_entry,
-                                        rect,
-                                        dir as f64 * 90.0,
-                                        None,
-                                        false,
-                                        false,
-                                    )?;
+                                        x_pos,
+                                        y_pos,
+                                        WHITE,
+                                        DrawTextureParams { 
+                                            dest_size,
+                                            source: None,
+                                            rotation: dir as f32 * PI/2.,
+                                            flip_x: false,
+                                            flip_y: false,
+                                            pivot: None
+                                        }
+                                    );
                                 }
                             }
                         }
                     }
                     Tile::Rock(_) => {
-                        canvas.copy(&gs.atlas, gs.rock, rect)?;
+                        draw_texture(
+                            gs.rock,
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                        );
                     }
                     Tile::Painter(painter) => {
-                        canvas.copy(&gs.atlas, gs.tracktile_blank, rect)?;
-                        canvas.copy_ex(
-                            &gs.atlas,
+                        draw_texture(
+                            gs.tracktile_blank,
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                        );
+                        draw_texture_ex(
                             gs.trainsink_entry,
-                            rect,
-                            painter.connection.dir1 as f64 * 90.0,
-                            None,
-                            false,
-                            false,
-                        )?;
-                        canvas.copy_ex(
-                            &gs.atlas,
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: painter.connection.dir1 as f32 * PI/2.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
+                        );
+                        draw_texture_ex(
                             gs.trainsink_entry,
-                            rect,
-                            painter.connection.dir2 as f64 * 90.0,
-                            None,
-                            false,
-                            false,
-                        )?;
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: painter.connection.dir2 as f32 * PI/2.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
+                        );
                     }
                     Tile::Splitter(splitter) => {
-                        canvas.copy_ex(
-                            &gs.atlas,
+                        draw_texture_ex(
                             gs.splitter_bg,
-                            rect,
-                            splitter.incoming_dir as f64 * 90.0,
-                            None,
-                            false,
-                            false,
-                        )?;
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: splitter.incoming_dir as f32 * PI/2.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
+                        );
                     }
                 }
             }
         }
 
 
-        let current_progress: f64;
+        let current_progress: f32;
         if let YardState::Playing{progress, next_step, ..} = self.state {
             // we do this to account for differences in how each tile's render methods expect progress to be passed in,
             // and how the yard struct stores progress.
@@ -672,18 +716,13 @@ impl Yard {
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
                 let rect = Rect::new(
-                    x0 + c as i32 * block_width,
-                    y0 + r as i32 * block_height,
-                    block_width as u32,
-                    block_height as u32,
+                    x0 + c as f32 * block_width,
+                    y0 + r as f32 * block_height,
+                    block_width,
+                    block_height,
                 );
 
-                self.tiles[r][c].render_trains(
-                    canvas,
-                    &rect,
-                    gs,
-                    current_progress
-                )?;
+                self.tiles[r][c].render_trains(gs, current_progress);
             }
         }
 
@@ -691,66 +730,152 @@ impl Yard {
         //render non tracktile tiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                let rect = Rect::new(
-                    x0 + c as i32 * block_width,
-                    y0 + r as i32 * block_height,
-                    block_width as u32,
-                    block_height as u32,
-                );
+                let x_pos = x0 + c as f32 * block_width;
+                let y_pos = y0 + r as f32 * block_height;
 
                 match &self.tiles[r][c] {
                     Tile::Tracktile(_) => {}
                     Tile::Trainsource(trainsource) => {
-                        canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
+                        draw_texture_ex(
+                            gs.source_sink_border, 
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.0,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None,
+                            }
+                        );
                         for i in 0..trainsource.trains.len() {
                             if let Some(color) = trainsource.trains[i] {
-                                gs.set_color(color);
-                                canvas.copy(
-                                    &gs.atlas_color,
-                                    gs.plus_sign,
-                                    trainsource.icon_rects[i],
-                                )?;
+                                // gs.set_color(color);
+                                let (x_pos, y_pos) = (trainsource.icon_rects[i].x, trainsource.icon_rects[i].y);
+                                let dest_size = Some(Vec2::new(trainsource.icon_rects[i].w, trainsource.icon_rects[i].h));
+                                draw_texture_ex(
+                                    gs.plus_sign, 
+                                    x_pos,
+                                    y_pos,
+                                    WHITE,
+                                    DrawTextureParams { 
+                                        dest_size,
+                                        source: None,
+                                        rotation: 0.0,
+                                        flip_x: false,
+                                        flip_y: false,
+                                        pivot: None,
+                                    }
+                                );
                             }
                         }
                     }
                     Tile::Trainsink(trainsink) => {
                         if !trainsink.is_satisfied() {
-                            canvas.copy(&gs.atlas, gs.source_sink_border, rect)?;
+                            draw_texture_ex(
+                                gs.source_sink_border, 
+                                x_pos,
+                                y_pos,
+                                WHITE,
+                                DrawTextureParams { 
+                                    dest_size,
+                                    source: None,
+                                    rotation: 0.0,
+                                    flip_x: false,
+                                    flip_y: false,
+                                    pivot: None,
+                                }
+                            );
                             for i in 0..trainsink.desires.len() {
                                 if let Some(color) = trainsink.desires[i] {
-                                    gs.set_color(color);
-                                    canvas.copy(
-                                        &gs.atlas_color,
-                                        gs.circle,
-                                        trainsink.icon_rects[i],
-                                    )?;
+                                    // gs.set_color(color);
+                                    let (x_pos, y_pos) = (trainsink.icon_rects[i].x, trainsink.icon_rects[i].y);
+                                    let dest_size = Some(Vec2::new(trainsink.icon_rects[i].w, trainsink.icon_rects[i].h));
+                                    draw_texture_ex(
+                                        gs.circle, 
+                                        x_pos,
+                                        y_pos,
+                                        WHITE,
+                                        DrawTextureParams { 
+                                            dest_size,
+                                            source: None,
+                                            rotation: 0.0,
+                                            flip_x: false,
+                                            flip_y: false,
+                                            pivot: None,
+                                        }
+                                    );
                                 }
                             }
                         } else {
-                            canvas.copy(&gs.atlas, gs.sink_satisfied, rect)?;
+                            draw_texture_ex(
+                                gs.sink_satisfied, 
+                                x_pos,
+                                y_pos,
+                                WHITE,
+                                DrawTextureParams { 
+                                    dest_size,
+                                    source: None,
+                                    rotation: 0.0,
+                                    flip_x: false,
+                                    flip_y: false,
+                                    pivot: None,
+                                }
+                            );
                         }
                     }
                     Tile::Rock(_) => {}
                     Tile::Painter(painter) => {
-                        canvas.copy(&gs.atlas, gs.painter_bg, rect)?;
-                        gs.set_color(painter.color);
-                        canvas.copy(&gs.atlas_color, gs.painter_brush, rect)?;
+                        draw_texture_ex(
+                            gs.painter_bg, 
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.0,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None,
+                            }
+                        );
+                        // gs.set_color(painter.color);
+                        draw_texture_ex(
+                            gs.painter_brush, 
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.0,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None,
+                            }
+                        );
                     }
                     Tile::Splitter(splitter) => {
-                        canvas.copy_ex(
-                            &gs.atlas,
-                            gs.splitter,
-                            rect,
-                            splitter.incoming_dir as f64 * 90.0,
-                            None,
-                            false,
-                            false,
-                        )?;
+                        draw_texture_ex(
+                            gs.splitter, 
+                            x_pos,
+                            y_pos,
+                            WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: splitter.incoming_dir as f32 * PI/2.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None,
+                            }
+                        );
                     }
                 }
             }
         }
-
-        Ok(())
     }
 }

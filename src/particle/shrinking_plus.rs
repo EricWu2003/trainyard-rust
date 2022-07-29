@@ -1,7 +1,6 @@
+use macroquad::prelude::*;
 use crate::particle::Particle;
 use crate::color::Color;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
 use crate::GameSprites;
 
 pub static INITIAL_TTL: i32 = 20;
@@ -19,17 +18,26 @@ impl ShrinkingPlus {
 }
 
 impl Particle for ShrinkingPlus {
-    fn render(&self, canvas: &mut WindowCanvas, gs: &mut GameSprites) -> Result<(), String> {
-        let scale:f64 = self.ttl as f64 / INITIAL_TTL as f64;
+    fn render(&self, gs: &GameSprites) {
+        let scale:f32 = self.ttl as f32 / INITIAL_TTL as f32;
 
-        let new_x = self.bounding_rect.x() + (0.5 * (1.0-scale) * self.bounding_rect.width() as f64) as i32;
-        let new_y = self.bounding_rect.y() + (0.5 * (1.0-scale) * self.bounding_rect.height() as f64) as i32;
-        let new_h: u32 = self.bounding_rect.height() * self.ttl as u32/INITIAL_TTL as u32;
-        let new_w: u32 = self.bounding_rect.width() * self.ttl as u32/INITIAL_TTL as u32;
+        let new_x = self.bounding_rect.x + (0.5 * (1.0-scale) * self.bounding_rect.w );
+        let new_y = self.bounding_rect.y + (0.5 * (1.0-scale) * self.bounding_rect.h );
+        let new_h: f32 = self.bounding_rect.h * scale;
+        let new_w: f32 = self.bounding_rect.w * scale;
 
-        gs.set_color(self.color);
-        canvas.copy(&gs.atlas_color, gs.plus_sign, Rect::new(new_x, new_y, new_w, new_h))?;
-        Ok(())
+        // gs.set_color(self.color);
+        // canvas.copy(&gs.atlas_color, gs.circle, Rect::new(new_x, new_y, new_w, new_h))?;
+        draw_texture_ex(gs.plus_sign, new_x, new_y, WHITE, 
+            DrawTextureParams { 
+                dest_size: Some(Vec2::new(new_w, new_h)),
+                source: None,
+                rotation: 0.0,
+                flip_x: false,
+                flip_y: false,
+                pivot: None
+            }
+        )
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

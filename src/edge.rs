@@ -11,7 +11,7 @@ pub struct Edge {
 }
 
 impl Edge {
-    pub fn new(x:i32, y:i32) -> Edge {
+    pub fn new(x:f32, y:f32) -> Edge {
         Edge {
             train_to_a: None,
             train_to_b: None,

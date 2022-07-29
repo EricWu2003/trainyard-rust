@@ -1,3 +1,5 @@
+use macroquad::audio::play_sound_once;
+use macroquad::prelude::*;
 use std::f32::consts::{PI, SQRT_2};
 
 use crate::color::Color;
@@ -6,11 +8,7 @@ use crate::particle::ParticleList;
 use crate::particle::fire::Fire;
 use crate::tile::BorderState;
 use crate::utils::direction_midpoint;
-use sdl2::rect::Rect;
-use sdl2::render::WindowCanvas;
 use crate::sprites::GameSprites;
-
-const PI_F64:f64 = PI as f64;
 
 // used for storing a train in a Tracktile
 #[derive(Debug, Clone, Copy)]
@@ -86,7 +84,7 @@ impl Tracktile {
             let temp = self.passive_connection;
             self.passive_connection = self.active_connection;
             self.active_connection = temp;
-            gs.sl.play(&gs.sl_switch_track);
+            play_sound_once(gs.sl_switch_track);
         }
     }
 
@@ -432,7 +430,7 @@ impl Tracktile {
         if self.active_connection == self.passive_connection {
             self.passive_connection = None;
         }
-        gs.sl.play(&gs.sl_draw_track);
+        play_sound_once(gs.sl_draw_track);
     }
 
     pub fn clear_trains(&mut self) {
@@ -449,108 +447,110 @@ impl Tracktile {
     }
 
 
-    pub fn render_trains(&self, canvas: &mut WindowCanvas, rect: &Rect, gs: &mut GameSprites, progress: f64) -> Result<(), String> {
-        let train_width = (rect.width() as f64 * (32.0 / 96.0)) as u32;
-        let train_height = (rect.height() as f64 * (57.0 / 96.0)) as u32;
+    pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
+        let train_width = gs.train.width();
+        let train_height = gs.train.height();
+        let rect = self.rect.unwrap();
 
         for train in &self.trains {
-            gs.set_color(train.color);
+            // gs.set_color(train.color);
 
-            let mut train_center_x = rect.x();
-            let mut train_center_y = rect.y();
+            let mut train_center_x = rect.x;
+            let mut train_center_y = rect.y;
             let mut rot = 0.0;
             if train.source == 0 && train.destination == 2 {
-                train_center_x = rect.x() + (rect.width()/2) as i32;
-                train_center_y = rect.y() + (rect.height() as f64 * progress/2.0) as i32;
-                rot = 180.0;
+                train_center_x = rect.x + (rect.w/2.);
+                train_center_y = rect.y + (rect.h * progress/2.);
+                rot = PI;
             } else if train.source == 2 && train.destination == 0 {
-                train_center_x = rect.x() + (rect.width()/2) as i32;
-                train_center_y = rect.y() + (rect.height() as f64 * (1.0 - progress/2.0)) as i32;
+                train_center_x = rect.x + (rect.w/2.);
+                train_center_y = rect.y + (rect.h * (1.0 - progress/2.0));
                 rot = 0.0;
             } else if train.source == 3 && train.destination == 1 {
-                train_center_x = rect.x() + (rect.width() as f64 * progress/2.0) as i32;
-                train_center_y = rect.y() + (rect.height()/2) as i32;
-                rot = 90.0;
+                train_center_x = rect.x + (rect.w * progress/2.0);
+                train_center_y = rect.y + (rect.h/2.0);
+                rot = PI/2.;
             } else if train.source == 1 && train.destination == 3 {
-                train_center_x = rect.x() + (rect.width() as f64 * (1.0 - progress/2.0)) as i32;
-                train_center_y = rect.y() + (rect.height()/2) as i32;
-                rot = 270.0;
+                train_center_x = rect.x + (rect.w * (1.0 - progress/2.0));
+                train_center_y = rect.y + (rect.h/2.);
+                rot = 3.*PI/2.;
             } else if train.source == 0 && train.destination == 1 {
-                train_center_x = rect.x() + rect.width() as i32 + 
-                    ((rect.width()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() +
-                    ((rect.height()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
-                rot = 180.0 - 90.0*progress/2.0;
+                train_center_x = rect.x + rect.w + 
+                    ((rect.w/2.) * -f32::cos(progress/4.0*PI));
+                train_center_y = rect.y +
+                    ((rect.h/2.) * f32::sin(progress/4.0*PI));
+                rot = PI - PI/2. * progress/2.0;
             } else if train.source == 1 && train.destination == 2 {
-                train_center_x = rect.x() + rect.width() as i32 + 
-                    ((rect.width()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() + rect.height() as i32 + 
-                    ((rect.height()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
-                rot = 270.0 - 90.0*progress/2.0;
+                train_center_x = rect.x + rect.w + 
+                    ((rect.w/2.) * -f32::sin(progress/4.0*PI));
+                train_center_y = rect.y + rect.h + 
+                    ((rect.h/2.) * -f32::cos(progress/4.0*PI));
+                rot = 3.*PI/2. - PI/2. * progress/2.0;
             } else if train.source == 2 && train.destination == 3 {
-                train_center_x = rect.x() +
-                    ((rect.width()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() + rect.height() as i32 + 
-                    ((rect.height()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
-                rot = 360.0 - 90.0*progress/2.0;
+                train_center_x = rect.x +
+                    ((rect.w/2.) * f32::cos(progress/4.0*PI));
+                train_center_y = rect.y + rect.h + 
+                    ((rect.h/2.) * -f32::sin(progress/4.0*PI));
+                rot = 2.*PI - PI/2. * progress/2.0;
             } else if train.source == 3 && train.destination == 0 {
-                train_center_x = rect.x() +
-                    ((rect.width()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() +
-                    ((rect.height()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
-                rot = 90.0 - 90.0*progress/2.0;
+                train_center_x = rect.x +
+                    ((rect.w/2.) * f32::sin(progress/4.0*PI));
+                train_center_y = rect.y +
+                    ((rect.h/2.) * f32::cos(progress/4.0*PI));
+                rot = PI/2. - PI/2. *progress/2.0;
             } else if train.source == 0 && train.destination == 3 {
-                train_center_x = rect.x() +
-                    ((rect.width()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() +
-                    ((rect.height()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
-                rot = 180.0 + 90.0*progress/2.0;
+                train_center_x = rect.x +
+                    ((rect.w/2.) * f32::cos(progress/4.0*PI));
+                train_center_y = rect.y +
+                    ((rect.h/2.) * f32::sin(progress/4.0*PI));
+                rot = PI + PI/2. *progress/2.0;
             } else if train.source == 3 && train.destination == 2 {
-                train_center_x = rect.x() +
-                    ((rect.width()/2) as f64 * f64::sin(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() + rect.height() as i32 + 
-                    ((rect.height()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
-                rot = 90.0 + 90.0*progress/2.0;
+                train_center_x = rect.x +
+                    ((rect.w/2.) * f32::sin(progress/4.0*PI));
+                train_center_y = rect.y + rect.h + 
+                    ((rect.h/2.) * -f32::cos(progress/4.0*PI));
+                rot = PI/2.  + PI/2. *progress/2.0;
             }  else if train.source == 2 && train.destination == 1 {
-                train_center_x = rect.x() + rect.width() as i32 + 
-                    ((rect.width()/2) as f64 * -f64::cos(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() + rect.height() as i32 + 
-                    ((rect.height()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
-                rot = 90.0*progress/2.0;
+                train_center_x = rect.x + rect.w + 
+                    ((rect.w/2.) * -f32::cos(progress/4.0*PI));
+                train_center_y = rect.y + rect.h + 
+                    ((rect.h/2.) * -f32::sin(progress/4.0*PI));
+                rot = PI/2. *progress/2.0;
             } else if train.source == 1 && train.destination == 0 {
-                train_center_x = rect.x() + rect.width() as i32 + 
-                    ((rect.width()/2) as f64 * -f64::sin(progress/4.0*PI_F64)) as i32;
-                train_center_y = rect.y() + 
-                    ((rect.height()/2) as f64 * f64::cos(progress/4.0*PI_F64)) as i32;
-                rot = 270.0 + 90.0*progress/2.0;
+                train_center_x = rect.x + rect.w + 
+                    ((rect.w/2.) * -f32::sin(progress/4.0*PI));
+                train_center_y = rect.y + 
+                    ((rect.h/2.) * f32::cos(progress/4.0*PI));
+                rot = 3. * PI/2. + PI/2. *progress/2.0;
             }
 
 
 
-            let train_rect = Rect::new(train_center_x - (train_width/2) as i32, train_center_y - (train_height/2) as i32, train_width, train_height);
+            let train_rect = Rect::new(train_center_x - (train_width/2.), train_center_y - (train_height/2.), train_width, train_height);
             
             
-            
-            
-            
-            canvas.copy_ex(&gs.atlas_color, gs.train, train_rect, rot, None, false, false)?;
-
+            draw_texture_ex(
+                gs.train,
+                train_center_x - (train_width/2.),
+                train_center_y - (train_height/2.),
+                WHITE,
+                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+             );
         }
-        Ok(())
     }
 }
 
 
-pub fn get_midpoint_of_conn(conn: Connection, rect: Rect) -> (i32, i32) {
-    let (x, y, w, h) = (rect.x(), rect.y(), rect.width() as i32, rect.height() as i32);
-    let small_w = (SQRT_2/4.0 * w as f32) as i32;
-    let small_h = (SQRT_2/4.0 * h as f32) as i32;
+pub fn get_midpoint_of_conn(conn: Connection, rect: Rect) -> (f32, f32) {
+    let (x, y, w, h) = (rect.x, rect.y, rect.w, rect.h);
+    let small_w = SQRT_2/4.0 * w;
+    let small_h = SQRT_2/4.0 * h;
     let big_w = w - small_w;
     let big_h = h - small_h;
 
 
     if conn == (Connection {dir1: 0, dir2: 2}) || conn == (Connection {dir1: 1, dir2: 3}) {
-        return (x + w/2, y + h/2);
+        return (x + w/2., y + h/2.);
     }
     if conn == (Connection {dir1: 3, dir2: 0}) {
         return (x + small_w, y + small_h);
