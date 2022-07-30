@@ -13,13 +13,14 @@ pub struct Fire {
 }
 
 impl Fire {
-    pub fn new(x: f32, y:f32, color: Color) -> Fire {
+    pub fn new(x: f32, y:f32, color: Color, scale: f32) -> Fire {
         Fire {
+            // We'll make one big fire and three small fires.
             fires: [
-                FireParticle::new(x, y, color, true),
-                FireParticle::new(x, y, color, false),
-                FireParticle::new(x, y, color, false),
-                FireParticle::new(x, y, color, false),
+                FireParticle::new(x, y, color, true, scale),
+                FireParticle::new(x, y, color, false, scale),
+                FireParticle::new(x, y, color, false, scale),
+                FireParticle::new(x, y, color, false, scale),
             ],
             ttl: INITIAL_TTL,
         }
@@ -52,14 +53,20 @@ pub struct FireParticle {
     color: Color,
     ttl: i32,
     is_big: bool,
+    scale: f32
 }
 
 impl FireParticle {
-    pub fn new(x: f32, y:f32, color: Color, is_big: bool) -> FireParticle {
+    pub fn new(x: f32, y:f32, color: Color, is_big: bool, scale: f32) -> FireParticle {
+
+
         let angle: f32 = gen_range(0.0, 6.283185);
-        let v_magnitude = 0.15;
-        
-        let range = if is_big {RANGE/2.} else {RANGE};
+        let v_magnitude = 0.15 * scale;
+
+        // For a nice fire effect,
+        // we want the big fire particle to be closer to the cluster's center,
+        // and smaller particles can be further away.
+        let range = if is_big {RANGE * scale / 2.} else {RANGE * scale};
 
         let x = x + gen_range(-range, range);
         let y = y + gen_range(-range, range);
@@ -72,6 +79,7 @@ impl FireParticle {
             color,
             ttl: INITIAL_TTL,
             is_big,
+            scale,
         }
     }
 }
@@ -85,10 +93,25 @@ impl Particle for FireParticle {
             gs.fire_small
         };
 
+        let (texture_width, texture_height) = (texture_to_draw.width() * self.scale/2., texture_to_draw.height() * self.scale/2.);
+
         
         let mut color = self.color.get_color();
         color.a = self.ttl as f32 / INITIAL_TTL as f32;
-        draw_texture(texture_to_draw, self.x - texture_to_draw.width()/2., self.y-texture_to_draw.height()/2., color);
+        draw_texture_ex(
+            texture_to_draw,
+            self.x - texture_width/2.,
+            self.y - texture_height/2.,
+            color,
+            DrawTextureParams { 
+                dest_size: Some(Vec2::new(texture_width, texture_height)),
+                source: None,
+                rotation: 0.,
+                flip_x: false,
+                flip_y: false,
+                pivot: None
+            }
+        )
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

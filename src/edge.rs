@@ -19,14 +19,14 @@ impl Edge {
         }
     }
 
-    pub fn interact_trains(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
+    pub fn interact_trains(&mut self, gs: &mut GameSprites, p: &mut ParticleList, scale: f32) {
         if let (Some(t1), Some(t2)) = (self.train_to_a, self.train_to_b) {
             let new_color = Color::mix_many(vec![t1, t2]);
             self.train_to_a = Some(new_color);
             self.train_to_b = Some(new_color);
             gs.play_train_sound(new_color);
             p.push(Box::new(Fire::new(
-                self.position.x, self.position.y, new_color
+                self.position.x, self.position.y, new_color, scale
             )));
         }
     }

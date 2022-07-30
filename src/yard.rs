@@ -99,7 +99,7 @@ impl Yard {
             rect,
         }
     }
-    pub fn new(level_info: &LevelInfo, rect: Rect) -> Yard {
+    pub fn new(level_info: &LevelInfo, rect: Rect, gs: &GameSprites) -> Yard {
         let mut yard = Yard::new_blank(rect);
         for i in 0..level_info.len() {
             let tile = &level_info[i];
@@ -116,7 +116,8 @@ impl Yard {
                         y + (new_h*row as f32),
                         new_w,
                         new_h,
-                    )
+                    ),
+                    gs,
                 )
             }
         }
@@ -169,34 +170,43 @@ impl Yard {
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
             tt.add_connection(conn, gs);
 
-            let center_x = self.rect.x + gs.tracktile_blank.width()/2. + gs.tracktile_blank.width() * c as f32;
-            let center_y = self.rect.y + gs.tracktile_blank.height()/2. + gs.tracktile_blank.height() * r as f32;
+            let tracktile_width = self.rect.w/NUM_COLS as f32;
+            let tracktile_height = self.rect.h/NUM_ROWS as f32;
+
+            let center_x = self.rect.x + tracktile_width/2. + tracktile_width * c as f32;
+            let center_y = self.rect.y + tracktile_height/2. + tracktile_height * r as f32;
+            let scale = tracktile_width / gs.tracktile_blank.width();
+
             if conn.contains(0) {
                 p.push(Box::new(DrawnArrow::new(
                     center_x, 
-                    center_y - gs.tracktile_blank.width()/2., 
+                    center_y - tracktile_height/2., 
                     0,
+                    scale,
                 )));
             }
             if conn.contains(2) {
                 p.push(Box::new(DrawnArrow::new(
                     center_x, 
-                    center_y + gs.tracktile_blank.width()/2., 
+                    center_y + tracktile_height/2., 
                     2,
+                    scale,
                 )));
             }
             if conn.contains(1) {
                 p.push(Box::new(DrawnArrow::new(
-                    center_x + gs.tracktile_blank.width()/2., 
+                    center_x + tracktile_width/2., 
                     center_y,
                     1,
+                    scale,
                 )));
             }
             if conn.contains(3) {
                 p.push(Box::new(DrawnArrow::new(
-                    center_x - gs.tracktile_blank.width()/2., 
+                    center_x - tracktile_width/2., 
                     center_y,
                     3,
+                    scale,
                 )));
             }
 
@@ -218,7 +228,7 @@ impl Yard {
         }
     }
     
-    pub fn reset_self(&mut self) {
+    pub fn reset_self(&mut self, gs: &GameSprites) {
         // used to recover from a crashed state back to a drawing state.
         // also used when the user presses "back to drawing board".
 
@@ -269,7 +279,8 @@ impl Yard {
                         y + (new_h*row as f32),
                         new_w,
                         new_h,
-                    )
+                    ),
+                    gs,
                 )
             }
         }
@@ -280,6 +291,10 @@ impl Yard {
             self.state,
             YardState::Playing {..}
         ));
+
+        let tracktile_width = self.rect.w/NUM_COLS as f32;
+        let tracktile_height = self.rect.h/NUM_ROWS as f32;
+        let scale = tracktile_width / gs.tracktile_blank.width();
 
         // merge all trains that are still in tiles
         for r in 0..NUM_ROWS {
@@ -303,12 +318,12 @@ impl Yard {
         // mix edges
         for r in 0..(NUM_ROWS + 1) {
             for c in 0..NUM_COLS {
-                self.h_edges[r][c].interact_trains(gs, p);
+                self.h_edges[r][c].interact_trains(gs, p, scale);
             }
         }
         for r in 0..NUM_ROWS {
             for c in 0..(NUM_COLS + 1) {
-                self.v_edges[r][c].interact_trains(gs, p);
+                self.v_edges[r][c].interact_trains(gs, p, scale);
             }
         }
 
@@ -318,7 +333,7 @@ impl Yard {
             if let Some(train) = self.h_edges[0][c].train_to_a {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x + gs.tracktile_blank.width() /2. + (gs.tracktile_blank.width() * c as f32),
+                    self.rect.x + tracktile_width /2. + (tracktile_width * c as f32),
                     self.rect.y,
                     train,
                 )));
@@ -327,7 +342,7 @@ impl Yard {
             if let Some(train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
-                    self.rect.x + gs.tracktile_blank.width() /2. + (gs.tracktile_blank.width() * c as f32),
+                    self.rect.x + tracktile_width /2. + (tracktile_width * c as f32),
                     self.rect.y + self.rect.h,
                     train,
                 )));
@@ -339,7 +354,7 @@ impl Yard {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
                     self.rect.x,
-                    self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
+                    self.rect.y + tracktile_height /2. + (tracktile_height * r as f32),
                     train,
                 )));
                 gs.add_sound(Crash);
@@ -348,7 +363,7 @@ impl Yard {
                 self.state = YardState::Crashed;
                 p.push(Box::new(Smoke::new(
                     self.rect.x + self.rect.w,
-                    self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
+                    self.rect.y + tracktile_height /2. + (tracktile_height * r as f32),
                     train,
                 )));
                 gs.add_sound(Crash);

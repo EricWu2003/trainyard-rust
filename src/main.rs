@@ -29,9 +29,9 @@ async fn main() {
 
     let mut gs = GameSprites::new().await;
 
-    let yard_rect = Rect::new(0., 0., 672., 672.);
+    let yard_rect = Rect::new(100., 100., 336., 336.);
    
-    let mut gameplay = Gameplay::new(yard_rect, &level_manager);
+    let mut gameplay = Gameplay::new(yard_rect, &level_manager, &gs);
 
     loop {
         clear_background(LIGHTGRAY);

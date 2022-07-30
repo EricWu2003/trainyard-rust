@@ -31,7 +31,7 @@ pub struct Gameplay {
 }
 
 impl Gameplay {
-    pub fn new(rect: Rect, level_manager: &LevelManager) -> Gameplay {
+    pub fn new(rect: Rect, level_manager: &LevelManager, gs: &GameSprites) -> Gameplay {
         let (x, y) = (rect.x, rect.y + rect.h);
         let ui_rect = Rect::new(x, y, 672., 202.);
         let start_trains_rect =  Rect::new(x + 238., y + 10., 424., 104.);
@@ -50,7 +50,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Round The Twist"), rect),
+            yard: Yard::new(level_manager.get_level("Yield"), rect, gs),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -114,7 +114,7 @@ impl Gameplay {
             if point_in_rect(x, y, self.start_trains_rect){
                 match self.yard.state {
                     YardState::Crashed => {
-                        self.yard.reset_self();
+                        self.yard.reset_self(gs);
                         self.yard.state = YardState::Drawing;
                     },
                     YardState::Drawing => {
@@ -126,7 +126,7 @@ impl Gameplay {
                         };
                     },
                     YardState::Playing {..} => {
-                        self.yard.reset_self();
+                        self.yard.reset_self(gs);
                         self.yard.state = YardState::Drawing;
                     },
                     YardState::Won => {},
@@ -237,6 +237,10 @@ impl Gameplay {
             }
         } else if self.yard.state == YardState::Drawing && self.is_erasing {
             if is_mouse_button_down(MouseButton::Left) && point_in_rect(x, y, self.yard_rect) {
+                let (x, y) = (
+                    x - self.yard_rect.x,
+                    y - self.yard_rect.y,
+                );
                 let (c, r) = ((x / grid_width )as i32, (y / grid_height) as i32);
 
                 self.yard.clear_connections(r as usize, c as usize, gs);

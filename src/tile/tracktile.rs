@@ -24,6 +24,7 @@ pub struct Tracktile {
     passive_connection: Option<Connection>,
     trains: Vec<Train>,
     pub rect: Option<Rect>,
+    scale: f32,
 }
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum ConnectionType {
@@ -59,6 +60,7 @@ impl Tracktile {
             passive_connection,
             trains: Vec::new(),
             rect: None,
+            scale: 1.,
         }
     }
 
@@ -235,6 +237,7 @@ impl Tracktile {
 
     pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         // This function mixes any train colors (happens when trains are halfway through the tile)
+        let scale = self.scale;
         let my_type = self.connection_type();
         if self.trains.len() >= 2 {
             if my_type == ConnectionType::H
@@ -250,7 +253,7 @@ impl Tracktile {
                 gs.play_train_sound(new_color);
                 let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
                 p.push(Box::new(Fire::new(
-                    x, y, new_color
+                    x, y, new_color, scale
                 )));
                 return;
             }
@@ -267,7 +270,7 @@ impl Tracktile {
                     gs.play_train_sound(new_color);
                     let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
                     p.push(Box::new(Fire::new(
-                        x, y, new_color
+                        x, y, new_color, scale
                     )));
 
                 }
@@ -281,7 +284,7 @@ impl Tracktile {
                     gs.play_train_sound(new_color);
                     let (x, y) = get_midpoint_of_conn(self.passive_connection.unwrap(), self.rect.unwrap());
                     p.push(Box::new(Fire::new(
-                        x, y, new_color
+                        x, y, new_color, scale
                     )));
                 }
                 return;
@@ -297,7 +300,7 @@ impl Tracktile {
                     gs.play_train_sound(new_color);
                     let (x, y) = get_midpoint_of_conn(self.active_connection.unwrap(), self.rect.unwrap());
                     p.push(Box::new(Fire::new(
-                        x, y, new_color
+                        x, y, new_color, scale
                     )));
                 }
             }
@@ -339,7 +342,7 @@ impl Tracktile {
                         let dir = self.trains[i1].destination;
                         let (x, y) = direction_midpoint(self.rect.unwrap(), dir);
                         p.push(Box::new(Fire::new(
-                            x, y, new_color
+                            x, y, new_color, self.scale
                         )));
 
                         break 'outer;
@@ -442,8 +445,9 @@ impl Tracktile {
         self.passive_connection = None;
     }
 
-    pub fn set_rect(&mut self, rect: Rect) {
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
         self.rect = Some(rect);
+        self.scale = rect.w / gs.tracktile_blank.width();
     }
 
 

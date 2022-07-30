@@ -171,10 +171,10 @@ impl Tile {
         }
     }
 
-    pub fn set_rect(&mut self, rect:Rect) {
+    pub fn set_rect(&mut self, rect:Rect, gs: &GameSprites) {
         match self {
             Tile::Tracktile(tracktile) => {
-                tracktile.set_rect(rect);
+                tracktile.set_rect(rect, gs);
             }
             Tile::Trainsink(trainsink) => {
                 trainsink.set_rect(rect);

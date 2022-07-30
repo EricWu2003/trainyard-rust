@@ -10,18 +10,22 @@ pub struct DrawnArrow {
     y: f32,
     dir: u8,
     ttl: i32,
+    scale: f32
 }
 
 impl DrawnArrow {
-    pub fn new(x:f32, y:f32, dir:u8) -> DrawnArrow{
-        DrawnArrow {x, y, dir, ttl: INITIAL_TTL}
+    pub fn new(x:f32, y:f32, dir:u8, scale:f32) -> DrawnArrow{
+        DrawnArrow {x, y, dir, ttl: INITIAL_TTL, scale}
     }
 }
 
 impl Particle for DrawnArrow {
     fn render(&self, gs: &GameSprites) {
-        let x = self.x - gs.draw_track_arrow.width()/2.;
-        let y = self.y - gs.draw_track_arrow.height()/2.;
+        let scale = self.scale;
+        let x = self.x - gs.draw_track_arrow.width() * scale /2.;
+        let y = self.y - gs.draw_track_arrow.height() * scale /2.;
+
+        let dest_size = Some(Vec2::new(gs.draw_track_arrow.width() * scale, gs.draw_track_arrow.height() * scale));
 
         draw_texture_ex(
             gs.draw_track_arrow,
@@ -29,7 +33,7 @@ impl Particle for DrawnArrow {
             y,
             WHITE,
             DrawTextureParams { 
-                dest_size: None, 
+                dest_size, 
                 source: None, 
                 rotation: self.dir as f32 * PI/2., 
                 flip_x: false, 
