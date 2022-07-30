@@ -1,6 +1,7 @@
 use macroquad::prelude::*;
 use crate::particle::Particle;
 use crate::GameSprites;
+use std::f32::consts::PI;
 
 pub static INITIAL_TTL: i32 = 10;
 pub static NUM_FRAMES: i32 = 5;
@@ -19,11 +20,25 @@ impl SplitterParticle {
 
 impl Particle for SplitterParticle {
     fn render(&self, gs: &GameSprites) {
-        // let rect = Rect::new((self.ttl * NUM_FRAMES / INITIAL_TTL) * 96, 400, 96, 96);
+        let source_size = gs.splitter_animation.height();
+        let source_rect = Rect::new((self.ttl * NUM_FRAMES / INITIAL_TTL) as f32 * source_size, 0., source_size, source_size);
 
-        // canvas.copy_ex(&gs.atlas, rect, self.bounding_rect,
-        //     90.0 * self.dir as f64, None, false, false)?;
-        println!("TODO: implement SplitterParticle rendering");
+        let dest_size = Vec2::new(self.bounding_rect.w, self.bounding_rect.h);
+
+        draw_texture_ex(
+            gs.splitter_animation,
+            self.bounding_rect.x,
+            self.bounding_rect.y,
+            WHITE,
+            DrawTextureParams { 
+                dest_size: Some(dest_size),
+                source: Some(source_rect),
+                rotation:  PI/2. * self.dir as f32,
+                flip_x: false,
+                flip_y: false,
+                pivot: None
+            }
+        )
 
     }
     fn pass_one_frame(&mut self) {

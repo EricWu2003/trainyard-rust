@@ -53,7 +53,7 @@ impl Color {
     pub fn get_color(&self) -> macroColor {
         match self {
             Color:: Brown => macroColor::new(0.471, 0.333, 0.231, 1.),
-            Color::Blue => macroColor::new(0.557, 0.314, 0.773, 1.),
+            Color::Blue => macroColor::new(0.165, 0.314, 0.773, 1.),
             Color::Red => macroColor::new(0.733, 0.153, 0.122, 1.),
             Color::Yellow => macroColor::new(0.918, 0.918, 0.396, 1.),
             Color::Orange => macroColor::new(0.914, 0.624, 0.220, 1.),

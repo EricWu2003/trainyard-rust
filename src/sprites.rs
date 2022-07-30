@@ -91,6 +91,8 @@ pub struct GameSprites {
     pub fire_small: Texture2D,
     pub star: Texture2D,
     pub star_bright: Texture2D,
+    pub painter_brush_animation: Texture2D,
+    pub splitter_animation: Texture2D,
 
     pub sl: Soloud,
     pub sl_button_press: Wav,
@@ -187,6 +189,8 @@ impl GameSprites {
             fire_small: load_bytes(include_bytes!("../assets/sprites/Fire_small.png")),
             star: load_bytes(include_bytes!("../assets/sprites/Star.png")),
             star_bright: load_bytes(include_bytes!("../assets/sprites/Star_bright.png")),
+            painter_brush_animation: load_bytes(include_bytes!("../assets/sprites/Painter_brush_animation.png")),
+            splitter_animation: load_bytes(include_bytes!("../assets/sprites/Splitter_animation.png")),
 
             sl: Soloud::default().unwrap(),
             sl_button_press,

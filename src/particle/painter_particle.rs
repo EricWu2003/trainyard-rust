@@ -20,7 +20,25 @@ impl PainterParticle {
 
 impl Particle for PainterParticle {
     fn render(&self, gs: &GameSprites) {
-        println!("TODO: render painter particle");
+        let source_size = gs.painter_brush_animation.height();
+        let source_rect = Rect::new((self.ttl * NUM_FRAMES / INITIAL_TTL) as f32 * source_size, 0., source_size, source_size);
+
+        let dest_size = Vec2::new(self.bounding_rect.w, self.bounding_rect.h);
+
+        draw_texture_ex(
+            gs.painter_brush_animation,
+            self.bounding_rect.x,
+            self.bounding_rect.y,
+            self.color.get_color(),
+            DrawTextureParams { 
+                dest_size: Some(dest_size),
+                source: Some(source_rect),
+                rotation: 0.,
+                flip_x: false,
+                flip_y: false,
+                pivot: None
+            }
+        )
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;
