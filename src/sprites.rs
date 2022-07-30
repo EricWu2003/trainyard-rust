@@ -4,6 +4,55 @@ use crate::color::Color;
 use soloud::{AudioExt, LoadExt, Soloud};
 use soloud::audio::Wav;
 
+use std::collections::HashMap;
+use strum::IntoEnumIterator;
+use strum_macros::EnumIter;
+
+
+// The purpose of this module is to manage which sounds need to get played when a yard is in the Playing state.
+// For example, if 4 yellow trains enter 4 different sinks at the same time, we only need to play the sound effect once.
+// This prevents lag.
+#[derive(PartialEq, Eq, Hash, EnumIter)]
+pub enum SoundType {
+    ButtonPress,
+    TrainBrown,
+    TrainYellow,
+    TrainRed,
+    TrainBlue,
+    TrainPurple,
+    TrainOrange,
+    TrainGreen,
+    Splitter,
+    Painter,
+    DrawTrack,
+    SwitchTrack,
+    EraseTrack,
+    Crash,
+    WinLevel,
+}
+
+impl SoundType {
+    pub fn get_sl_sound<'a> (&'a self, gs: &'a GameSprites) -> &Wav {
+        match self {
+            Self:: ButtonPress => &gs.sl_button_press,
+            Self::TrainBrown => &gs.sl_train_brown,
+            Self::TrainYellow => &gs.sl_train_yellow,
+            Self::TrainRed => &gs.sl_train_red,
+            Self::TrainBlue => &gs.sl_train_blue,
+            Self::TrainPurple => &gs.sl_train_purple,
+            Self::TrainOrange => &gs.sl_train_orange,
+            Self::TrainGreen => &gs.sl_train_green,
+            Self::Splitter => &gs.sl_splitter,
+            Self::Painter => &gs.sl_painter,
+            Self::DrawTrack => &gs.sl_draw_track,
+            Self::SwitchTrack => &gs.sl_switch_track,
+            Self::EraseTrack => &gs.sl_erase_track,
+            Self::Crash => &gs.sl_crash,
+            Self::WinLevel => &gs.sl_win_level,
+        }
+    }
+}
+
 
 pub struct GameSprites {
     // pub atlas: Texture2D,
@@ -59,6 +108,8 @@ pub struct GameSprites {
     pub sl_erase_track: Wav,
     pub sl_crash: Wav,
     pub sl_win_level: Wav,
+
+    pub sounds_to_play: HashMap<SoundType, bool>,
 }
 
 fn load_bytes( data: &[u8]) -> Texture2D {
@@ -153,6 +204,8 @@ impl GameSprites {
             sl_erase_track,
             sl_crash,
             sl_win_level,
+
+            sounds_to_play: HashMap::new(),
         }
     }
 
@@ -174,15 +227,28 @@ impl GameSprites {
     //     self.atlas_color.set_alpha_mod(alpha);
     // }
 
-    pub fn play_train_sound(&self, color:Color) {
+    pub fn play_train_sound(&mut self, color:Color) {
         match color {
-            Color::Brown => self.sl.play(&self.sl_train_brown),
-            Color::Yellow => self.sl.play(&self.sl_train_yellow),
-            Color::Blue => self.sl.play(&self.sl_train_blue),
-            Color::Red => self.sl.play(&self.sl_train_red),
-            Color::Orange => self.sl.play(&self.sl_train_orange),
-            Color::Green => self.sl.play(&self.sl_train_green),
-            Color::Purple => self.sl.play(&self.sl_train_purple),
+            Color::Brown => self.add_sound(SoundType::TrainBrown),
+            Color::Yellow => self.add_sound(SoundType::TrainYellow),
+            Color::Blue => self.add_sound(SoundType::TrainBlue),
+            Color::Red => self.add_sound(SoundType::TrainRed),
+            Color::Orange => self.add_sound(SoundType::TrainOrange),
+            Color::Green => self.add_sound(SoundType::TrainGreen),
+            Color::Purple => self.add_sound(SoundType::TrainPurple),
         };
+    }
+
+    pub fn add_sound(&mut self, sound: SoundType) {
+        self.sounds_to_play.insert(sound, true);
+    }
+
+    pub fn play_sounds(&mut self) {
+        for sound in SoundType::iter() {
+            if *self.sounds_to_play.get(&sound).unwrap_or(&false) {
+                self.sl.play(sound.get_sl_sound(self));
+            }
+            self.sounds_to_play.insert(sound, false);
+        }
     }
 }

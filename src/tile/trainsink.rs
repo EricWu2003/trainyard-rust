@@ -63,7 +63,7 @@ impl Trainsink {
         border_state
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         // when processing the tick, we update our public desires
         // this happens when the trains reach the center of the trainsink
         for index in 0..self.desires.len() {

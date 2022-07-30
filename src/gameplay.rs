@@ -6,6 +6,7 @@ use crate::particle::ParticleList;
 use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
 use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
+use crate::sprites::SoundType::ButtonPress;
 use crate::utils::{point_in_rect, draw_texture_to_rect, find_min_f32};
 
 const MAX_SPEED:f32 = 0.17;
@@ -92,7 +93,7 @@ impl Gameplay {
         draw_texture_to_rect(gs.btn_speed, self.speed_slider_rect);
     }
 
-    pub fn update(&mut self, gs: &GameSprites) -> bool {
+    pub fn update(&mut self, gs: &mut GameSprites) -> bool {
         // returns true if we need to end the program (break out of the main loop)
         let grid_width = self.yard_rect.w / NUM_COLS as f32;
         let grid_height = self.yard_rect.h / NUM_ROWS as f32;
@@ -130,12 +131,12 @@ impl Gameplay {
                     },
                     YardState::Won => {},
                 }
-                gs.sl.play(&gs.sl_button_press);
+                gs.add_sound(ButtonPress);
             } else if point_in_rect(x, y, self.erase_rect) {
                 match self.yard.state {
                     YardState::Drawing => {
                         self.is_erasing = !self.is_erasing;
-                        gs.sl.play(&gs.sl_button_press);
+                        gs.add_sound(ButtonPress);
                     },
                     _ => {},
                 }

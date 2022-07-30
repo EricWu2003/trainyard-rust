@@ -6,6 +6,7 @@ use crate::particle::ParticleList;
 use crate::particle::drawn_arrow::DrawnArrow;
 use crate::particle::smoke::Smoke;
 use crate::sprites::GameSprites;
+use crate::sprites::SoundType::{EraseTrack, Crash, WinLevel};
 use crate::tile::tracktile::ConnectionType;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::BorderState;
@@ -123,10 +124,10 @@ impl Yard {
         yard
     }
 
-    pub fn clear_connections (&mut self, r: usize, c: usize, gs:&GameSprites) {
+    pub fn clear_connections (&mut self, r: usize, c: usize, gs:&mut GameSprites) {
         if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
             if tracktile.connection_type() != ConnectionType::None {
-                gs.sl.play(&gs.sl_erase_track);
+                gs.add_sound(EraseTrack);
             }
             tracktile.clear_connections();
         }
@@ -162,7 +163,7 @@ impl Yard {
         std::io::stdout().flush().unwrap();
     }
 
-    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn add_connection(&mut self, r: usize, c: usize, conn: Connection, gs: &mut GameSprites, p: &mut ParticleList) {
         // we only allow a yard to add_connection during the drawing state.
         assert!(matches!(self.state, YardState::Drawing));
         if let Tile::Tracktile(tt) = &mut self.tiles[r][c] {
@@ -205,7 +206,7 @@ impl Yard {
         }
     }
 
-    pub fn switch_connections(&mut self, r:usize, c:usize, gs: &GameSprites) {
+    pub fn switch_connections(&mut self, r:usize, c:usize, gs: &mut GameSprites) {
         // we only allow a yard to manually switch connections during the drawing state.
         // during a playing state each tracktile is responsible for switching itself.
         assert!(matches!(self.state, YardState::Drawing));
@@ -274,7 +275,7 @@ impl Yard {
         }
     }
 
-    pub fn process_edges(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_edges(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         assert!(matches!(
             self.state,
             YardState::Playing {..}
@@ -321,7 +322,7 @@ impl Yard {
                     self.rect.y,
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                gs.add_sound(Crash);
             }
             if let Some(train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
@@ -330,7 +331,7 @@ impl Yard {
                     self.rect.y + self.rect.h,
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                gs.add_sound(Crash);
             }
         }
         for r in 0..NUM_ROWS {
@@ -341,7 +342,7 @@ impl Yard {
                     self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                gs.add_sound(Crash);
             }
             if let Some(train) = self.v_edges[r][NUM_COLS].train_to_b {
                 self.state = YardState::Crashed;
@@ -350,7 +351,7 @@ impl Yard {
                     self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                gs.sl.play(&gs.sl_crash);
+                gs.add_sound(Crash);
             }
         }
 
@@ -367,7 +368,7 @@ impl Yard {
                 let not_crashed = self.tiles[r][c].accept_trains(border_state, p);
                 if !not_crashed {
                     self.state = YardState::Crashed;
-                    gs.sl.play(&gs.sl_crash);
+                    gs.add_sound(Crash);
                 }
             }
         }
@@ -375,7 +376,7 @@ impl Yard {
         
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         assert!(matches!(
             self.state,
             YardState::Playing {..}
@@ -391,11 +392,11 @@ impl Yard {
 
         if self.has_won() {
             self.state = YardState::Won;
-            gs.sl.play(&gs.sl_win_level);
+            gs.add_sound(WinLevel);
         }
     }
 
-    pub fn update(&mut self, speed: f32, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn update(&mut self, speed: f32, gs: &mut GameSprites, p: &mut ParticleList) {
         if let YardState::Playing {
             mut num_ticks_elapsed,
             mut progress,

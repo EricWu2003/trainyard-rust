@@ -27,7 +27,7 @@ fn window_conf() -> Conf {
 async fn main() {
     let level_manager = LevelManager::new();
 
-    let gs = GameSprites::new().await;
+    let mut gs = GameSprites::new().await;
 
     let yard_rect = Rect::new(0., 0., 672., 672.);
    
@@ -35,9 +35,10 @@ async fn main() {
 
     loop {
         clear_background(LIGHTGRAY);
-        if gameplay.update(&gs) {
+        if gameplay.update(&mut gs) {
             break;
         }
+        gs.play_sounds();
         gameplay.render(&gs);
 
         next_frame().await;

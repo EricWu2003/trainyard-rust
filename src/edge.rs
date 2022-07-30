@@ -19,7 +19,7 @@ impl Edge {
         }
     }
 
-    pub fn interact_trains(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn interact_trains(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         if let (Some(t1), Some(t2)) = (self.train_to_a, self.train_to_b) {
             let new_color = Color::mix_many(vec![t1, t2]);
             self.train_to_a = Some(new_color);

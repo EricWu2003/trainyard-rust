@@ -2,6 +2,7 @@ use macroquad::prelude::*;
 use crate::color::Color;
 use crate::tile::BorderState;
 use crate::sprites::GameSprites;
+use crate::sprites::SoundType;
 use crate::particle::ParticleList;
 use crate::particle::splitter_particle::SplitterParticle;
 
@@ -51,7 +52,7 @@ impl Splitter {
         border_state
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         if let Some(color) = self.incoming_train {
             self.incoming_train = None;
             match color {
@@ -76,7 +77,7 @@ impl Splitter {
                 self.rect.unwrap(),
                 self.incoming_dir,
             )));
-            gs.sl.play(&gs.sl_splitter);
+            gs.add_sound(SoundType::Splitter);
         }
     }
 

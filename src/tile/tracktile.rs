@@ -8,6 +8,7 @@ use crate::particle::fire::Fire;
 use crate::tile::BorderState;
 use crate::utils::direction_midpoint;
 use crate::sprites::GameSprites;
+use crate::sprites::SoundType;
 
 // used for storing a train in a Tracktile
 #[derive(Debug, Clone, Copy)]
@@ -74,7 +75,7 @@ impl Tracktile {
         }
         false
     }
-    pub fn switch_active_passive(&mut self, gs: &GameSprites) {
+    pub fn switch_active_passive(&mut self, gs: &mut GameSprites) {
         // this function is called whenever an odd number of trains rolls through a tracktile
         // or when a user double clicks a tile when drawing
         // if there is no passive connection, then we do nothing
@@ -83,7 +84,7 @@ impl Tracktile {
             let temp = self.passive_connection;
             self.passive_connection = self.active_connection;
             self.active_connection = temp;
-            gs.sl.play(&gs.sl_switch_track);
+            gs.add_sound(SoundType::SwitchTrack);
         }
     }
 
@@ -232,7 +233,7 @@ impl Tracktile {
         unreachable!()
     }
 
-    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         // This function mixes any train colors (happens when trains are halfway through the tile)
         let my_type = self.connection_type();
         if self.trains.len() >= 2 {
@@ -303,7 +304,7 @@ impl Tracktile {
         }
     }
 
-    pub fn interact_trains(&mut self, gs:&GameSprites, p: &mut ParticleList) {
+    pub fn interact_trains(&mut self, gs:&mut GameSprites, p: &mut ParticleList) {
         // This function merges trains (happens at the moment trains are exiting the tile)
         let my_type = self.connection_type();
 
@@ -423,13 +424,13 @@ impl Tracktile {
         res
     }
 
-    pub fn add_connection(&mut self, conn: Connection, gs: &GameSprites) {
+    pub fn add_connection(&mut self, conn: Connection, gs: &mut GameSprites) {
         self.passive_connection = self.active_connection;
         self.active_connection = Some(conn);
         if self.active_connection == self.passive_connection {
             self.passive_connection = None;
         }
-        gs.sl.play(&gs.sl_draw_track);
+        gs.add_sound(SoundType::DrawTrack);
     }
 
     pub fn clear_trains(&mut self) {

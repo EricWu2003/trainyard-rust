@@ -5,6 +5,7 @@ use crate::connection::Connection;
 use crate::tile::BorderState;
 
 use crate::sprites::GameSprites;
+use crate::sprites::SoundType;
 use crate::particle::ParticleList;
 use crate::particle::painter_particle::PainterParticle;
 
@@ -56,14 +57,14 @@ impl Painter {
         }
         border_state
     }
-    pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
+    pub fn process_tick(&mut self, gs: &mut GameSprites, p: &mut ParticleList) {
         if self.train_to_dir1.is_some() {
             self.train_to_dir1 = Some(self.color);
-            gs.sl.play(&gs.sl_painter);
+            gs.add_sound(SoundType::Painter);
         }
         if self.train_to_dir2.is_some() {
             self.train_to_dir2 = Some(self.color);
-            gs.sl.play(&gs.sl_painter);
+            gs.add_sound(SoundType::Painter);
         }
         if self.train_to_dir1.is_some() || self.train_to_dir2.is_some() {
             p.push(Box::new(PainterParticle::new(
