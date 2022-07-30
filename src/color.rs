@@ -1,3 +1,5 @@
+use macroquad::color::Color as macroColor;
+
 #[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum Color {
     Brown,
@@ -45,6 +47,18 @@ impl Color {
                 }
                 trains[0]
             }
+        }
+    }
+
+    pub fn get_color(&self) -> macroColor {
+        match self {
+            Color:: Brown => macroColor::new(0.471, 0.333, 0.231, 1.),
+            Color::Blue => macroColor::new(0.557, 0.314, 0.773, 1.),
+            Color::Red => macroColor::new(0.733, 0.153, 0.122, 1.),
+            Color::Yellow => macroColor::new(0.918, 0.918, 0.396, 1.),
+            Color::Orange => macroColor::new(0.914, 0.624, 0.220, 1.),
+            Color::Green => macroColor::new(0.376, 0.788, 0.231, 1.),
+            Color::Purple => macroColor::new(0.631, 0.125, 0.773, 1.),
         }
     }
 }

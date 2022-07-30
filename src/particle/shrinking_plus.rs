@@ -26,9 +26,7 @@ impl Particle for ShrinkingPlus {
         let new_h: f32 = self.bounding_rect.h * scale;
         let new_w: f32 = self.bounding_rect.w * scale;
 
-        // gs.set_color(self.color);
-        // canvas.copy(&gs.atlas_color, gs.circle, Rect::new(new_x, new_y, new_w, new_h))?;
-        draw_texture_ex(gs.plus_sign, new_x, new_y, WHITE, 
+        draw_texture_ex(gs.plus_sign, new_x, new_y, self.color.get_color(), 
             DrawTextureParams { 
                 dest_size: Some(Vec2::new(new_w, new_h)),
                 source: None,

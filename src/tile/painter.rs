@@ -86,7 +86,6 @@ impl Painter {
         if progress <= 1.0 {
             // render the incoming trains
             if let Some(color) = self.train_to_dir2 {
-                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
@@ -111,12 +110,11 @@ impl Painter {
                     gs.train,
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
-                    WHITE,
+                    color.get_color(),
                     DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
             if let Some(color) = self.train_to_dir1 {
-                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
@@ -141,7 +139,7 @@ impl Painter {
                     gs.train,
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
-                    WHITE,
+                    color.get_color(),
                     DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
@@ -150,7 +148,6 @@ impl Painter {
 
 
             if let Some(color) = self.train_to_dir1 {
-                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
@@ -175,12 +172,11 @@ impl Painter {
                     gs.train,
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
-                    WHITE,
+                    color.get_color(),
                     DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
             if let Some(color) = self.train_to_dir2 {
-                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
@@ -205,7 +201,7 @@ impl Painter {
                     gs.train,
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
-                    WHITE,
+                    color.get_color(),
                     DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }

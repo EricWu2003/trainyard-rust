@@ -106,7 +106,6 @@ impl Trainsource {
         if let Some(color) = self.outgoing_train {
             let train_width = rect.w * (32.0 / 96.0);
             let train_height = rect.h * (57.0 / 96.0);
-            // gs.set_color(color);
             let train_center_x;
             let train_center_y;
             let rot;
@@ -133,7 +132,7 @@ impl Trainsource {
                 gs.train,
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
-                WHITE,
+                color.get_color(),
                 DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
 

@@ -20,7 +20,7 @@ impl PainterParticle {
 
 impl Particle for PainterParticle {
     fn render(&self, gs: &GameSprites) {
-        println!("TODO: render printer particle");
+        println!("TODO: render painter particle");
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

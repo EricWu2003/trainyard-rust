@@ -25,8 +25,6 @@ impl Edge {
             self.train_to_a = Some(new_color);
             self.train_to_b = Some(new_color);
             gs.play_train_sound(new_color);
-            println!("mixing colors");
-            println!("{}, {}", self.position.x, self.position.y);
             p.push(Box::new(Fire::new(
                 self.position.x, self.position.y, new_color
             )));

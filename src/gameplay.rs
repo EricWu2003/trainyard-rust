@@ -50,7 +50,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Yield"), rect),
+            yard: Yard::new(level_manager.get_level("Let Them Yellow"), rect),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -203,7 +203,7 @@ impl Gameplay {
                     grid_height - dist_to_up,
                     dist_to_left,
                 ];
-                // TODO: figure out how to find the min here:
+
                 let min_dist: f32 = find_min_f32(&distances);
                 let mut min_dir = distances.iter().position(|&x| x == min_dist).unwrap() as i32;
                 if min_dist > grid_width / 4. {

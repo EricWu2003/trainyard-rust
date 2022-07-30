@@ -149,7 +149,6 @@ impl Trainsink {
 
         for i in 0..4 {
             if let Some(color) = self.incoming_trains[i] {
-                // gs.set_color(color);
                 let train_center_x;
                 let train_center_y;
                 let rot;
@@ -174,7 +173,7 @@ impl Trainsink {
                     gs.train, 
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
-                    WHITE,
+                    color.get_color(),
                     DrawTextureParams {
                         dest_size: None,
                         source: None,

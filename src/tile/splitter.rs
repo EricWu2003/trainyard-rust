@@ -94,7 +94,6 @@ impl Splitter {
         let outgoing_right_dir = (self.incoming_dir + 3) % 4;
 
         if let Some(color) = self.incoming_train {
-            // gs.set_color(color);
             let train_center_x;
             let train_center_y;
             let rot;
@@ -119,12 +118,11 @@ impl Splitter {
                 gs.train,
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
-                WHITE,
+                color.get_color(),
                 DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }
         if let Some(color) = self.train_going_left {
-            // gs.set_color(color);
             let train_center_x;
             let train_center_y;
             let rot;
@@ -149,13 +147,12 @@ impl Splitter {
                 gs.train,
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
-                WHITE,
+                color.get_color(),
                 DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }
 
         if let Some(color) = self.train_going_right {
-            // gs.set_color(color);
             let train_center_x;
             let train_center_y;
             let rot;
@@ -180,7 +177,7 @@ impl Splitter {
                 gs.train,
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
-                WHITE,
+                color.get_color(),
                 DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }

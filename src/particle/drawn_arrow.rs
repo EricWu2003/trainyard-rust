@@ -22,8 +22,6 @@ impl Particle for DrawnArrow {
     fn render(&self, gs: &GameSprites) {
         let x = self.x - gs.draw_track_arrow.width()/2.;
         let y = self.y - gs.draw_track_arrow.height()/2.;
-        let w = gs.draw_track_arrow.width();
-        let h = gs.draw_track_arrow.height();
 
         draw_texture_ex(
             gs.draw_track_arrow,

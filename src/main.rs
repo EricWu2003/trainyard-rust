@@ -13,7 +13,17 @@ use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
 use macroquad::prelude::*;
 
-#[macroquad::main("Trainyard")]
+
+fn window_conf() -> Conf {
+    Conf {
+        window_title: "Trainyard".to_owned(),
+        window_height: 900,
+        window_width: 700,
+        ..Default::default()
+    }
+}
+
+#[macroquad::main(window_conf)]
 async fn main() {
     let level_manager = LevelManager::new();
 

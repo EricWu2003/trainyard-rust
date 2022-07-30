@@ -453,8 +453,6 @@ impl Tracktile {
         let rect = self.rect.unwrap();
 
         for train in &self.trains {
-            // gs.set_color(train.color);
-
             let mut train_center_x = rect.x;
             let mut train_center_y = rect.y;
             let mut rot = 0.0;
@@ -524,16 +522,11 @@ impl Tracktile {
                 rot = 3. * PI/2. + PI/2. *progress/2.0;
             }
 
-
-
-            let train_rect = Rect::new(train_center_x - (train_width/2.), train_center_y - (train_height/2.), train_width, train_height);
-            
-            
             draw_texture_ex(
                 gs.train,
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
-                WHITE,
+                train.color.get_color(),
                 DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
              );
         }

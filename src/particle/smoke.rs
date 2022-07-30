@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 use crate::particle::Particle;
 use crate::GameSprites;
-use crate::utils::centered_rect;
 use crate::color::Color;
 use macroquad::rand::gen_range;
 
@@ -71,9 +70,9 @@ impl SmokeParticle {
 impl Particle for SmokeParticle {
     fn render(&self, gs: &GameSprites) {
 
-        // gs.set_color(self.color);
-        // gs.set_alpha((self.ttl * 255 / INITIAL_TTL) as u8);
-        draw_texture(gs.smoke, self.x, self.y, WHITE);
+        let mut color = self.color.get_color();
+        color.a = self.ttl as f32 / INITIAL_TTL as f32;
+        draw_texture(gs.smoke, self.x - gs.smoke.width()/2., self.y - gs.smoke.height()/2., color);
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

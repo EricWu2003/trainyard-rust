@@ -715,13 +715,6 @@ impl Yard {
         //render all trains on tracktiles
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
-                let rect = Rect::new(
-                    x0 + c as f32 * block_width,
-                    y0 + r as f32 * block_height,
-                    block_width,
-                    block_height,
-                );
-
                 self.tiles[r][c].render_trains(gs, current_progress);
             }
         }
@@ -752,14 +745,13 @@ impl Yard {
                         );
                         for i in 0..trainsource.trains.len() {
                             if let Some(color) = trainsource.trains[i] {
-                                // gs.set_color(color);
                                 let (x_pos, y_pos) = (trainsource.icon_rects[i].x, trainsource.icon_rects[i].y);
                                 let dest_size = Some(Vec2::new(trainsource.icon_rects[i].w, trainsource.icon_rects[i].h));
                                 draw_texture_ex(
                                     gs.plus_sign, 
                                     x_pos,
                                     y_pos,
-                                    WHITE,
+                                    color.get_color(),
                                     DrawTextureParams { 
                                         dest_size,
                                         source: None,
@@ -790,14 +782,13 @@ impl Yard {
                             );
                             for i in 0..trainsink.desires.len() {
                                 if let Some(color) = trainsink.desires[i] {
-                                    // gs.set_color(color);
                                     let (x_pos, y_pos) = (trainsink.icon_rects[i].x, trainsink.icon_rects[i].y);
                                     let dest_size = Some(Vec2::new(trainsink.icon_rects[i].w, trainsink.icon_rects[i].h));
                                     draw_texture_ex(
                                         gs.circle, 
                                         x_pos,
                                         y_pos,
-                                        WHITE,
+                                        color.get_color(),
                                         DrawTextureParams { 
                                             dest_size,
                                             source: None,
@@ -842,12 +833,11 @@ impl Yard {
                                 pivot: None,
                             }
                         );
-                        // gs.set_color(painter.color);
                         draw_texture_ex(
                             gs.painter_brush, 
                             x_pos,
                             y_pos,
-                            WHITE,
+                            painter.color.get_color(),
                             DrawTextureParams { 
                                 dest_size,
                                 source: None,

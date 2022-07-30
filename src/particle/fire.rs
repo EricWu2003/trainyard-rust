@@ -1,7 +1,6 @@
 use macroquad::prelude::*;
 use crate::particle::Particle;
 use crate::GameSprites;
-use crate::utils::centered_rect;
 use crate::color::Color;
 use macroquad::rand::gen_range;
 
@@ -86,10 +85,10 @@ impl Particle for FireParticle {
             gs.fire_small
         };
 
-        // gs.set_color(self.color);
-        // gs.set_alpha((self.ttl * 255 / INITIAL_TTL) as u8);
-        draw_texture(texture_to_draw, self.x, self.y, WHITE);
-        // gs.set_alpha(255);
+        
+        let mut color = self.color.get_color();
+        color.a = self.ttl as f32 / INITIAL_TTL as f32;
+        draw_texture(texture_to_draw, self.x - texture_to_draw.width()/2., self.y-texture_to_draw.height()/2., color);
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;
