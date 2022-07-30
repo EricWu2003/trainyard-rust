@@ -1,17 +1,13 @@
 use macroquad::prelude::*;
-use macroquad::audio::Sound;
-use macroquad::audio::load_sound_from_bytes as load_sound;
-use macroquad::audio::play_sound_once;
 use crate::color::Color;
 
-// use soloud::{AudioExt, LoadExt, Soloud};
-// use soloud::audio::Wav;
+use soloud::{AudioExt, LoadExt, Soloud};
+use soloud::audio::Wav;
 
 
 pub struct GameSprites {
     // pub atlas: Texture2D,
     // pub atlas_color: Texture2D,
-
     pub tracktile_blank: Texture2D,
     pub tracktile_b: Texture2D,
     pub tracktile_h: Texture2D,
@@ -47,21 +43,22 @@ pub struct GameSprites {
     pub star: Texture2D,
     pub star_bright: Texture2D,
 
-    pub sl_button_press: Sound,
-    pub sl_train_brown: Sound,
-    pub sl_train_yellow: Sound,
-    pub sl_train_red: Sound,
-    pub sl_train_blue: Sound,
-    pub sl_train_purple: Sound,
-    pub sl_train_orange: Sound,
-    pub sl_train_green: Sound,
-    pub sl_splitter: Sound,
-    pub sl_painter: Sound,
-    pub sl_draw_track: Sound,
-    pub sl_switch_track: Sound,
-    pub sl_erase_track: Sound,
-    pub sl_crash: Sound,
-    pub sl_win_level: Sound,
+    pub sl: Soloud,
+    pub sl_button_press: Wav,
+    pub sl_train_brown: Wav,
+    pub sl_train_yellow: Wav,
+    pub sl_train_red: Wav,
+    pub sl_train_blue: Wav,
+    pub sl_train_purple: Wav,
+    pub sl_train_orange: Wav,
+    pub sl_train_green: Wav,
+    pub sl_splitter: Wav,
+    pub sl_painter: Wav,
+    pub sl_draw_track: Wav,
+    pub sl_switch_track: Wav,
+    pub sl_erase_track: Wav,
+    pub sl_crash: Wav,
+    pub sl_win_level: Wav,
 }
 
 fn load_bytes( data: &[u8]) -> Texture2D {
@@ -70,44 +67,41 @@ fn load_bytes( data: &[u8]) -> Texture2D {
 
 impl GameSprites {
     pub async fn new() -> GameSprites {
-        let sl_button_press = 
-            load_sound(include_bytes!("../assets/audio/button_press.ogg")).await.unwrap();
-        let sl_train_brown = 
-            load_sound(include_bytes!("../assets/audio/train_brown.ogg")).await.unwrap();
-        let sl_train_yellow = 
-            load_sound(include_bytes!("../assets/audio/train_yellow.ogg")).await.unwrap();
-        let sl_train_red = 
-            load_sound(include_bytes!("../assets/audio/train_red.ogg")).await.unwrap();
-        let sl_train_blue = 
-            load_sound(include_bytes!("../assets/audio/train_blue.ogg")).await.unwrap();
-        let sl_train_purple = 
-            load_sound(include_bytes!("../assets/audio/train_purple.ogg")).await.unwrap();
-        let sl_train_orange = 
-            load_sound(include_bytes!("../assets/audio/train_orange.ogg")).await.unwrap();
-        let sl_train_green = 
-            load_sound(include_bytes!("../assets/audio/train_green.ogg")).await.unwrap();
-        let sl_splitter = 
-            load_sound(include_bytes!("../assets/audio/splitter.ogg")).await.unwrap();
-        let sl_painter = 
-            load_sound(include_bytes!("../assets/audio/painter.ogg")).await.unwrap();
-        let sl_draw_track = 
-            load_sound(include_bytes!("../assets/audio/draw_track.ogg")).await.unwrap();
-        let sl_switch_track = 
-            load_sound(include_bytes!("../assets/audio/switch_track.ogg")).await.unwrap();
-        let sl_erase_track = 
-            load_sound(include_bytes!("../assets/audio/erase_track.ogg")).await.unwrap();
-        let sl_crash = 
-            load_sound(include_bytes!("../assets/audio/crash.ogg")).await.unwrap();
-        let sl_win_level = 
-            load_sound(include_bytes!("../assets/audio/win_level.ogg")).await.unwrap();
+        let mut sl_button_press = Wav::default();
+        sl_button_press.load_mem(include_bytes!("../assets/audio/button_press.ogg")).unwrap();
+        let mut sl_train_brown = Wav::default();
+        sl_train_brown.load_mem(include_bytes!("../assets/audio/train_brown.ogg")).unwrap();
+        let mut sl_train_yellow = Wav::default();
+        sl_train_yellow.load_mem(include_bytes!("../assets/audio/train_yellow.ogg")).unwrap();
+        let mut sl_train_red = Wav::default();
+        sl_train_red.load_mem(include_bytes!("../assets/audio/train_red.ogg")).unwrap();
+        let mut sl_train_blue = Wav::default();
+        sl_train_blue.load_mem(include_bytes!("../assets/audio/train_blue.ogg")).unwrap();
+        let mut sl_train_purple = Wav::default();
+        sl_train_purple.load_mem(include_bytes!("../assets/audio/train_purple.ogg")).unwrap();
+        let mut sl_train_orange = Wav::default();
+        sl_train_orange.load_mem(include_bytes!("../assets/audio/train_orange.ogg")).unwrap();
+        let mut sl_train_green = Wav::default();
+        sl_train_green.load_mem(include_bytes!("../assets/audio/train_green.ogg")).unwrap();
+        let mut sl_splitter = Wav::default();
+        sl_splitter.load_mem(include_bytes!("../assets/audio/splitter.ogg")).unwrap();
+        let mut sl_painter = Wav::default();
+        sl_painter.load_mem(include_bytes!("../assets/audio/painter.ogg")).unwrap();
+        let mut sl_draw_track = Wav::default();
+        sl_draw_track.load_mem(include_bytes!("../assets/audio/draw_track.ogg")).unwrap();
+        let mut sl_switch_track = Wav::default();
+        sl_switch_track.load_mem(include_bytes!("../assets/audio/switch_track.ogg")).unwrap();
+        let mut sl_erase_track = Wav::default();
+        sl_erase_track.load_mem(include_bytes!("../assets/audio/erase_track.ogg")).unwrap();
+        let mut sl_crash = Wav::default();
+        sl_crash.load_mem(include_bytes!("../assets/audio/crash.ogg")).unwrap();
+        let mut sl_win_level = Wav::default();
+        sl_win_level.load_mem(include_bytes!("../assets/audio/win_level.ogg")).unwrap();
 
 
         GameSprites {
             // atlas: load_bytes(include_bytes!("../assets/atlas.png")),
             // atlas_color: load_bytes(include_bytes!("../assets/atlas.png")),
-            
-            
-            
             tracktile_blank: load_bytes(include_bytes!("../assets/sprites/Tracktile_blank.png")),
             tracktile_b: load_bytes(include_bytes!("../assets/sprites/Tracktile_b.png")),
             tracktile_h: load_bytes(include_bytes!("../assets/sprites/Tracktile_h.png")),
@@ -128,8 +122,6 @@ impl GameSprites {
             splitter_bg: load_bytes(include_bytes!("../assets/sprites/Splitter_bg.png")),
             splitter: load_bytes(include_bytes!("../assets/sprites/Splitter.png")),
             sink_satisfied: load_bytes(include_bytes!("../assets/sprites/Sink_satisfied.png")),
-
-
             btn_back_to_drawing: load_bytes(include_bytes!("../assets/sprites/Btn_back_to_drawing.png")),
             btn_erase: load_bytes(include_bytes!("../assets/sprites/Btn_erase.png")),
             btn_speed: load_bytes(include_bytes!("../assets/sprites/Btn_speed.png")),
@@ -144,6 +136,8 @@ impl GameSprites {
             fire_small: load_bytes(include_bytes!("../assets/sprites/Fire_small.png")),
             star: load_bytes(include_bytes!("../assets/sprites/Star.png")),
             star_bright: load_bytes(include_bytes!("../assets/sprites/Star_bright.png")),
+
+            sl: Soloud::default().unwrap(),
             sl_button_press,
             sl_train_brown,
             sl_train_yellow,
@@ -182,13 +176,13 @@ impl GameSprites {
 
     pub fn play_train_sound(&self, color:Color) {
         match color {
-            Color::Brown => play_sound_once(self.sl_train_brown),
-            Color::Yellow => play_sound_once(self.sl_train_yellow),
-            Color::Blue => play_sound_once(self.sl_train_blue),
-            Color::Red => play_sound_once(self.sl_train_red),
-            Color::Orange => play_sound_once(self.sl_train_orange),
-            Color::Green => play_sound_once(self.sl_train_green),
-            Color::Purple => play_sound_once(self.sl_train_purple),
+            Color::Brown => self.sl.play(&self.sl_train_brown),
+            Color::Yellow => self.sl.play(&self.sl_train_yellow),
+            Color::Blue => self.sl.play(&self.sl_train_blue),
+            Color::Red => self.sl.play(&self.sl_train_red),
+            Color::Orange => self.sl.play(&self.sl_train_orange),
+            Color::Green => self.sl.play(&self.sl_train_green),
+            Color::Purple => self.sl.play(&self.sl_train_purple),
         };
     }
 }

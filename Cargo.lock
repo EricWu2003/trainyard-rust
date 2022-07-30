@@ -63,10 +63,25 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
+name = "cc"
+version = "1.0.73"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2fff2a6927b3bb87f9595d67196a70493f627687a71d87a0d692242c33f58c11"
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
+
+[[package]]
+name = "cmake"
+version = "0.1.48"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e8ad8cef104ac57b68b89df3208164d228503abbdce70f6880ffa3d970e7443a"
+dependencies = [
+ "cc",
+]
 
 [[package]]
 name = "color_quant"
@@ -306,6 +321,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "paste"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0c520e05135d6e763148b6426a837e239041653ba7becd2e538c076c738025fc"
+
+[[package]]
 name = "png"
 version = "0.16.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -391,11 +412,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "soloud"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "68b27367e7bceeceb167477f3d0dc633bb822327b44dceb59d5814ee7788f9a3"
+dependencies = [
+ "bitflags",
+ "paste",
+ "soloud-sys",
+]
+
+[[package]]
+name = "soloud-sys"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "507a862f3ce15071b74bc8e8e4c40dfa9f6c44fc3b96e60cb55b5aad08333727"
+dependencies = [
+ "cmake",
+]
+
+[[package]]
 name = "trainyard-rust"
 version = "0.1.0"
 dependencies = [
  "macroquad",
  "rand",
+ "soloud",
 ]
 
 [[package]]

@@ -1,4 +1,3 @@
-use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 use crate::color::Color;
 
@@ -60,11 +59,11 @@ impl Painter {
     pub fn process_tick(&mut self, gs: &GameSprites, p: &mut ParticleList) {
         if self.train_to_dir1.is_some() {
             self.train_to_dir1 = Some(self.color);
-            play_sound_once(gs.sl_painter);
+            gs.sl.play(&gs.sl_painter);
         }
         if self.train_to_dir2.is_some() {
             self.train_to_dir2 = Some(self.color);
-            play_sound_once(gs.sl_painter);
+            gs.sl.play(&gs.sl_painter);
         }
         if self.train_to_dir1.is_some() || self.train_to_dir2.is_some() {
             p.push(Box::new(PainterParticle::new(

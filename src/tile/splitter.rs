@@ -1,4 +1,3 @@
-use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 use crate::color::Color;
 use crate::tile::BorderState;
@@ -77,7 +76,7 @@ impl Splitter {
                 self.rect.unwrap(),
                 self.incoming_dir,
             )));
-            play_sound_once(gs.sl_splitter);
+            gs.sl.play(&gs.sl_splitter);
         }
     }
 

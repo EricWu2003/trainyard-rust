@@ -1,4 +1,3 @@
-use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 use std::i32;
 
@@ -50,7 +49,7 @@ impl Gameplay {
             erase_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Let Them Yellow"), rect),
+            yard: Yard::new(level_manager.get_level("Lag Anyone?"), rect),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -131,12 +130,12 @@ impl Gameplay {
                     },
                     YardState::Won => {},
                 }
-                play_sound_once(gs.sl_button_press);
+                gs.sl.play(&gs.sl_button_press);
             } else if point_in_rect(x, y, self.erase_rect) {
                 match self.yard.state {
                     YardState::Drawing => {
                         self.is_erasing = !self.is_erasing;
-                        play_sound_once(gs.sl_button_press);                        
+                        gs.sl.play(&gs.sl_button_press);
                     },
                     _ => {},
                 }

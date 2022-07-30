@@ -1,4 +1,3 @@
-use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 use std::f32::consts::{PI, SQRT_2};
 
@@ -84,7 +83,7 @@ impl Tracktile {
             let temp = self.passive_connection;
             self.passive_connection = self.active_connection;
             self.active_connection = temp;
-            play_sound_once(gs.sl_switch_track);
+            gs.sl.play(&gs.sl_switch_track);
         }
     }
 
@@ -430,7 +429,7 @@ impl Tracktile {
         if self.active_connection == self.passive_connection {
             self.passive_connection = None;
         }
-        play_sound_once(gs.sl_draw_track);
+        gs.sl.play(&gs.sl_draw_track);
     }
 
     pub fn clear_trains(&mut self) {

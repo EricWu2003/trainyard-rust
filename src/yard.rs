@@ -1,4 +1,3 @@
-use macroquad::audio::play_sound_once;
 use macroquad::prelude::*;
 use crate::connection::Connection;
 use crate::edge::Edge;
@@ -127,7 +126,7 @@ impl Yard {
     pub fn clear_connections (&mut self, r: usize, c: usize, gs:&GameSprites) {
         if let Tile::Tracktile(tracktile) = &mut self.tiles[r][c] {
             if tracktile.connection_type() != ConnectionType::None {
-                play_sound_once(gs.sl_erase_track);
+                gs.sl.play(&gs.sl_erase_track);
             }
             tracktile.clear_connections();
         }
@@ -322,7 +321,7 @@ impl Yard {
                     self.rect.y,
                     train,
                 )));
-                play_sound_once(gs.sl_crash);
+                gs.sl.play(&gs.sl_crash);
             }
             if let Some(train) = self.h_edges[NUM_ROWS][c].train_to_b {
                 self.state = YardState::Crashed;
@@ -331,7 +330,7 @@ impl Yard {
                     self.rect.y + self.rect.h,
                     train,
                 )));
-                play_sound_once(gs.sl_crash);
+                gs.sl.play(&gs.sl_crash);
             }
         }
         for r in 0..NUM_ROWS {
@@ -342,7 +341,7 @@ impl Yard {
                     self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                play_sound_once(gs.sl_crash);
+                gs.sl.play(&gs.sl_crash);
             }
             if let Some(train) = self.v_edges[r][NUM_COLS].train_to_b {
                 self.state = YardState::Crashed;
@@ -351,7 +350,7 @@ impl Yard {
                     self.rect.y + gs.tracktile_blank.height() /2. + (gs.tracktile_blank.height() * r as f32),
                     train,
                 )));
-                play_sound_once(gs.sl_crash);
+                gs.sl.play(&gs.sl_crash);
             }
         }
 
@@ -368,7 +367,7 @@ impl Yard {
                 let not_crashed = self.tiles[r][c].accept_trains(border_state, p);
                 if !not_crashed {
                     self.state = YardState::Crashed;
-                    play_sound_once(gs.sl_crash);
+                    gs.sl.play(&gs.sl_crash);
                 }
             }
         }
@@ -392,7 +391,7 @@ impl Yard {
 
         if self.has_won() {
             self.state = YardState::Won;
-            play_sound_once(gs.sl_win_level);
+            gs.sl.play(&gs.sl_win_level);
         }
     }
 
