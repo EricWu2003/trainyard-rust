@@ -17,6 +17,7 @@ pub struct Trainsink {
     pub border_state: [bool; 4],
     pub icon_rects: Vec<Rect>,
     pub rect: Option<Rect>,
+    pub scale: f32,
 }
 
 impl Trainsink {
@@ -31,6 +32,7 @@ impl Trainsink {
             incoming_trains: [None,None,None,None],
             rect: None,
             icon_rects: vec![],
+            scale: 1.,
         }
     }
 
@@ -77,7 +79,7 @@ impl Trainsink {
                 let center_x = rect.x + rect.w/2.;
                 let center_y = rect.y + rect.h/2.;
                 p.push(Box::new(Sparkle::new(
-                    center_x, center_y, color
+                    center_x, center_y, color, self.scale
                 )));
             }
         }
@@ -104,11 +106,12 @@ impl Trainsink {
         return true;
     }
 
-    pub fn set_rect(&mut self, rect: Rect) {
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
         self.rect = Some(rect);
+        self.scale = rect.w / gs.tracktile_blank.width();
 
-        let plus_sign_width = rect.w * (52.0 / 96.0);
-        let plus_sign_height = rect.h * (52.0 / 96.0);
+        let plus_sign_width = self.scale * gs.plus_sign.width();
+        let plus_sign_height = self.scale * gs.plus_sign.height();
         let num_cols;
         if self.desires.len() <= 1 {
             num_cols = 1;
@@ -144,8 +147,8 @@ impl Trainsink {
 
     pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
         let rect = self.rect.unwrap();
-        let train_width = rect.w * (32.0 / 96.0);
-        let train_height = rect.h * (57.0 / 96.0);
+        let train_width = gs.train.width() * self.scale;
+        let train_height = gs.train.height() * self.scale;
 
         for i in 0..4 {
             if let Some(color) = self.incoming_trains[i] {
@@ -175,7 +178,7 @@ impl Trainsink {
                     train_center_y - (train_height/2.),
                     color.get_color(),
                     DrawTextureParams {
-                        dest_size: None,
+                        dest_size: Some(Vec2::new(train_width, train_height)),
                         source: None,
                         rotation: rot,
                         flip_x: false,

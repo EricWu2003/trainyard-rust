@@ -452,8 +452,8 @@ impl Tracktile {
 
 
     pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
-        let train_width = gs.train.width();
-        let train_height = gs.train.height();
+        let train_width = gs.train.width() * self.scale;
+        let train_height = gs.train.height() * self.scale;
         let rect = self.rect.unwrap();
 
         for train in &self.trains {
@@ -531,7 +531,14 @@ impl Tracktile {
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
                 train.color.get_color(),
-                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                DrawTextureParams {
+                    dest_size: Some(Vec2::new(train_width, train_height)),
+                    source: None,
+                    rotation: rot,
+                    flip_x: false,
+                    flip_y: false,
+                    pivot: None
+                }
              );
         }
     }

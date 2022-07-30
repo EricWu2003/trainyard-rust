@@ -13,12 +13,12 @@ pub struct Sparkle {
 }
 
 impl Sparkle {
-    pub fn new(x: f32, y:f32, color: Color) -> Sparkle {
+    pub fn new(x: f32, y:f32, color: Color, scale: f32) -> Sparkle {
         Sparkle {
             stars: [
-                Star::new(x, y, color),
-                Star::new(x, y, color),
-                Star::new(x, y, color),
+                Star::new(x, y, color, scale),
+                Star::new(x, y, color, scale),
+                Star::new(x, y, color, scale),
             ],
             ttl: INITIAL_TTL,
         }
@@ -50,14 +50,16 @@ pub struct Star {
     dy: f32,
     color: Color,
     ttl: i32,
+    scale: f32,
 }
 
 impl Star {
-    pub fn new(x: f32, y:f32, color: Color) -> Star {
+    pub fn new(x: f32, y:f32, color: Color, scale: f32) -> Star {
         let angle: f32 = gen_range(0.0, 6.283185);
-        let v_magnitude = 0.15;
-        let x = x + gen_range(-RANGE, RANGE);
-        let y = y + gen_range(-RANGE, RANGE);
+        let v_magnitude = 0.15 * scale;
+        let range = RANGE * scale;
+        let x = x + gen_range(-range, range);
+        let y = y + gen_range(-range, range);
 
         Star {
             x,
@@ -66,6 +68,7 @@ impl Star {
             dy: v_magnitude * angle.cos(),
             color,
             ttl: INITIAL_TTL,
+            scale: scale,
         }
     }
 }
@@ -73,10 +76,25 @@ impl Star {
 
 impl Particle for Star {
     fn render(&self, gs: &GameSprites) {
+        let (w, h) = (self.scale * gs.star_bright.width(), self.scale * gs.star_bright.height());
+
 
         let mut color = self.color.get_color();
         color.a = self.ttl as f32 / INITIAL_TTL as f32;
-        draw_texture(gs.star_bright, self.x - gs.star_bright.width()/2., self.y - gs.star_bright.height()/2., color);
+        draw_texture_ex(
+            gs.star_bright,
+            self.x - w/2., 
+            self.y - w/2., 
+            color,
+            DrawTextureParams {
+                dest_size: Some(Vec2::new(w, h)),
+                source: None,
+                rotation: 0.,
+                flip_x: false,
+                flip_y: false,
+                pivot: None,
+            }
+        );
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

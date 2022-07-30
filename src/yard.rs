@@ -336,6 +336,7 @@ impl Yard {
                     self.rect.x + tracktile_width /2. + (tracktile_width * c as f32),
                     self.rect.y,
                     train,
+                    scale,
                 )));
                 gs.add_sound(Crash);
             }
@@ -345,6 +346,7 @@ impl Yard {
                     self.rect.x + tracktile_width /2. + (tracktile_width * c as f32),
                     self.rect.y + self.rect.h,
                     train,
+                    scale,
                 )));
                 gs.add_sound(Crash);
             }
@@ -356,6 +358,7 @@ impl Yard {
                     self.rect.x,
                     self.rect.y + tracktile_height /2. + (tracktile_height * r as f32),
                     train,
+                    scale,
                 )));
                 gs.add_sound(Crash);
             }
@@ -365,6 +368,7 @@ impl Yard {
                     self.rect.x + self.rect.w,
                     self.rect.y + tracktile_height /2. + (tracktile_height * r as f32),
                     train,
+                    scale,
                 )));
                 gs.add_sound(Crash);
             }
@@ -380,7 +384,7 @@ impl Yard {
                     self.h_edges[r + 1][c].train_to_a,
                     self.v_edges[r][c].train_to_b,
                 ];
-                let not_crashed = self.tiles[r][c].accept_trains(border_state, p);
+                let not_crashed = self.tiles[r][c].accept_trains(border_state, p, scale);
                 if !not_crashed {
                     self.state = YardState::Crashed;
                     gs.add_sound(Crash);
@@ -621,11 +625,19 @@ impl Yard {
                         );
                     }
                     Tile::Trainsink(trainsink) => {
-                        draw_texture(
+                        draw_texture_ex(
                             gs.tracktile_blank,
                             x_pos,
                             y_pos,
                             WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
                         );
                         if !trainsink.is_satisfied() {
                             for dir in 0..4 {
@@ -649,19 +661,35 @@ impl Yard {
                         }
                     }
                     Tile::Rock(_) => {
-                        draw_texture(
+                        draw_texture_ex(
                             gs.rock,
                             x_pos,
                             y_pos,
                             WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
                         );
                     }
                     Tile::Painter(painter) => {
-                        draw_texture(
+                        draw_texture_ex(
                             gs.tracktile_blank,
                             x_pos,
                             y_pos,
                             WHITE,
+                            DrawTextureParams { 
+                                dest_size,
+                                source: None,
+                                rotation: 0.,
+                                flip_x: false,
+                                flip_y: false,
+                                pivot: None
+                            }
                         );
                         draw_texture_ex(
                             gs.trainsink_entry,

@@ -15,6 +15,7 @@ pub struct Trainsource {
     pub outgoing_train: Option<Color>,
     pub icon_rects: Vec<Rect>,
     pub rect: Option<Rect>,
+    pub scale: f32,
 }
 
 impl Trainsource {
@@ -25,6 +26,7 @@ impl Trainsource {
             outgoing_train: None,
             rect: None,
             icon_rects: vec![],
+            scale: 1.,
         }
     }
 
@@ -62,11 +64,12 @@ impl Trainsource {
         return true;
     }
 
-    pub fn set_rect(&mut self, rect: Rect) {
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
         self.rect = Some(rect);
+        self.scale = rect.w / gs.tracktile_blank.width();
 
-        let plus_sign_width = rect.w * (52.0 / 96.0);
-        let plus_sign_height = rect.h * (52.0 / 96.0);
+        let plus_sign_width = self.scale * gs.plus_sign.width();
+        let plus_sign_height = self.scale * gs.plus_sign.height();
         let num_cols;
         if self.trains.len() <= 1 {
             num_cols = 1;
@@ -104,8 +107,8 @@ impl Trainsource {
     pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
         let rect = self.rect.unwrap();
         if let Some(color) = self.outgoing_train {
-            let train_width = rect.w * (32.0 / 96.0);
-            let train_height = rect.h * (57.0 / 96.0);
+            let train_width = gs.train.width() * self.scale;
+            let train_height = gs.train.height() * self.scale;
             let train_center_x;
             let train_center_y;
             let rot;
@@ -133,7 +136,14 @@ impl Trainsource {
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
                 color.get_color(),
-                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                DrawTextureParams {
+                    dest_size: Some(Vec2::new(train_width, train_height)),
+                    source: None,
+                    rotation: rot,
+                    flip_x: false,
+                    flip_y: false,
+                    pivot: None
+                }
             );
 
         }

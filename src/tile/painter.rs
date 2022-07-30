@@ -18,6 +18,7 @@ pub struct Painter {
     pub train_to_dir1: Option<Color>,
     pub train_to_dir2: Option<Color>,
     pub rect: Option<Rect>,
+    scale: f32,
 }
 
 impl Painter {
@@ -27,7 +28,8 @@ impl Painter {
             color,
             train_to_dir1: None,
             train_to_dir2: None,
-            rect: None
+            rect: None,
+            scale: 1.,
         }
     }
 
@@ -74,14 +76,17 @@ impl Painter {
         }
     }
 
-    pub fn set_rect(&mut self, rect: Rect) {
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
         self.rect = Some(rect);
+        self.scale = rect.w / gs.tracktile_blank.width();
     }
 
     pub fn render_trains(&self, gs: &GameSprites, progress: f32) {
         let rect = self.rect.unwrap();
-        let train_width = rect.w * (32.0 / 96.0);
-        let train_height = rect.h * (57.0 / 96.0);
+        let train_width = self.scale * gs.train.width();
+        let train_height = self.scale * gs.train.height();
+
+        let dest_size = Some(Vec2::new(train_width, train_height));
         
         if progress <= 1.0 {
             // render the incoming trains
@@ -111,7 +116,7 @@ impl Painter {
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
                     color.get_color(),
-                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                    DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
             if let Some(color) = self.train_to_dir1 {
@@ -140,7 +145,7 @@ impl Painter {
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
                     color.get_color(),
-                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                    DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
         } else {
@@ -173,7 +178,7 @@ impl Painter {
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
                     color.get_color(),
-                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                    DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
             if let Some(color) = self.train_to_dir2 {
@@ -202,7 +207,7 @@ impl Painter {
                     train_center_x - (train_width/2.),
                     train_center_y - (train_height/2.),
                     color.get_color(),
-                    DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                    DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
                 );
             }
         }

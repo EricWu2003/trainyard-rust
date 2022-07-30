@@ -12,12 +12,12 @@ pub struct Smoke {
 }
 
 impl Smoke {
-    pub fn new(x: f32, y:f32, color: Color) -> Smoke {
+    pub fn new(x: f32, y:f32, color: Color, scale: f32) -> Smoke {
         Smoke {
             smokes: [
-                SmokeParticle::new(x, y, color),
-                SmokeParticle::new(x, y, color),
-                SmokeParticle::new(x, y, color),
+                SmokeParticle::new(x, y, color, scale),
+                SmokeParticle::new(x, y, color, scale),
+                SmokeParticle::new(x, y, color, scale),
             ],
             ttl: INITIAL_TTL,
         }
@@ -49,12 +49,13 @@ pub struct SmokeParticle {
     dy: f32,
     color: Color,
     ttl: i32,
+    scale: f32
 }
 
 impl SmokeParticle {
-    pub fn new(x: f32, y:f32, color: Color) -> SmokeParticle {
+    pub fn new(x: f32, y:f32, color: Color, scale: f32) -> SmokeParticle {
         let angle: f32 = gen_range(0.0, 6.283185);
-        let v_magnitude = 0.15;
+        let v_magnitude = 0.15 * scale;
         SmokeParticle {
             x: x,
             y: y,
@@ -62,6 +63,7 @@ impl SmokeParticle {
             dy: v_magnitude * angle.cos(),
             color,
             ttl: INITIAL_TTL,
+            scale,
         }
     }
 }
@@ -69,10 +71,20 @@ impl SmokeParticle {
 
 impl Particle for SmokeParticle {
     fn render(&self, gs: &GameSprites) {
+        let (w, h) = (self.scale * gs.smoke.width(), self.scale * gs.smoke.height());
 
         let mut color = self.color.get_color();
         color.a = self.ttl as f32 / INITIAL_TTL as f32;
-        draw_texture(gs.smoke, self.x - gs.smoke.width()/2., self.y - gs.smoke.height()/2., color);
+        draw_texture_ex(gs.smoke, self.x - w/2., self.y - h/2., color,
+            DrawTextureParams {
+                dest_size: Some(Vec2::new(w, h)),
+                source: None,
+                rotation: 0.,
+                flip_x: false,
+                flip_y: false,
+                pivot: None
+            }
+        );
     }
     fn pass_one_frame(&mut self) {
         self.ttl -= 1;

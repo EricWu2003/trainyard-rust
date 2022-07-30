@@ -29,7 +29,7 @@ pub enum Tile {
 }
 
 impl Tile {
-    pub fn accept_trains(&mut self, trains: BorderState, p: &mut ParticleList) -> bool {
+    pub fn accept_trains(&mut self, trains: BorderState, p: &mut ParticleList, scale: f32) -> bool {
         let border_state: BorderState;
         match self {
             Tile::Tracktile(tracktile) => {
@@ -61,21 +61,25 @@ impl Tile {
                         rect.x + rect.w / 2.,
                         rect.y,
                         *color,
+                        scale,
                     ))),
                     1 => p.push(Box::new(Smoke::new(
                         rect.x + rect.w,
                         rect.y + rect.h / 2.,
                         *color,
+                        scale,
                     ))),
                     2 => p.push(Box::new(Smoke::new(
                         rect.x + rect.w / 2.,
                         rect.y + rect.h,
                         *color,
+                        scale,
                     ))),
                     3 => p.push(Box::new(Smoke::new(
                         rect.x,
                         rect.y + rect.h / 2.,
                         *color,
+                        scale,
                     ))),
                     _ => unreachable!(),
                 }
@@ -177,16 +181,16 @@ impl Tile {
                 tracktile.set_rect(rect, gs);
             }
             Tile::Trainsink(trainsink) => {
-                trainsink.set_rect(rect);
+                trainsink.set_rect(rect, gs);
             }
             Tile::Trainsource(trainsource) => {
-                trainsource.set_rect(rect);
+                trainsource.set_rect(rect, gs);
             }
             Tile::Painter(painter) => {
-                painter.set_rect(rect);
+                painter.set_rect(rect, gs);
             }
             Tile::Splitter(splitter) => {
-                splitter.set_rect(rect);
+                splitter.set_rect(rect, gs);
             }
             Tile::Rock(r) => {
                 *r = Some(rect);

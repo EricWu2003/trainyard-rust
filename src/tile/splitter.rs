@@ -14,6 +14,7 @@ pub struct Splitter {
     pub train_going_left: Option<Color>,
     pub train_going_right: Option<Color>,
     pub rect: Option<Rect>,
+    pub scale: f32,
 }
 
 impl Splitter {
@@ -24,6 +25,7 @@ impl Splitter {
             train_going_left: None,
             train_going_right: None,
             rect: None,
+            scale: 1.,
         }
     }
 
@@ -81,14 +83,17 @@ impl Splitter {
         }
     }
 
-    pub fn set_rect(&mut self, rect: Rect) {
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
         self.rect = Some(rect);
+        self.scale = rect.w / gs.tracktile_blank.width();
     }
 
     pub fn render_trains(&self, gs: &GameSprites, progress: f32) { 
         let rect = self.rect.unwrap();
-        let train_width = rect.w * (32.0 / 96.0);
-        let train_height = rect.h * (57.0 / 96.0);
+        let train_width = self.scale * gs.train.width();
+        let train_height = self.scale * gs.train.height();
+
+        let dest_size = Some(Vec2::new(train_width, train_height));
 
         let outgoing_left_dir = (self.incoming_dir + 1) % 4;
         let outgoing_right_dir = (self.incoming_dir + 3) % 4;
@@ -119,7 +124,7 @@ impl Splitter {
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
                 color.get_color(),
-                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }
         if let Some(color) = self.train_going_left {
@@ -148,7 +153,7 @@ impl Splitter {
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
                 color.get_color(),
-                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }
 
@@ -178,7 +183,7 @@ impl Splitter {
                 train_center_x - (train_width/2.),
                 train_center_y - (train_height/2.),
                 color.get_color(),
-                DrawTextureParams { dest_size: None, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
+                DrawTextureParams { dest_size, source: None, rotation: rot, flip_x: false, flip_y: false, pivot: None }
             );
         }
     }
