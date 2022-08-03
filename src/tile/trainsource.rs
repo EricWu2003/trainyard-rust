@@ -80,6 +80,7 @@ impl Trainsource {
         } else {
             num_cols = 4;
         }
+        self.icon_rects = vec![];
         for i in 0..self.trains.len() {
             let curr_col = i % num_cols;
             let curr_row = i / num_cols;

@@ -13,9 +13,9 @@ const MAX_SPEED:f32 = 0.17;
 const DOUBLE_CLICK_THRESHOLD:u32 = 34;
 pub struct Gameplay {
     yard_rect: Rect,
-    ui_rect: Rect,
     start_trains_rect: Rect,
     erase_rect: Rect,
+    status_rect: Rect,
     speed_slider_space_rect: Rect,
     speed_slider_rect: Rect,
     yard: Yard,
@@ -32,25 +32,29 @@ pub struct Gameplay {
 
 impl Gameplay {
     pub fn new(rect: Rect, level_manager: &LevelManager, gs: &GameSprites) -> Gameplay {
-        let (x, y) = (rect.x, rect.y + rect.h);
-        let ui_rect = Rect::new(x, y, 672., 202.);
-        let start_trains_rect =  Rect::new(x + 238., y + 10., 424., 104.);
-        let erase_rect = Rect::new(x+10.,y+10.,208.,88.);
-        let speed_slider_space_rect = Rect::new(x+238.,y+134.,424.,68.);
+        let yard_rect = Rect::new(rect.x, rect.y, rect.w, rect.w);
+
+        let (x, y) = (yard_rect.x, yard_rect.y + yard_rect.h);
+        let scale = yard_rect.w / 672.;
+        // let ui_rect = Rect::new(x, y, 672. * scale, 202. * scale);
+        let start_trains_rect =  Rect::new(x + 238. * scale, y + 10. * scale, 424. * scale, 104. * scale);
+        let erase_rect = Rect::new(x+10. * scale,y+10.*scale,208.*scale,88.*scale);
+        let status_rect = Rect::new(x+10.*scale,y+10.*scale,208.*scale,168.*scale);
+        let speed_slider_space_rect = Rect::new(x+238.*scale,y+134.*scale,424.*scale,68.*scale);
         let initial_speed = 0.5*MAX_SPEED;
 
         // the speed button can move 424 - 136 = 288 pixels
-        let speed_btn_offset = (initial_speed/MAX_SPEED) * 288.0;
-        let speed_slider_rect = Rect::new(x+238. + speed_btn_offset,y+134.,136. ,68.);
+        let speed_btn_offset = (initial_speed/MAX_SPEED) * 288.0 * scale;
+        let speed_slider_rect = Rect::new(x+238.*scale + speed_btn_offset,y+134.*scale,136. *scale ,68.*scale);
 
         Gameplay {
-            yard_rect: rect,
-            ui_rect,
+            yard_rect,
             start_trains_rect,
             erase_rect,
+            status_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Machine Gun"), rect, gs),
+            yard: Yard::new(level_manager.get_level("Handlebars"), yard_rect, gs),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -65,7 +69,6 @@ impl Gameplay {
 
     pub fn render(&self, gs: &GameSprites) {
         self.yard.render(gs);
-        let (x,y) = (self.ui_rect.x, self.ui_rect.y);
 
         match self.yard.state {
             YardState::Drawing => {
@@ -77,11 +80,11 @@ impl Gameplay {
                 draw_texture_to_rect(gs.btn_start_trains, self.start_trains_rect);
             },
             YardState::Crashed => {
-                draw_texture_to_rect(gs.btn_status_crashed, Rect::new(x+10.,y+10.,208.,168.));
+                draw_texture_to_rect(gs.btn_status_crashed, self.status_rect);
                 draw_texture_to_rect(gs.btn_back_to_drawing, self.start_trains_rect);
             },
             YardState::Playing {..} | YardState::Won => {
-                draw_texture_to_rect(gs.btn_status_good, Rect::new(x+10.,y+10.,208.,168.));
+                draw_texture_to_rect(gs.btn_status_good, self.status_rect);
                 draw_texture_to_rect(gs.btn_back_to_drawing, self.start_trains_rect);
             }
         }
@@ -261,5 +264,24 @@ impl Gameplay {
 
     pub fn get_state(&self) -> YardState {
         self.yard.state
+    }
+
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
+        let yard_rect = Rect::new(rect.x, rect.y, rect.w, rect.w);
+        self.yard_rect = yard_rect;
+
+        let (x, y) = (yard_rect.x, yard_rect.y + yard_rect.h);
+        let scale = yard_rect.w / 672.;
+
+        self.start_trains_rect =  Rect::new(x + 238. * scale, y + 10. * scale, 424. * scale, 104. * scale);
+        self.erase_rect = Rect::new(x+10. * scale,y+10.*scale,208.*scale,88.*scale);
+        self.status_rect = Rect::new(x+10.*scale,y+10.*scale,208.*scale,168.*scale);
+        self.speed_slider_space_rect = Rect::new(x+238.*scale,y+134.*scale,424.*scale,68.*scale);
+
+
+        let speed_btn_offset = (self.speed/MAX_SPEED) * 288.0 * scale;
+        self.speed_slider_rect = Rect::new(x+238.*scale + speed_btn_offset,y+134.*scale,136. *scale ,68.*scale);
+
+        self.yard.set_rect(yard_rect, gs);
     }
 }

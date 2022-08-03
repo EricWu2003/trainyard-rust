@@ -911,4 +911,24 @@ impl Yard {
             }
         }
     }
+
+    pub fn set_rect(&mut self, rect: Rect, gs: &GameSprites) {
+        self.rect = rect;
+        let (x, y, w, h) = (rect.x, rect.y, rect.w, rect.h);
+        let new_w = w/(NUM_COLS as f32);
+        let new_h = h/(NUM_ROWS as f32);
+        for row in 0..NUM_ROWS {
+            for col in 0..NUM_COLS {
+                self.tiles[row][col].set_rect(
+                    Rect::new(
+                        x + (new_w*col as f32),
+                        y + (new_h*row as f32),
+                        new_w,
+                        new_h,
+                    ),
+                    gs,
+                )
+            }
+        }
+    }
 }
