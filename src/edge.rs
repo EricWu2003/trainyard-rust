@@ -48,4 +48,8 @@ impl Edge {
         self.train_to_a = None;
         self.train_to_b = None;
     }
+
+    pub fn set_pos(&mut self, x:f32, y:f32) {
+        self.position = Position{x, y};
+    }
 }

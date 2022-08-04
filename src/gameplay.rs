@@ -54,7 +54,7 @@ impl Gameplay {
             status_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(level_manager.get_level("Handlebars"), yard_rect, gs),
+            yard: Yard::new(level_manager.get_level("Let Them Yellow"), yard_rect, gs),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
