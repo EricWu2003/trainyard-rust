@@ -229,11 +229,11 @@ impl LevelManager {
         let city = self.0.iter().find(|city| city.0 == city_name).unwrap();
         city.1.iter().map(|level| level.name.clone()).collect()
     }
-    pub fn get_level(&self, level_name: &str) -> &LevelInfo {
+    pub fn get_level(&self, level_name: &str) -> &Level {
         for (_, levels) in &self.0 {
             for level in levels {
                 if level.name == level_name {
-                    return &level.level_info;
+                    return &level;
                 }
             }
         }

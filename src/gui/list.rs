@@ -95,15 +95,22 @@ impl List {
                 let num_to_display = (self.max_height / LIST_ITEM_HEIGHT) as usize;
                 let index = (y/LIST_ITEM_HEIGHT) as usize;
                 if index < num_to_display {
-                    println!("{}", index);
-                    let level_label = self.buttons[self.initial_index as usize + index].label_text.clone();
-                    println!("{}", level_label);
+                    let button = &self.buttons[self.initial_index as usize + index];
+                    let level_label = button.label_text.clone();
                     gs.add_sound(SoundType::ButtonPress);
-                    *game_state = GameState::Level;
-                    gameplay.reset_yard_from_level(
-                        self.level_manager.get_level(&level_label),
-                        gs,
-                    );
+
+                    match button.style {
+                        ButtonStyle::LevelNotStarted => {
+                            *game_state = GameState::Level;
+                            gameplay.reset_yard_from_level(
+                                self.level_manager.get_level(&level_label),
+                                gs,
+                            );
+                        },
+                        _ => {},
+                    }
+
+                    
                 }
             }
         }
