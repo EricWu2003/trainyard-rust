@@ -3,7 +3,7 @@ use std::i32;
 
 use crate::GameState;
 use crate::connection::Connection;
-use crate::levels::Level;
+use crate::levels::{Level, LevelInfo};
 use crate::particle::ParticleList;
 use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
@@ -59,7 +59,7 @@ impl Gameplay {
             status_rect,
             speed_slider_space_rect,
             speed_slider_rect,
-            yard: Yard::new(&level_manager.get_level("Let Them Yellow").level_info, yard_rect, gs),
+            yard: Yard::new(&level_manager.get_level("Red Line"), yard_rect, gs),
             prev_mouse_c: -1,
             prev_mouse_r: -1,
             prev_min_dir: -1,
@@ -300,6 +300,9 @@ impl Gameplay {
     }
 
     pub fn reset_yard_from_level(&mut self, level: &Level, gs: &GameSprites) {
-        self.yard = Yard::new(&level.level_info, self.yard_rect, gs);
+        self.yard = Yard::new(level, self.yard_rect, gs);
+    }
+    pub fn get_current_progress(&self) -> LevelInfo {
+        self.yard.get_current_progress()
     }
 }

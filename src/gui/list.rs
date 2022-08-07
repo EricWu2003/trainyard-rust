@@ -16,7 +16,7 @@ pub struct List{
     x: f32,
     y:f32,
     initial_index: f32,
-    level_manager: LevelManager,
+    pub level_manager: LevelManager,
 }
 
 
@@ -101,7 +101,7 @@ impl List {
 
                     match button.style {
                         ButtonStyle::LevelNotStarted => {
-                            *game_state = GameState::Level;
+                            *game_state = GameState::Level(level_label.clone());
                             gameplay.reset_yard_from_level(
                                 self.level_manager.get_level(&level_label),
                                 gs,

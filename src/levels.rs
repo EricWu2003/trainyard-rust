@@ -18,6 +18,7 @@ pub type LevelInfo = Vec<PositionedTile>;
 
 pub struct Level {
     pub level_info: LevelInfo,
+    pub current_progress: LevelInfo,
     pub name: String,
     pub num_stars: u32,
 }
@@ -96,6 +97,7 @@ impl LevelManager {
 
                                 city.1.push(Level {
                                     level_info,
+                                    current_progress: vec![],
                                     name: level_name.to_owned(),
                                     num_stars,
                                 });
@@ -237,6 +239,18 @@ impl LevelManager {
                 }
             }
         }
-        panic!("no level with name `{level_name}`");
+        panic!("trying to get level `{level_name}`, name not found");
     }
+    pub fn set_level_current_progress(&mut self, level_name: &str, progress: &LevelInfo) {
+        for (_, levels) in &mut self.0 {
+            for level in levels {
+                if level.name == level_name {
+                    level.current_progress = progress.clone();
+                    return;
+                }
+            }
+        }
+        panic!("trying to set current progress on `{level_name}`, name not found");
+    }
+
 }

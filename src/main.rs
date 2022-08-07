@@ -18,7 +18,7 @@ use macroquad::prelude::*;
 
 pub enum GameState {
     Menu,
-    Level,
+    Level(String), // The string represents the level name
 }
 
 fn window_conf() -> Conf {
@@ -71,10 +71,13 @@ async fn main() {
                 list.update(&mut gs, &mut game_state, &mut gameplay);
                 list.render(&gs);
             },
-            GameState::Level => {
+            GameState::Level(ref level_name) => {
+                list.level_manager.set_level_current_progress(&level_name.clone(), &gameplay.get_current_progress());
                 if gameplay.update(&mut gs, &mut game_state) {
                     break;
                 }
+
+
                 gameplay.render(&gs);
             },
         }

@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use crate::connection::Connection;
 use crate::edge::Edge;
-use crate::levels::LevelInfo;
+use crate::levels::{LevelInfo, Level, PositionedTile};
 use crate::particle::ParticleList;
 use crate::particle::drawn_arrow::DrawnArrow;
 use crate::particle::smoke::Smoke;
@@ -99,12 +99,26 @@ impl Yard {
             rect,
         }
     }
-    pub fn new(level_info: &LevelInfo, rect: Rect, gs: &GameSprites) -> Yard {
+    pub fn new(level: &Level, rect: Rect, gs: &GameSprites) -> Yard {
         let mut yard = Yard::new_blank(rect);
+        let level_info = &level.level_info;
         for i in 0..level_info.len() {
             let tile = &level_info[i];
             yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
         }
+        let current_progress = &level.current_progress;
+        for i in 0..current_progress.len() {
+            let tile = &current_progress[i];
+            match yard.tiles[tile.y as usize][tile.x as usize] {
+                Tile::Tracktile(_) => {},
+                _ => {
+                    println!("Warning, overriding a non tracktile tile at column {}, row {} when loading level progress.", tile.x, tile.y)
+                }
+            }
+            yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
+        }
+        yard.drawn_tiles = yard.tiles.clone();
+
         let (x, y, w, h) = (rect.x, rect.y, rect.w, rect.h);
         let new_w = w/(NUM_COLS as f32);
         let new_h = h/(NUM_ROWS as f32);
@@ -948,5 +962,23 @@ impl Yard {
                 self.v_edges[r][c].set_pos(x_pos, y_pos);
             }
         }
+    }
+
+    pub fn get_current_progress(&self) -> LevelInfo {
+        let mut connection_vec = vec![];
+        for r in 0..NUM_ROWS {
+            for c in 0..NUM_COLS {
+                if let Tile::Tracktile(tracktile) = &self.drawn_tiles[r][c] {
+                    if tracktile.connection_type() != ConnectionType::None {
+                        connection_vec.push(PositionedTile{
+                            tile: Tile::Tracktile(tracktile.clone()),
+                            x: c as u8,
+                            y: r as u8,
+                        });
+                    }
+                }
+            }
+        }
+        connection_vec
     }
 }
