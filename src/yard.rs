@@ -1,7 +1,7 @@
 use macroquad::prelude::*;
 use crate::connection::Connection;
 use crate::edge::Edge;
-use crate::levels::{LevelInfo, Level, PositionedTile};
+use crate::levels::{LevelInfo, Level, PositionedTile, LevelProgress};
 use crate::particle::ParticleList;
 use crate::particle::drawn_arrow::DrawnArrow;
 use crate::particle::smoke::Smoke;
@@ -107,8 +107,8 @@ impl Yard {
             yard.tiles[tile.y as usize][tile.x as usize] = tile.tile.clone();
         }
         let current_progress = &level.current_progress;
-        for i in 0..current_progress.len() {
-            let tile = &current_progress[i];
+        for i in 0..current_progress.0.len() {
+            let tile = &current_progress.0[i];
             match yard.tiles[tile.y as usize][tile.x as usize] {
                 Tile::Tracktile(_) => {},
                 _ => {
@@ -964,7 +964,7 @@ impl Yard {
         }
     }
 
-    pub fn get_current_progress(&self) -> LevelInfo {
+    pub fn get_current_progress(&self) -> LevelProgress {
         let mut connection_vec = vec![];
         for r in 0..NUM_ROWS {
             for c in 0..NUM_COLS {
@@ -979,6 +979,7 @@ impl Yard {
                 }
             }
         }
-        connection_vec
+        let has_won = self.state == YardState::Won;
+        (connection_vec, has_won)
     }
 }

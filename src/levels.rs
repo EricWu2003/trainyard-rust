@@ -15,10 +15,11 @@ pub struct PositionedTile {
     pub y: u8,
 }
 pub type LevelInfo = Vec<PositionedTile>;
+pub type LevelProgress = (LevelInfo, bool); // the bool represents whether the play has won
 
 pub struct Level {
     pub level_info: LevelInfo,
-    pub current_progress: LevelInfo,
+    pub current_progress: LevelProgress,
     pub name: String,
     pub num_stars: u32,
 }
@@ -97,7 +98,7 @@ impl LevelManager {
 
                                 city.1.push(Level {
                                     level_info,
-                                    current_progress: vec![],
+                                    current_progress: (vec![], false),
                                     name: level_name.to_owned(),
                                     num_stars,
                                 });
@@ -241,7 +242,7 @@ impl LevelManager {
         }
         panic!("trying to get level `{level_name}`, name not found");
     }
-    pub fn set_level_current_progress(&mut self, level_name: &str, progress: &LevelInfo) {
+    pub fn set_level_current_progress(&mut self, level_name: &str, progress: &LevelProgress) {
         for (_, levels) in &mut self.0 {
             for level in levels {
                 if level.name == level_name {

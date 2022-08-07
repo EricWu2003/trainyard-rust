@@ -7,6 +7,8 @@ use crate::sprites::GameSprites;
 pub const BUTTON_WIDTH: f32 = 350.;
 const BUTTON_MARGIN_LEFT: f32 = 8.;
 const BUTTON_COLOR: Color = WHITE;
+const BUTTON_IN_PROGRESS_COLOR: Color = YELLOW;
+const BUTTON_SOLVED_COLOR: Color = GREEN;
 
 #[derive(Eq, PartialEq, Clone, Copy)]
 pub enum ButtonStyle {
@@ -30,7 +32,14 @@ impl Button {
     }
 
     pub fn render(&self, x: f32, y: f32, height: f32, gs: &GameSprites) {
-        draw_rectangle(x, y, BUTTON_WIDTH, height, BUTTON_COLOR);
+        let bg_color = match self.style {
+            ButtonStyle::Label => BUTTON_COLOR,
+            ButtonStyle::LevelNotStarted => BUTTON_COLOR,
+            ButtonStyle::LevelInProgress => BUTTON_IN_PROGRESS_COLOR,
+            ButtonStyle::LevelSolved => BUTTON_SOLVED_COLOR,
+            ButtonStyle::Tutorial => BUTTON_COLOR,
+        };
+        draw_rectangle(x, y, BUTTON_WIDTH, height, bg_color);
         draw_rectangle_lines(x, y, BUTTON_WIDTH, height, 1., BLACK);
         let font_size = height * 0.7;
 

@@ -100,7 +100,7 @@ impl List {
                     gs.add_sound(SoundType::ButtonPress);
 
                     match button.style {
-                        ButtonStyle::LevelNotStarted => {
+                        ButtonStyle::LevelNotStarted | ButtonStyle::LevelInProgress | ButtonStyle::LevelSolved => {
                             *game_state = GameState::Level(level_label.clone());
                             gameplay.reset_yard_from_level(
                                 self.level_manager.get_level(&level_label),
@@ -112,6 +112,22 @@ impl List {
 
                     
                 }
+            }
+        }
+    }
+
+    pub fn update_label(&mut self, level_name: String) {
+        let mut style = ButtonStyle::LevelNotStarted;
+        let level = self.level_manager.get_level(&level_name);
+        if level.current_progress.0.len() > 0 {
+            style = ButtonStyle::LevelInProgress;
+        }
+        if level.current_progress.1 {
+            style = ButtonStyle::LevelSolved;
+        }
+        for button in &mut self.buttons {
+            if button.label_text == level_name {
+                button.style = style;
             }
         }
     }

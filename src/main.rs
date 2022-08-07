@@ -73,6 +73,7 @@ async fn main() {
             },
             GameState::Level(ref level_name) => {
                 list.level_manager.set_level_current_progress(&level_name.clone(), &gameplay.get_current_progress());
+                list.update_label(level_name.clone());
                 if gameplay.update(&mut gs, &mut game_state) {
                     break;
                 }
