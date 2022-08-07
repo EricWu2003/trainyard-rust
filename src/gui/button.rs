@@ -4,7 +4,7 @@ use crate::sprites::GameSprites;
 
 
 // const BUTTON_HEIGHT: f32 = 20.;
-const BUTTON_WIDTH: f32 = 350.;
+pub const BUTTON_WIDTH: f32 = 350.;
 const BUTTON_MARGIN_LEFT: f32 = 8.;
 const BUTTON_COLOR: Color = WHITE;
 

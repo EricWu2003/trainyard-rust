@@ -5,9 +5,10 @@ pub fn point_in_rect(x: f32, y: f32, rect: Rect) -> bool {
         y > rect.y && y - rect.y < rect.h
 }
 
-// pub fn mouse_state_in_rect(mouse_state: MouseState, rect: Rect) -> bool {
-//     point_in_rect(mouse_state.x(), mouse_state.y(), rect)
-// }
+pub fn mouse_in_rect(rect: Rect) -> bool {
+    let (x, y) = mouse_position();
+    point_in_rect(x, y, rect)
+}
 
 pub fn centered_rect(x:f32, y:f32, w:f32, h:f32) -> Rect {
     Rect::new(

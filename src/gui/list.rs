@@ -1,11 +1,8 @@
 use macroquad::prelude::*;
-use crate::{gui::button::Button, sprites::GameSprites};
+use crate::{gui::button::Button, sprites::GameSprites, utils::mouse_in_rect};
+use crate::gui::button::BUTTON_WIDTH;
 
 const LIST_ITEM_HEIGHT: f32 = 40.;
-pub enum ListItem {
-    Button(Button),
-    Label(Button),
-}
 
 pub struct List{
     buttons: Vec<Button>,
@@ -65,8 +62,23 @@ impl List {
             self.change_initial_index(1.);
         }
         
-        let scroll_amt = -mouse_wheel().1;
-        self.change_initial_index(scroll_amt * 0.1);
+        if mouse_in_rect(Rect::new(self.x, self.y, BUTTON_WIDTH, self.max_height)) {
+            let scroll_amt = -mouse_wheel().1;
+            self.change_initial_index(scroll_amt * 0.1);
+
+            if is_mouse_button_pressed(MouseButton::Left) {
+                let (_, mut y) = mouse_position();
+                y = y - self.y;
+
+                let num_to_display = (self.max_height / LIST_ITEM_HEIGHT) as usize;
+                let index = (y/LIST_ITEM_HEIGHT) as usize;
+                if index < num_to_display {
+                    println!("{}", index);
+                    let level_label = self.buttons[self.initial_index as usize + index].label_text.clone();
+                    println!("{}", level_label);
+                }
+            }
+        }
     }
 
 }
