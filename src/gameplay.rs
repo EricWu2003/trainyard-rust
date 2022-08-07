@@ -17,6 +17,7 @@ pub struct Gameplay {
     yard_rect: Rect,
     start_trains_rect: Rect,
     erase_rect: Rect,
+    back_rect: Rect,
     status_rect: Rect,
     speed_slider_space_rect: Rect,
     speed_slider_rect: Rect,
@@ -41,6 +42,7 @@ impl Gameplay {
         // let ui_rect = Rect::new(x, y, 672. * scale, 202. * scale);
         let start_trains_rect =  Rect::new(x + 238. * scale, y + 10. * scale, 424. * scale, 104. * scale);
         let erase_rect = Rect::new(x+10. * scale,y+10.*scale,208.*scale,88.*scale);
+        let back_rect = Rect::new(x+10. * scale,y+110.*scale,208.*scale,88.*scale);
         let status_rect = Rect::new(x+10.*scale,y+10.*scale,208.*scale,168.*scale);
         let speed_slider_space_rect = Rect::new(x+238.*scale,y+134.*scale,424.*scale,68.*scale);
         let initial_speed = 0.5*MAX_SPEED;
@@ -53,6 +55,7 @@ impl Gameplay {
             yard_rect,
             start_trains_rect,
             erase_rect,
+            back_rect,
             status_rect,
             speed_slider_space_rect,
             speed_slider_rect,
@@ -80,6 +83,7 @@ impl Gameplay {
                     draw_texture_to_rect(gs.btn_stop_erase, self.erase_rect);
                 }
                 draw_texture_to_rect(gs.btn_start_trains, self.start_trains_rect);
+                draw_texture_to_rect(gs.btn_back, self.back_rect);
             },
             YardState::Crashed => {
                 draw_texture_to_rect(gs.btn_status_crashed, self.status_rect);
@@ -146,6 +150,11 @@ impl Gameplay {
                         gs.add_sound(ButtonPress);
                     },
                     _ => {},
+                }
+            } else if point_in_rect(x, y, self.back_rect){
+                if self.yard.state == YardState::Drawing {
+                    *game_state = GameState::Menu;
+                    gs.add_sound(ButtonPress);
                 }
             } else if point_in_rect(x, y, self.yard_rect) {
                 if self.frame_count - self.last_click_time < DOUBLE_CLICK_THRESHOLD {
@@ -279,6 +288,7 @@ impl Gameplay {
 
         self.start_trains_rect =  Rect::new(x + 238. * scale, y + 10. * scale, 424. * scale, 104. * scale);
         self.erase_rect = Rect::new(x+10. * scale,y+10.*scale,208.*scale,88.*scale);
+        self.back_rect = Rect::new(x+10. * scale,y+110.*scale,208.*scale,88.*scale);
         self.status_rect = Rect::new(x+10.*scale,y+10.*scale,208.*scale,168.*scale);
         self.speed_slider_space_rect = Rect::new(x+238.*scale,y+134.*scale,424.*scale,68.*scale);
 
