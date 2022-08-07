@@ -112,6 +112,8 @@ pub struct GameSprites {
     pub sl_win_level: Sound,
 
     pub sounds_to_play: HashMap<SoundType, bool>,
+
+    pub label_font: Font,
 }
 
 fn load_bytes( data: &[u8]) -> Texture2D {
@@ -150,6 +152,10 @@ impl GameSprites {
             load_sound(include_bytes!("../assets/audio/crash.ogg")).await.unwrap();
         let sl_win_level = 
             load_sound(include_bytes!("../assets/audio/win_level.ogg")).await.unwrap();
+
+        let label_font = load_ttf_font_from_bytes(
+            include_bytes!("../assets/label_font.ttf")
+        ).unwrap();
 
 
         GameSprites {
@@ -209,6 +215,8 @@ impl GameSprites {
             sl_win_level,
 
             sounds_to_play: HashMap::new(),
+
+            label_font,
         }
     }
 

@@ -16,15 +16,15 @@ pub struct PositionedTile {
 }
 pub type LevelInfo = Vec<PositionedTile>;
 
-pub struct Level<'a> {
+pub struct Level {
     pub level_info: LevelInfo,
-    pub name: &'a str,
+    pub name: String,
     pub num_stars: u32,
 }
 
-pub type City<'a> = (&'a str, Vec<Level<'a>>);
+pub type City = (String, Vec<Level>);
 
-pub struct LevelManager<'a>(Vec<City<'a>>);
+pub struct LevelManager(Vec<City>);
 
 fn convert_string_to_color(s: &str) -> Option<Color> {
     // return none if s is invalid input
@@ -51,8 +51,8 @@ fn convert_string_to_dir(s: &str) -> Option<u8> {
     }
 }
 
-impl LevelManager<'_> {
-    pub fn new() -> LevelManager<'static> {
+impl LevelManager {
+    pub fn new() -> LevelManager {
         let mut lm = LevelManager(vec![]);
         let info_str = str::from_utf8(include_bytes!("../assets/levels.txt")).unwrap();
         let mut arr = info_str
@@ -72,7 +72,7 @@ impl LevelManager<'_> {
                         panic!("expected line {} to start with `CITY:`", line_num)
                     }
                     let city_name = &line[5..];
-                    let mut city: City = (city_name, vec![]);
+                    let mut city: City = (city_name.to_owned(), vec![]);
                     loop {
                         // load all levels within a city
                         match arr.next() {
@@ -96,7 +96,7 @@ impl LevelManager<'_> {
 
                                 city.1.push(Level {
                                     level_info,
-                                    name: level_name,
+                                    name: level_name.to_owned(),
                                     num_stars,
                                 });
 
@@ -223,11 +223,11 @@ impl LevelManager<'_> {
 
 
     pub fn get_city_names(&self) -> Vec<String> {
-        self.0.iter().map(|city| city.0.to_owned()).collect()
+        self.0.iter().map(|city| city.0.clone()).collect()
     }
-    pub fn get_names_of_city(&self, city_name: &str) -> Vec<String> {
+    pub fn get_names_in_city(&self, city_name: &str) -> Vec<String> {
         let city = self.0.iter().find(|city| city.0 == city_name).unwrap();
-        city.1.iter().map(|level| level.name.to_owned()).collect()
+        city.1.iter().map(|level| level.name.clone()).collect()
     }
     pub fn get_level(&self, level_name: &str) -> &LevelInfo {
         for (_, levels) in &self.0 {
