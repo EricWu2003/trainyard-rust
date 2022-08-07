@@ -13,9 +13,13 @@ use crate::gameplay::Gameplay;
 use crate::levels::LevelManager;
 use crate::sprites::GameSprites;
 use crate::gui::list::List;
-use crate::gui::button::{ButtonStyle, Button};
 use macroquad::prelude::*;
 
+
+pub enum GameState {
+    Menu,
+    Level,
+}
 
 fn window_conf() -> Conf {
     Conf {
@@ -40,28 +44,16 @@ async fn main() {
 
     let (mut prev_width, mut prev_height) = (screen_height(), screen_width());
 
-    let mut list = List::new(MARGIN, MARGIN, screen_height() - MARGIN);
 
-    for city_name in level_manager.get_city_names() {
-        list.push_button(Button::new(
-            &city_name,
-            ButtonStyle::Label,
-        ));
-        for level_name in level_manager.get_names_in_city(&city_name) {
-            list.push_button(Button::new(
-                &level_name,
-                ButtonStyle::LevelNotStarted,
-            ));
-        }
-    }
+    let mut game_state = GameState::Menu;
+
+    
+    let mut list = List::new(MARGIN, MARGIN, screen_height() - MARGIN, level_manager);
+
 
     loop {
         clear_background(LIGHTGRAY);
-        // if gameplay.update(&mut gs) {
-        //     break;
-        // }
-        // gs.play_sounds();
-        // gameplay.render(&gs);
+        
 
 
         if prev_height != screen_height() || prev_width != screen_width() {
@@ -74,9 +66,21 @@ async fn main() {
             prev_width = screen_width();
         }
 
-        list.update();
-        list.render(&gs);
+        match game_state {
+            GameState::Menu => {
+                list.update(&mut gs, &mut game_state, &mut gameplay);
+                list.render(&gs);
+            },
+            GameState::Level => {
+                if gameplay.update(&mut gs, &mut game_state) {
+                    break;
+                }
+                gameplay.render(&gs);
+            },
+        }
 
+
+        gs.play_sounds();
         next_frame().await;
     }
 }

@@ -1,6 +1,12 @@
 use macroquad::prelude::*;
+use crate::GameState;
+use crate::gameplay::Gameplay;
+use crate::levels::LevelManager;
 use crate::{gui::button::Button, sprites::GameSprites, utils::mouse_in_rect};
 use crate::gui::button::BUTTON_WIDTH;
+use crate::sprites::SoundType;
+
+use super::button::ButtonStyle;
 
 const LIST_ITEM_HEIGHT: f32 = 40.;
 
@@ -10,17 +16,33 @@ pub struct List{
     x: f32,
     y:f32,
     initial_index: f32,
+    level_manager: LevelManager,
 }
 
 
 impl List {
-    pub fn new(x:f32, y:f32, max_height:f32) -> List {
+    pub fn new(x:f32, y:f32, max_height:f32, level_manager: LevelManager) -> List {
+        let mut buttons = vec![];
+        for city_name in level_manager.get_city_names() {
+            buttons.push(Button::new(
+                &city_name,
+                ButtonStyle::Label,
+            ));
+            for level_name in level_manager.get_names_in_city(&city_name) {
+                buttons.push(Button::new(
+                    &level_name,
+                    ButtonStyle::LevelNotStarted,
+                ));
+            }
+        }
+        
         List {
-            buttons: vec![],
+            buttons,
             x,
             y,
             max_height,
             initial_index: 0.,
+            level_manager,
         }
     }
 
@@ -54,7 +76,7 @@ impl List {
         self.initial_index = new_init_index;
     }
 
-    pub fn update(&mut self) {
+    pub fn update(&mut self, gs: &mut GameSprites, game_state: &mut GameState, gameplay: &mut Gameplay) {
         if is_key_pressed(KeyCode::Up) {
             self.change_initial_index(-1.);
         }
@@ -76,6 +98,12 @@ impl List {
                     println!("{}", index);
                     let level_label = self.buttons[self.initial_index as usize + index].label_text.clone();
                     println!("{}", level_label);
+                    gs.add_sound(SoundType::ButtonPress);
+                    *game_state = GameState::Level;
+                    gameplay.reset_yard_from_level(
+                        self.level_manager.get_level(&level_label),
+                        gs,
+                    );
                 }
             }
         }

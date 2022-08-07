@@ -1,7 +1,9 @@
 use macroquad::prelude::*;
 use std::i32;
 
+use crate::GameState;
 use crate::connection::Connection;
+use crate::levels::LevelInfo;
 use crate::particle::ParticleList;
 use crate::yard::{YardState, NextAction};
 use crate::yard::{NUM_COLS, NUM_ROWS};
@@ -96,7 +98,7 @@ impl Gameplay {
         draw_texture_to_rect(gs.btn_speed, self.speed_slider_rect);
     }
 
-    pub fn update(&mut self, gs: &mut GameSprites) -> bool {
+    pub fn update(&mut self, gs: &mut GameSprites, game_state: &mut GameState) -> bool {
         // returns true if we need to end the program (break out of the main loop)
         let grid_width = self.yard_rect.w / NUM_COLS as f32;
         let grid_height = self.yard_rect.h / NUM_ROWS as f32;
@@ -132,7 +134,9 @@ impl Gameplay {
                         self.yard.reset_self(gs);
                         self.yard.state = YardState::Drawing;
                     },
-                    YardState::Won => {},
+                    YardState::Won => {
+                        *game_state = GameState::Menu;
+                    },
                 }
                 gs.add_sound(ButtonPress);
             } else if point_in_rect(x, y, self.erase_rect) {
@@ -283,5 +287,9 @@ impl Gameplay {
         self.speed_slider_rect = Rect::new(x+238.*scale + speed_btn_offset,y+134.*scale,136. *scale ,68.*scale);
 
         self.yard.set_rect(yard_rect, gs);
+    }
+
+    pub fn reset_yard_from_level(&mut self, level: &LevelInfo, gs: &GameSprites) {
+        self.yard = Yard::new(level, self.yard_rect, gs);
     }
 }
