@@ -1,4 +1,6 @@
-#[derive(Copy, Clone, Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Connection {
     pub dir1: u8,
     pub dir2: u8,

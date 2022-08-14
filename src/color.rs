@@ -1,6 +1,7 @@
 use macroquad::color::Color as macroColor;
+use serde::{Serialize, Deserialize};
 
-#[derive(Copy, Clone, Eq, PartialEq, Debug)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Color {
     Brown,
     Red,

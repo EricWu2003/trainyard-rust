@@ -15,7 +15,6 @@ use crate::sprites::GameSprites;
 use crate::gui::list::List;
 use macroquad::prelude::*;
 
-
 pub enum GameState {
     Menu,
     Level(String), // The string represents the level name
@@ -49,6 +48,10 @@ async fn main() {
 
     
     let mut list = List::new(MARGIN, MARGIN, screen_height() - MARGIN, level_manager);
+
+
+
+    println!("The current working directory is {:?}", std::env::current_dir().unwrap());
 
 
     loop {

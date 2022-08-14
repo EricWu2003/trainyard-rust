@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use serde::{Serialize, Deserialize};
 use crate::color::Color;
 
 use crate::tile::BorderState;
@@ -8,12 +9,14 @@ use crate::particle::shrinking_plus::ShrinkingPlus;
 
 use std::f32::consts::PI;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Trainsource {
     pub trains: Vec<Option<Color>>,
     pub dir: u8,
     pub outgoing_train: Option<Color>,
+    #[serde(skip)]
     pub icon_rects: Vec<Rect>,
+    #[serde(skip)]
     pub rect: Option<Rect>,
     pub scale: f32,
 }

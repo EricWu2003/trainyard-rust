@@ -1,4 +1,6 @@
 use macroquad::prelude::*;
+use serde::Deserialize;
+use serde::Serialize;
 use crate::color::Color;
 use crate::tile::BorderState;
 use crate::sprites::GameSprites;
@@ -7,12 +9,13 @@ use crate::particle::ParticleList;
 use crate::particle::splitter_particle::SplitterParticle;
 
 use std::f32::consts::PI;
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Splitter {
     pub incoming_dir: u8,
     pub incoming_train: Option<Color>,
     pub train_going_left: Option<Color>,
     pub train_going_right: Option<Color>,
+    #[serde(skip)]
     pub rect: Option<Rect>,
     pub scale: f32,
 }

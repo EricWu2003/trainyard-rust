@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use serde::{Serialize, Deserialize};
 use crate::color::Color;
 
 use crate::particle::sparkle::Sparkle;
@@ -9,13 +10,15 @@ use crate::particle::shrinking_circle::ShrinkingCircle;
 
 use std::f32::consts::PI;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Trainsink {
     pub desires: Vec<Option<Color>>,
     pub private_desires: Vec<Option<Color>>,
     pub incoming_trains: BorderState,
     pub border_state: [bool; 4],
+    #[serde(skip)]
     pub icon_rects: Vec<Rect>,
+    #[serde(skip)]
     pub rect: Option<Rect>,
     pub scale: f32,
 }

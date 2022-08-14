@@ -1,4 +1,6 @@
 use macroquad::prelude::*;
+use serde::Deserialize;
+use serde::Serialize;
 use crate::color::Color;
 
 use crate::connection::Connection;
@@ -11,12 +13,13 @@ use crate::particle::painter_particle::PainterParticle;
 
 use std::f32::consts::PI;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Painter {
     pub connection: Connection,
     pub color: Color,
     pub train_to_dir1: Option<Color>,
     pub train_to_dir2: Option<Color>,
+    #[serde(skip)]
     pub rect: Option<Rect>,
     scale: f32,
 }

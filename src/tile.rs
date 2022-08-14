@@ -1,9 +1,11 @@
 use macroquad::prelude::*;
+use serde::{Serialize, Deserialize};
 pub mod painter;
 pub mod splitter;
 pub mod tracktile;
 pub mod trainsink;
 pub mod trainsource;
+pub mod rock;
 
 use crate::color::Color;
 use crate::tile::painter::Painter;
@@ -11,6 +13,7 @@ use crate::tile::splitter::Splitter;
 use crate::tile::tracktile::Tracktile;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
+use crate::tile::rock::Rock;
 use crate::sprites::GameSprites;
 use crate::particle::ParticleList;
 use crate::particle::smoke::Smoke;
@@ -18,12 +21,12 @@ use crate::particle::smoke::Smoke;
 
 pub type BorderState = [Option<Color>; 4];
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum Tile {
     Tracktile(Tracktile),
     Trainsource(Trainsource),
     Trainsink(Trainsink),
-    Rock(Option<Rect>),
+    Rock(Rock),
     Painter(Painter),
     Splitter(Splitter),
 }
@@ -192,8 +195,8 @@ impl Tile {
             Tile::Splitter(splitter) => {
                 splitter.set_rect(rect, gs);
             }
-            Tile::Rock(r) => {
-                *r = Some(rect);
+            Tile::Rock(rock) => {
+                rock.set_rect(rect);
             }
         }
     }
@@ -215,8 +218,8 @@ impl Tile {
             Tile::Splitter(splitter) => {
                 splitter.rect.unwrap()
             }
-            Tile::Rock(rect) => {
-                rect.unwrap()
+            Tile::Rock(rock) => {
+                rock.rect.unwrap()
             }
         }
     }

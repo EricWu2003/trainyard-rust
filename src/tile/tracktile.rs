@@ -1,4 +1,5 @@
 use macroquad::prelude::*;
+use serde::{Serialize, Deserialize};
 use std::f32::consts::{PI, SQRT_2};
 
 use crate::color::Color;
@@ -11,18 +12,19 @@ use crate::sprites::GameSprites;
 use crate::sprites::SoundType;
 
 // used for storing a train in a Tracktile
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Train {
     color: Color,
     source: u8,
     destination: u8,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Tracktile {
     active_connection: Option<Connection>,
     passive_connection: Option<Connection>,
     trains: Vec<Train>,
+    #[serde(skip)]
     pub rect: Option<Rect>,
     scale: f32,
 }

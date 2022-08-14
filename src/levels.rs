@@ -1,14 +1,17 @@
+use serde::{Serialize, Deserialize};
+use std::str;
+use std::io::prelude::*;
 use crate::color::Color::{self, Blue, Brown, Green, Orange, Purple, Red, Yellow};
 use crate::connection::Connection;
 use crate::tile::painter::Painter;
 use crate::tile::splitter::Splitter;
 use crate::tile::trainsink::Trainsink;
 use crate::tile::trainsource::Trainsource;
+use crate::tile::rock::Rock;
 use crate::tile::Tile;
 
-use std::str;
 
-#[derive(Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PositionedTile {
     pub tile: Tile,
     pub x: u8,
@@ -17,6 +20,7 @@ pub struct PositionedTile {
 pub type LevelInfo = Vec<PositionedTile>;
 pub type LevelProgress = (LevelInfo, bool); // the bool represents whether the play has won
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Level {
     pub level_info: LevelInfo,
     pub current_progress: LevelProgress,
@@ -24,8 +28,13 @@ pub struct Level {
     pub num_stars: u32,
 }
 
-pub type City = (String, Vec<Level>);
+#[derive(Serialize, Deserialize, Debug)]
+pub struct City {
+    name: String, 
+    levels:Vec<Level>,
+}
 
+#[derive(Serialize, Deserialize, Debug)]
 pub struct LevelManager(Vec<City>);
 
 fn convert_string_to_color(s: &str) -> Option<Color> {
@@ -74,7 +83,7 @@ impl LevelManager {
                         panic!("expected line {} to start with `CITY:`", line_num)
                     }
                     let city_name = &line[5..];
-                    let mut city: City = (city_name.to_owned(), vec![]);
+                    let mut city: City = City{name: city_name.to_owned(), levels: vec![]};
                     loop {
                         // load all levels within a city
                         match arr.next() {
@@ -96,7 +105,7 @@ impl LevelManager {
 
                                 let level_info = LevelManager::extract_level_from_lines(&mut arr);
 
-                                city.1.push(Level {
+                                city.levels.push(Level {
                                     level_info,
                                     current_progress: (vec![], false),
                                     name: level_name.to_owned(),
@@ -174,7 +183,7 @@ impl LevelManager {
                             let y: u8 = position[2..3].parse()
                                 .expect(&format!("invalid single-digit number on line {line_num}"));
                             level_info.push(PositionedTile {
-                                tile: Tile::Rock(None),
+                                tile: Tile::Rock(Rock::new()),
                                 x,
                                 y,
                             });
@@ -226,14 +235,14 @@ impl LevelManager {
 
 
     pub fn get_city_names(&self) -> Vec<String> {
-        self.0.iter().map(|city| city.0.clone()).collect()
+        self.0.iter().map(|city| city.name.clone()).collect()
     }
     pub fn get_names_in_city(&self, city_name: &str) -> Vec<String> {
-        let city = self.0.iter().find(|city| city.0 == city_name).unwrap();
-        city.1.iter().map(|level| level.name.clone()).collect()
+        let city = self.0.iter().find(|city| city.name == city_name).unwrap();
+        city.levels.iter().map(|level| level.name.clone()).collect()
     }
     pub fn get_level(&self, level_name: &str) -> &Level {
-        for (_, levels) in &self.0 {
+        for City{name: _, levels} in &self.0 {
             for level in levels {
                 if level.name == level_name {
                     return &level;
@@ -243,15 +252,22 @@ impl LevelManager {
         panic!("trying to get level `{level_name}`, name not found");
     }
     pub fn set_level_current_progress(&mut self, level_name: &str, progress: &LevelProgress) {
-        for (_, levels) in &mut self.0 {
+        for City{name: _, levels} in &mut self.0 {
             for level in levels {
                 if level.name == level_name {
                     level.current_progress = progress.clone();
+                    self.save_progress_to_file();
                     return;
                 }
             }
         }
         panic!("trying to set current progress on `{level_name}`, name not found");
+    }
+
+    pub fn save_progress_to_file(&self) {
+        let mut file = std::fs::File::create("saved_progress.json").expect("create file failed");
+        let contents_to_write = serde_json::to_string(self).unwrap();
+        file.write_all(contents_to_write.as_bytes()).expect("write failed");
     }
 
 }
