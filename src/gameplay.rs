@@ -11,7 +11,7 @@ use crate::{levels::LevelManager, sprites::GameSprites, yard::Yard};
 use crate::sprites::SoundType::ButtonPress;
 use crate::utils::{point_in_rect, draw_texture_to_rect, find_min_f32};
 
-const MAX_SPEED:f32 = 0.17;
+const MAX_SPEED:f32 = 0.3;
 const DOUBLE_CLICK_THRESHOLD:u32 = 34;
 pub struct Gameplay {
     yard_rect: Rect,
