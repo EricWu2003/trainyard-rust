@@ -51,6 +51,8 @@ fn convert_string_to_color(s: &str) -> Option<Color> {
     }
 }
 
+const SAVE_FILENAME: &str = ".trainyard_saved_progress.json";
+
 fn convert_string_to_dir(s: &str) -> Option<u8> {
     // return none if s was an invalid direction.
     match s {
@@ -64,6 +66,16 @@ fn convert_string_to_dir(s: &str) -> Option<u8> {
 
 impl LevelManager {
     pub fn new() -> LevelManager {
+        let f = std::fs::File::open(SAVE_FILENAME);
+        if let Ok(mut file) = f {
+            let mut contents = String::new();
+            file.read_to_string(&mut contents).expect("something went wrong reading the file");
+            let new_level_manager: LevelManager = serde_json::from_str(&contents).unwrap();
+            return new_level_manager;
+        }
+        println!("Unable to find previous save file");
+
+
         let mut lm = LevelManager(vec![]);
         let info_str = str::from_utf8(include_bytes!("../assets/levels.txt")).unwrap();
         let mut arr = info_str
@@ -256,7 +268,6 @@ impl LevelManager {
             for level in levels {
                 if level.name == level_name {
                     level.current_progress = progress.clone();
-                    self.save_progress_to_file();
                     return;
                 }
             }
@@ -265,7 +276,8 @@ impl LevelManager {
     }
 
     pub fn save_progress_to_file(&self) {
-        let mut file = std::fs::File::create("saved_progress.json").expect("create file failed");
+        println!("saving progress to file...");
+        let mut file = std::fs::File::create(SAVE_FILENAME).expect("create file failed");
         let contents_to_write = serde_json::to_string(self).unwrap();
         file.write_all(contents_to_write.as_bytes()).expect("write failed");
     }

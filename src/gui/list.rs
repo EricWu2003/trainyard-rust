@@ -29,9 +29,18 @@ impl List {
                 ButtonStyle::Label,
             ));
             for level_name in level_manager.get_names_in_city(&city_name) {
+                let curr_progress = &level_manager.get_level(&level_name).current_progress;
+                let style: ButtonStyle;
+                if curr_progress.1 {
+                    style = ButtonStyle::LevelSolved;
+                } else if curr_progress.0.len() > 0 {
+                    style = ButtonStyle::LevelInProgress;
+                } else {
+                    style = ButtonStyle::LevelNotStarted;
+                }
                 buttons.push(Button::new(
                     &level_name,
-                    ButtonStyle::LevelNotStarted,
+                    style,
                 ));
             }
         }

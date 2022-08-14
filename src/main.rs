@@ -15,6 +15,7 @@ use crate::sprites::GameSprites;
 use crate::gui::list::List;
 use macroquad::prelude::*;
 
+#[derive(PartialEq)]
 pub enum GameState {
     Menu,
     Level(String), // The string represents the level name
@@ -81,8 +82,10 @@ async fn main() {
                     break;
                 }
 
-
                 gameplay.render(&gs);
+                if game_state == GameState::Menu {
+                    list.level_manager.save_progress_to_file();
+                }
             },
         }
 
